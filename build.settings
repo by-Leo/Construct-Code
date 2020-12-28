@@ -1,0 +1,31 @@
+settings = {
+	orientation = {
+		default = 'portrait',
+		supported = {'portrait', 'portraitUpsideDown'}
+	},
+
+	android = {
+		usesPermissions = {
+			'android.permission.INTERNET',
+			'android.permission.READ_EXTERNAL_STORAGE',
+			'android.permission.WRITE_EXTERNAL_STORAGE'
+		},
+	},
+
+	window = {
+		defaultMode = 'minimized',
+		resizable = true
+	},
+
+	plugins = {
+		['plugin.cnkFileManager'] = {publisherId = 'es.cnksoft'},
+		['plugin.utf8'] = {publisherId = 'com.coronalabs'},
+		['plugin.zip'] = {publisherId = 'com.coronalabs'},
+		['plugin.orientation'] = {publisherId = 'tech.scotth'},
+	},
+
+	excludeFiles = {
+		all = { 'Icon.png', 'Icon-*dpi.png', 'Images.xcassets', },
+		android = { 'LaunchScreen.storyboardc', }
+	}
+}
