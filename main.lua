@@ -192,7 +192,7 @@ ccodeToJson = function(name)
       elseif utf8.sub(line, 1, 9) == '        f' then
         local name = utf8.sub(line, 11, utf8.find(line, ':') - 1)
         local params = utf8.match(line, ':(.*)/')
-        local comment = utf8.match(line, '/(.*)')
+        local comment = utf8.reverse(utf8.sub(utf8.reverse(line), 1, utf8.find(utf8.reverse(line), '/') - 1))
 
         data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].
         events[#data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].events].
@@ -208,6 +208,11 @@ ccodeToJson = function(name)
   end
 
   return data
+end
+
+hex = function(hex)
+	local r, g, b = hex:match('(..)(..)(..)')
+	return {tonumber(r, 16), tonumber(g, 16), tonumber(b, 16)}
 end
 
 trim = function(s)
@@ -236,49 +241,57 @@ activity.scrollSettings = {
   listener = function(e) return true end
 }
 
-require 'Module.alert'
-require 'Module.input'
-require 'Module.list'
-require 'Module.fsd'
-require 'Module.blockList'
-
-require 'Module.updateTextLanguage'
-require 'Module.returnModule'
-require 'Module.moveBlock'
-require 'Module.moveLogBlock'
-require 'Module.newBlock'
-require 'Module.genBlock'
-
-require 'Module.onInputEvent'
-require 'Module.onFileRead'
-require 'Module.onFileWrite'
-require 'Module.onClick'
-require 'Module.onClickPrograms'
-require 'Module.onClickScenes'
-require 'Module.onClickObjects'
-require 'Module.onClickTextures'
-require 'Module.onClickBlocks'
-
-require 'Module.setting'
-require 'Module.programs'
-require 'Module.scenes'
-require 'Module.objects'
-require 'Module.textures'
-require 'Module.blocks'
-require 'Module.newblocks'
-require 'Module.formulasEditor'
+-- require 'Module.alert'
+-- require 'Module.input'
+-- require 'Module.list'
+-- require 'Module.fsd'
+-- require 'Module.blockList'
+--
+-- require 'Module.paramsColorInBlocks'
+-- require 'Module.updateTextLanguage'
+-- require 'Module.returnModule'
+-- require 'Module.moveBlock'
+-- require 'Module.moveLogBlock'
+-- require 'Module.newBlock'
+-- require 'Module.genBlock'
+--
+-- require 'Module.onInputEvent'
+-- require 'Module.onFileRead'
+-- require 'Module.onFileWrite'
+-- require 'Module.onClick'
+-- require 'Module.onClickPrograms'
+-- require 'Module.onClickScenes'
+-- require 'Module.onClickResources'
+-- require 'Module.onClickObjects'
+-- require 'Module.onClickTextures'
+-- require 'Module.onClickBlocks'
+--
+-- require 'Module.setting'
+-- require 'Module.programs'
+-- require 'Module.scenes'
+-- require 'Module.resources'
+-- require 'Module.objects'
+-- require 'Module.textures'
+-- require 'Module.blocks'
+-- require 'Module.newblocks'
+-- require 'Module.formulasEditor'
+require 'Module.calc'
+require 'Module.calcFun'
+require 'Module.game'
+require 'Module.gameFormula'
 
 -- Предварительная подгрузка виджета
-alert('', '', {''}, function() end)
-setting.lib.isVisible = false
-activity.programs.group.isVisible = false
-activity.scenes.group.isVisible = false
-activity.objects.group.isVisible = false
-activity.textures.group.isVisible = false
-activity.blocks.group.isVisible = false
-activity.newblocks.group.isVisible = false
-activity.editor.group.isVisible = false
+-- alert('', '', {''}, function() end)
+-- setting.lib.isVisible = false
+-- activity.programs.group.isVisible = false
+-- activity.scenes.group.isVisible = false
+-- activity.resources.group.isVisible = false
+-- activity.objects.group.isVisible = false
+-- activity.textures.group.isVisible = false
+-- activity.blocks.group.isVisible = false
+-- activity.newblocks.group.isVisible = false
+-- activity.editor.group.isVisible = false
 
 -- Запуск
-alertActive = true
+-- alertActive = true
 composer.gotoScene 'Module.menu'
