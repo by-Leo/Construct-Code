@@ -34,8 +34,8 @@ end
 activity.newBlock = function(config)
   local i = config.i
   local textData = config.group.data[i]
-  local textX = (config.type == 'programs' or config.type == 'scenes') and 150 or 290
-  local textWidth = (config.type == 'programs' or config.type == 'scenes') and 440 + (_aW - _w) or 340 + (_aW - _w)
+  local textX = (config.type == 'programs' or config.type == 'scenes' or config.type == 'resources') and 150 or 290
+  local textWidth = (config.type == 'programs' or config.type == 'scenes' or config.type == 'resources') and 440 + (_aW - _w) or 340 + (_aW - _w)
   local textHeight = 48
 
   -- Добавление нового блока в таблицу
@@ -54,7 +54,7 @@ activity.newBlock = function(config)
   })
 
   if text.height > 50 then textHeight = 96 end
-  config.group.block[i].newTextX = (config.type == 'programs' or config.type == 'scenes') and _aX + 15 or _aX + 90
+  config.group.block[i].newTextX = (config.type == 'programs' or config.type == 'scenes' or config.type == 'resources') and _aX + 15 or _aX + 90
   config.group.block[i].oldTextX = textX
   text:removeSelf()
 

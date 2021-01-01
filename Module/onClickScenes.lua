@@ -40,14 +40,14 @@ end
 
 activity.onClickButton.scenes.list = function(e)
   if #activity.scenes[activity.programs.name].block > 0 then
-    activity.scenes[activity.programs.name].scroll:setIsLocked(true, "vertical")
+    activity.scenes[activity.programs.name].scroll:setIsLocked(true, 'vertical')
 
-    list({activity.programs.name, strings.remove, strings.copy, strings.editScene, strings.rename}, {x = e.target.x, y = e.target.y, targetHeight = e.target.height, activeBut = activity.programs.name}, function(event)
-      activity.scenes[activity.programs.name].scroll:setIsLocked(false, "vertical")
+    list({activity.programs.name, strings.remove, strings.copy, strings.editScene, strings.rename, strings.resource}, {x = e.target.x, y = e.target.y, targetHeight = e.target.height, activeBut = activity.programs.name}, function(event)
+      activity.scenes[activity.programs.name].scroll:setIsLocked(false, 'vertical')
 
-      activity.scenes[activity.programs.name].alertActive = event.num > 1
+      activity.scenes[activity.programs.name].alertActive = event.num > 1 and event.num ~= 6
       activity.scenes[activity.programs.name].listMany = event.num == 2
-      if event.num > 1 then
+      if event.num > 1 and event.num < 6 then
         activity.scenes.add.isVisible = false
         activity.scenes.play.isVisible = false
         activity.scenes.okay.isVisible = true
@@ -56,6 +56,9 @@ activity.onClickButton.scenes.list = function(e)
           activity.scenes[activity.programs.name].block[i].checkbox.isVisible = true
         end
         activity.scenes.act.text = '(' .. event.text .. ')'
+      elseif event.num == 6 then
+        activity.scenes.hide()
+        activity.resources.create()
       end
     end)
   end
@@ -79,6 +82,7 @@ end
 activity.onClickButton.scenes.block = function(e)
   activity.scenes.name = activity.programs.name .. '.' .. e.target.text.text
   activity.scenes.scene = e.target.text.text
+  activity.scenes.getVarFunTable()
   activity.scenes.hide()
   activity.objects.create()
 end
@@ -116,7 +120,7 @@ activity.onClickButton.scenes[2] = function()
       end
 
       activity.scenes[activity.programs.name].scrollHeight = activity.scenes[activity.programs.name].scrollHeight - 153
-      activity.scenes[activity.programs.name].scroll:setScrollHeight(activity.scenes[activity.programs.name].scenesScrollHeight)
+      activity.scenes[activity.programs.name].scroll:setScrollHeight(activity.scenes[activity.programs.name].scrollHeight)
 
       activity.scenes[activity.programs.name].block[i].checkbox:removeSelf()
       activity.scenes[activity.programs.name].block[i].text:removeSelf()

@@ -257,7 +257,6 @@ activity.editor.listScroll = widget.newScrollView({
 })
 activity.editor.group:insert(activity.editor.listScroll)
 
-
 editorGetListTitle = function(i)
   if i == 1 then return strings.editorVar, 'var' end
   if i == 2 then return strings.editorTable, 'table' end

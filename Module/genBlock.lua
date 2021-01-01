@@ -3,7 +3,7 @@ activity.paramsFormulas = {
   ['onStart'] = {},
   ['onClick'] = {},
   ['onClickEnd'] = {},
-  ['onFun'] = {'fun'},
+  ['onFun'] = {'func'},
   ['onBack'] = {},
   ['onHide'] = {},
   ['onView'] = {},
@@ -11,9 +11,9 @@ activity.paramsFormulas = {
   -- data
   ['setVar'] = {'variable', 'value'},
   ['updVar'] = {'variable', 'value'},
-  ['setShowText'] = {'variable', 'font', 'color', 'value'},
+  ['setShowText'] = {'variable', 'font', 'color', 'value', 'align', 'value'},
   ['setHideText'] = {'variable'},
-  ['setTable'] = {'table', 'value', 'value'},
+  ['setTable'] = {'tabl', 'value', 'value'},
 
   -- object
   ['setPos'] = {'value', 'value'},
@@ -27,6 +27,9 @@ activity.paramsFormulas = {
   ['setPosCopy'] = {'copy', 'value', 'value'},
 
   -- control
+  ['fun'] = {'func'},
+  ['funParams'] = {'func', 'tabl'},
+  ['if'] = {'value'},
   ['if'] = {'value'},
   ['ifEnd'] = {},
   ['for'] = {'value'},
@@ -55,7 +58,7 @@ activity.paramsFormulas = {
   -- network
   ['openUrl'] = {'value'},
   ['setGet'] = {'variable', 'value'},
-  ['setPost'] = {'table', 'variable', 'value'}
+  ['setPost'] = {'tabl', 'variable', 'value'}
 }
 
 activity.typeFormulas = {
@@ -87,19 +90,21 @@ activity.typeFormulas = {
     'setPosCopy'
   },
   control = {
+    'fun',
+    'funParams',
     'if',
-    'ifEnd',
     'for',
-    'forEnd',
     'timer',
     'fileLine',
-    'fileLineEnd',
     'fileRead',
     'fileWrite',
     'fileUpdate',
     'fileMove',
     'fileCopy',
-    'fileRemove'
+    'fileRemove',
+    'ifEnd',
+    'forEnd',
+    'fileLineEnd'
   },
   physics = {
     'setBody',
@@ -193,6 +198,19 @@ activity.putBlockParams = function(i)
     end
   end
 
+  local addVariableInRect = function(k, n, text, type)
+    local group = activity.blocks[activity.objects.name]
+    local paramsTable = {}
+    for f = 1, #group.block[k].data.params[n] do
+      if group.block[k].data.params[n][f] then
+        paramsTable[f] = table.copy(group.block[k].data.params[n][f])
+      end
+    end paramsTable[1] = table.copy({text, type})
+    group.block[k].data.params[n] = table.copy(paramsTable)
+    group.block[k].params[n].text.text = getTextParams(k, n)
+    activity.blocksFileUpdate()
+  end
+
   group.block[i].params = {}
 
   getTextParams = function(i, j)
@@ -220,12 +238,28 @@ activity.putBlockParams = function(i)
     return textFromParams
   end
 
+  getObjectInList = function()
+    local data = ccodeToJson(activity.programs.name)
+    objects = {strings.selfCopy}
+
+    for s = 1, #data.scenes do
+      if data.scenes[s].name == activity.scenes.scene then
+        for o = 1, #data.scenes[s].objects do
+          if data.scenes[s].objects[o].name ~= activity.objects.object then
+            objects[#objects + 1] = data.scenes[s].objects[o].name
+          end
+        end
+        break
+      end
+    end return objects
+  end
+
   for j = 1, #activity.paramsFormulas[group.block[i].data.name] do
     group.block[i].params[j] = {}
 
     local textGetHeight = display.newText({
       text = strings.blocks[group.block[i].data.name][2][j], align = 'left',
-      x = 0, y = 0, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 150
+      x = 0, y = 0, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 161
     })
 
     if textGetHeight.height > 53 then textGetHeight.height = 53 end
@@ -278,15 +312,128 @@ activity.putBlockParams = function(i)
               if _break then break end
               for n = 1, #group.block[k].params do
                 if group.block[k].params[n].rect.y == e.target.y and group.block[k].params[n].rect.x == e.target.x then
-                  if activity.paramsFormulas[group.block[k].data.name][n] == 'value' then
+                  local typeParams = activity.paramsFormulas[group.block[k].data.name][n]
+                  if typeParams == 'value' then
                     activity.blocks.hide()
                     activity.editor.table = {{k, n}}
                     for u = 1, #group.block[k].data.params[n] do
-                      activity.editor.table[#activity.editor.table+1] = table.copy(group.block[k].data.params[n][u])
+                      activity.editor.table[#activity.editor.table + 1] = table.copy(group.block[k].data.params[n][u])
                     end
                     activity.editor.group.isVisible = true
                     activity.editor.newText()
                     activity.editor.genBlock()
+                  elseif typeParams == 'color' then
+                    local rgb = {255, 255, 255}
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      rgb = table.copy(json.decode(group.block[k].data.params[n][1][1]))
+                    end
+
+                    activity.inputColor(rgb, function(e)
+                      if e.input then
+                        r, g, b = unpack(e.color)
+                        addVariableInRect(k, n, '[' .. r .. ', ' .. g .. ', ' .. b .. ']', typeParams)
+                      end
+                    end)
+                  elseif typeParams == 'font' or typeParams == 'body' or typeParams == 'sensor' or typeParams == 'phyrotation' or typeParams == 'basedir' or typeParams == 'copy' or typeParams == 'align' then
+                    local yScroll = select(2, group.scroll:getContentPosition())
+                    local activeBut
+                    local tableParams = {strings.staticBody, strings.dynamicBody}
+
+                    if typeParams == 'sensor' then tableParams = {strings.isSensor, strings.isNotSensor}
+                    elseif typeParams == 'phyrotation' then tableParams = {strings.isPhyRotation, strings.isNotPhyRotation}
+                    elseif typeParams == 'copy' then tableParams = {strings.currentCopy, strings.lastCopy, strings.allCopy}
+                    elseif typeParams == 'align' then tableParams = {strings.leftAlign, strings.centerAlign, strings.rightAlign}
+                    elseif typeParams == 'basedir' then tableParams = {'ResDirectory', 'DocDirectory', 'TempDirectory'}
+                    elseif typeParams == 'font' then
+                      tableParams = {}
+                      for u = 1, #activity.resources[activity.programs.name].block do
+                        local nameRes = activity.resources[activity.programs.name].block[u].text.text
+                        local extensionRes = utf8.sub(nameRes, utf8.len(nameRes) - 2, utf8.len(nameRes))
+                        if extensionRes == 'ttf' then tableParams[#tableParams + 1] = nameRes end
+                      end
+                    end
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      activeBut = group.block[k].data.params[n][1][1]
+                    end
+
+                    if #tableParams > 0 then
+                      group.scroll:setIsLocked(true, 'vertical')
+                      list(tableParams, {x = e.target.x, y = e.target.y + yScroll + _tH / 2 + _bH / 2, targetHeight = e.target.height, activeBut = activeBut}, function(event)
+                        group.scroll:setIsLocked(false, 'vertical')
+                        if event.text then addVariableInRect(k, n, event.text, typeParams) end
+                      end)
+                    end
+                  elseif typeParams == 'setcopy' then
+                    local yScroll = select(2, group.scroll:getContentPosition())
+                    local activeBut
+                    local activeButVar
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      activeBut = group.block[k].data.params[n][1][1]
+                    end
+
+                    if not activeBut then activeBut = strings.selfCopy
+                    elseif activeBut ~= strings.selfCopy then activeButVar = strings.selfCopy end
+
+                    group.scroll:setIsLocked(true, 'vertical')
+                    list(getObjectInList(), {x = e.target.x, y = e.target.y + yScroll + _tH / 2 + _bH / 2, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
+                      group.scroll:setIsLocked(false, 'vertical')
+                      if event.text then addVariableInRect(k, n, event.text, typeParams) end
+                    end)
+                  elseif typeParams == 'variable' or typeParams == 'tabl' or typeParams == 'func' then
+                    local yScroll = select(2, group.scroll:getContentPosition())
+                    local varTable = {strings['new' .. typeParams]}
+                    local typeTable = 'vars'
+                    local activeBut
+                    local activeButVar
+
+                    if typeParams == 'tabl' then typeTable = 'tables'
+                    elseif typeParams == 'func' then typeTable = 'funs' end
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      activeBut = group.block[k].data.params[n][1][1]
+                    end
+
+                    if not activeBut then activeBut = strings['new' .. typeParams]
+                    else activeButVar = strings['new' .. typeParams] end
+
+                    for u = 1, #activity.scenes[activity.programs.name][typeTable] do
+                      varTable[#varTable + 1] = activity.scenes[activity.programs.name][typeTable][u]
+                    end
+
+                    group.scroll:setIsLocked(true, 'vertical')
+                    list(varTable, {x = e.target.x, y = e.target.y + yScroll + _tH / 2 + _bH / 2, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
+                      group.scroll:setIsLocked(false, 'vertical')
+                      if event.text == strings['new' .. typeParams] then
+                        input(strings['new' .. typeParams .. 'Title'], strings['new' .. typeParams .. 'Text'], function(event)
+                          if event.phase == 'editing' then
+                            inputPermission(true)
+                            for f = 1, #activity.scenes[activity.programs.name][typeTable] do
+                              if trim(event.text) == activity.scenes[activity.programs.name][typeTable][f] then
+                                inputPermission(false)
+                              end
+                            end
+                            if trim(event.text) == '' then inputPermission(false) end
+                          end
+                        end, function(e)
+                          if e.input then
+                            for f = 1, #activity.scenes[activity.programs.name][typeTable] do
+                              if e.text == activity.scenes[activity.programs.name][typeTable][f] then
+                                e.text = 'Не используй T9_' .. math.random(111111111, 999999999)
+                              end
+                            end
+                            if trim(e.text) ~= '' then
+                              activity.scenes[activity.programs.name][typeTable][#activity.scenes[activity.programs.name][typeTable] + 1] = trim(e.text)
+                              addVariableInRect(k, n, trim(e.text), typeParams)
+                            end
+                          end
+                        end)
+                      elseif event.text then
+                        addVariableInRect(k, n, event.text, typeParams)
+                      end
+                    end)
                   end
                   _break = true
                   break

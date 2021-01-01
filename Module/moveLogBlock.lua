@@ -29,13 +29,17 @@ activity.blocksReturnBlock = function(i, group, height)
 
       if j > 1 then
         if group.block[j].data.type == 'event' then newHeight = 146
-          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 176 end
+          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 176
+          elseif #group.block[j-1].data.params == 5 or #group.block[j-1].data.params == 6 then newHeight = 206 end
         elseif #group.block[j].data.params < 3 then newHeight = 116
-          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 146 end
+          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 146
+          elseif #group.block[j-1].data.params == 5 or #group.block[j-1].data.params == 6 then newHeight = 176 end
         elseif #group.block[j].data.params < 5 then newHeight = 146
-          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 176 end
+          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 176
+          elseif #group.block[j-1].data.params == 5 or #group.block[j-1].data.params == 6 then newHeight = 206 end
         elseif #group.block[j].data.params < 7 then newHeight = 176
-          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 206 end
+          if #group.block[j-1].data.params == 3 or #group.block[j-1].data.params == 4 then newHeight = 206
+          elseif #group.block[j-1].data.params == 5 or #group.block[j-1].data.params == 6 then newHeight = 236 end
         end
       end
 

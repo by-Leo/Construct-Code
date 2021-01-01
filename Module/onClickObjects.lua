@@ -109,7 +109,7 @@ activity.onClickButton.objects.list = function(e)
 
       activity.objects[activity.scenes.name].alertActive = event.num > 1
       activity.objects[activity.scenes.name].listMany = event.num == 2
-      if event.num ~= 0 then
+      if event.num > 1 then
         activity.objects.add.isVisible = false
         activity.objects.play.isVisible = false
         activity.objects.okay.isVisible = true

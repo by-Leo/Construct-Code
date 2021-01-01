@@ -99,7 +99,7 @@ activity.editor.funcButtons = function(id)
     activity.editor.targetGroup:removeSelf()
     activity.returnModule('editor')
     activity.blocks.view()
-    activity.blocksFileUpdate(true)
+    activity.blocksFileUpdate()
   else
     if activity.editor.cursorIndex[2] == '|' then
       table.insert(cursor, activity.editor.cursorIndex[1], {id, type})
@@ -115,7 +115,7 @@ activity.editor.funcList = function(id, ID)
   local cursor = activity.editor.cursor
 
   table.insert(cursor, activity.editor.cursorIndex[1], {id, ID})
-  if not (id == 'pi' or ID == 'log' or ID == 'table') then
+  if not (id == 'pi' or ID == 'log' or ID == 'table' or ID == 'var' or ID == 'obj') then
     table.insert(cursor, activity.editor.cursorIndex[1] + 1, {'(', 'sym'})
     table.insert(cursor, activity.editor.cursorIndex[1] + 2, {')', 'sym'})
     table.insert(cursor, activity.editor.cursorIndex[1] + 2, {'|', '|'})

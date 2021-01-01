@@ -10,6 +10,16 @@ list = function(buttons, config, listener)
     end
   end
 
+  if config.activeButVar then
+    for i = 1, #buttons do
+      if buttons[i] == config.activeButVar then
+        table.remove(buttons, i)
+        table.insert(buttons, 2, config.activeButVar)
+        break
+      end
+    end
+  end
+
   local function onKeyEventList(event)
     if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' then
       alertActive = false
@@ -38,22 +48,22 @@ list = function(buttons, config, listener)
     return true
   end)
 
-  config.realHeight = #buttons * 100
-  config.height = #buttons * 100
+  config.realHeight = #buttons * 70
+  config.height = #buttons * 70
   config.width = 0
 
   if (config.y + config.height / 2 - config.targetHeight / 2) + config.height / 2 > 1200 and config.y <= _y then
-    local buts = math.round((1200 - config.y) / 100)
-    config.height = buts * 100
+    local buts = math.round((1200 - config.y) / 70)
+    config.height = buts * 70
   elseif config.y > _y and (config.y - config.height / 2 - config.targetHeight / 2) - config.height / 2 < 80 then
-    local buts = math.round((config.y-80) / 100)
-    config.height = buts * 100
+    local buts = math.round((config.y-80) / 70)
+    config.height = buts * 70
   end
 
   for i = 1, #buttons do
     local text = display.newText({
       text = buttons[i], x = 0, y = 0,
-      font = 'ubuntu_!bold.ttf', fontSize = 36, height = 44
+      font = 'ubuntu_!bold.ttf', fontSize = 32, height = 40
     })
 
     if text.width > config.width and text.width <= _aW then config.width = text.width
@@ -61,7 +71,7 @@ list = function(buttons, config, listener)
     text:removeSelf()
   end
 
-  if config.width < _aW then config.width = config.width + 60 end
+  if config.width < _aW then config.width = config.width + 40 end
   if config.width > _aW then config.width = _aW end
   if config.x + config.width / 2 > _x + _aX then config.x = _x + _aX - config.width / 2 end
 
@@ -88,13 +98,13 @@ list = function(buttons, config, listener)
   listScroll:insert(listRect)
 
   for i = 1, #buttons do
-    local but = display.newRect(config.width / 2, 50 + 100 * (i-1) , config.width, 100)
+    local but = display.newRect(config.width / 2, 35 + 70 * (i-1) , config.width, 70)
     but:setFillColor(0.2, 0.2, 0.22)
     but.num = i
 
     local text = display.newText({
-      text = buttons[i], width = config.width - 40, height = 44, align = 'left',
-      fontSize = 36, x = config.width / 2 + 10, y = 50 + 100 * (i-1), font = 'ubuntu_!bold.ttf'
+      text = buttons[i], width = config.width - 20, height = 40, align = 'left',
+      fontSize = 32, x = config.width / 2 + 10, y = 35 + 70 * (i-1), font = 'ubuntu_!bold.ttf'
     })
 
     listScroll:insert(but)

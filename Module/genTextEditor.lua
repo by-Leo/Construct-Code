@@ -3,6 +3,20 @@ local lasttype
 local lastvalue
 
 activity.editor.newText = function()
+  strings.editorList.var = {}
+  strings.editorList.table = {{'[', '['}, {']', ']'}}
+  strings.editorList.obj = {}
+  for i = 1, #activity.scenes[activity.programs.name].vars do
+    local var = tostring(activity.scenes[activity.programs.name].vars[i])
+    strings.editorList.var[i] = {var, var}
+  end
+  for i = 1, #activity.scenes[activity.programs.name].tables do
+    local table = tostring(activity.scenes[activity.programs.name].tables[i])
+    strings.editorList.table[i + 2] = {table, table}
+  end
+  local objs = getObjectInList()
+  for i = 2, #objs do strings.editorList.obj[i - 1] = {objs[i], objs[i]} end
+
   activity.editor.cursor = table.copy(activity.editor.table)
   activity.editor.cursor[#activity.editor.cursor + 1] = {'|', '|'}
 
@@ -52,11 +66,17 @@ activity.editor.genText = function(undoredo)
       else
         activity.editor.text.text = activity.editor.text.text .. '  \'' .. value .. '\''
       end
+    elseif type == 'var' then
+      if (lastvalue == '(' and lasttype == 'sym') or (lastvalue == '[' and lasttype == 'table') then
+        activity.editor.text.text = activity.editor.text.text .. '"' .. value .. '"'
+      else
+        activity.editor.text.text = activity.editor.text.text .. '  "' .. value .. '"'
+      end
     elseif type == 'table' and value ~= '[' and value ~= ']' then
       if (lastvalue == '(' and lasttype == 'sym') or (lastvalue == '[' and lasttype == 'table') then
-        activity.editor.text.text = activity.editor.text.text .. value
+        activity.editor.text.text = activity.editor.text.text .. '{' .. value .. '}'
       else
-        activity.editor.text.text = activity.editor.text.text .. '  ' .. value
+        activity.editor.text.text = activity.editor.text.text .. '  {' .. value .. '}'
       end
     elseif type == 'local' then
       if (lastvalue == '(' and lasttype == 'sym') or (lastvalue == '[' and lasttype == 'table') then
@@ -84,7 +104,7 @@ activity.editor.genText = function(undoredo)
       else
         activity.editor.text.text = activity.editor.text.text .. '  ' .. value
       end
-    elseif type == 'fun' or type == 'prop' or type == 'log' then
+    elseif type == 'fun' or type == 'prop' or type == 'log' or type == 'obj' then
       for j = 1, #strings.editorList[type] do
         if strings.editorList[type][j][2] == value then
           if (lastvalue == '(' and lasttype == 'sym') or (lastvalue == '[' and lasttype == 'table') then

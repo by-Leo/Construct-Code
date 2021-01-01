@@ -20,7 +20,7 @@ stringsLanguage = {
       -- data
       ['setVar'] = {'Установить значение переменной', {'Название переменной:', 'Значение:'}},
       ['updVar'] = {'Добавить значение к переменной', {'Название переменной:', 'Значение:'}},
-      ['setShowText'] = {'Показать текст на экране', {'Название переменной:', 'Шрифт:', 'Цвет:', 'Размер:'}},
+      ['setShowText'] = {'Показать текст на экране', {'Название переменной:', 'Шрифт:', 'Цвет:', 'Размер:', 'Выровнять:', 'Прoзрaчнoсть:'}},
       ['setHideText'] = {'Скрыть текст с экрана', {'Название переменной:'}},
       ['setTable'] = {'Добавить элемент в таблицу', {'Название таблицы:', 'Ключ:', 'Значение:'}},
 
@@ -36,6 +36,8 @@ stringsLanguage = {
       ['setPosCopy'] = {'Установить позицию копии', {'Копия:', 'Значение (X):', 'Значение (Y):'}},
 
       -- control
+      ['fun'] = {'Вызвать функцию', {'Название функции:'}},
+      ['funParams'] = {'Вызвать функцию с параметрами', {'Название функции:', 'Название таблицы:'}},
       ['if'] = {'Если условие истина', {'Условие:'}},
       ['ifEnd'] = {'Конец условия'},
       ['for'] = {'Повторить N раз', {'Количество повторов (N):'}},
@@ -58,8 +60,8 @@ stringsLanguage = {
 
       -- physicscopy
       ['setGravityCopy'] = {'Установить гравитацию копии', {'Копия:', 'Значение (Гравитация):'}},
-      ['setSensorCopy'] = {'Тип невидимости физ. тела копии', {'Копия:', 'Значение:'}},
-      ['setPhyRotationCopy'] = {'Тип вращения физ. тела копии', {'Копия:', 'Значение:'}},
+      ['setSensorCopy'] = {'Тип невидимости физ. тела копии', {'Копия:', 'Тип:'}},
+      ['setPhyRotationCopy'] = {'Тип вращения физ. тела копии', {'Копия:', 'Тип:'}},
 
       -- network
       ['openUrl'] = {'Открыть ссылку в браузере', {'Значение (Ссылка):'}},
@@ -67,10 +69,6 @@ stringsLanguage = {
       ['setPost'] = {'POST запрос', {'Название таблицы:', 'Название переменной:', 'Значение (Ссылка):'}}
     },
     editorList = {
-      table = {
-        {'[', '['},
-        {']', ']'},
-      },
       fun = {
         {'синус', 'sin'},
         {'косинус', 'cos'},
@@ -109,6 +107,35 @@ stringsLanguage = {
         {'не', 'not'},
       },
     },
+    resourcesTitle = 'Ресурсы',
+    resource = 'Управлять ресурсами',
+    leftAlign = 'Слева',
+    centerAlign = 'По центру',
+    rightAlign = 'Справа',
+    inputHexTitle = 'Введите hex',
+    inputHexText = 'Введите hex (например, #FFFFFF)',
+    red = 'Красный:',
+    green = 'Зелёный:',
+    blue = 'Синий:',
+    isNotPhyRotation = 'Невращаемый',
+    isPhyRotation = 'Вращаемый',
+    isSensor = 'Невидимый',
+    isNotSensor = 'Видимый',
+    staticBody = 'Статическое',
+    dynamicBody = 'Динамическое',
+    currentCopy = 'Текущая',
+    lastCopy = 'Последняя',
+    allCopy = 'Все',
+    selfCopy = 'Себя',
+    newfuncTitle = 'Назовите функцию',
+    newfuncText = 'Напишите название для новой функции',
+    newfunc = 'Создать функцию',
+    newtablTitle = 'Назовите таблицу',
+    newtablText = 'Напишите название для новой таблицы',
+    newtabl = 'Создать таблицу',
+    newvariableTitle = 'Назовите переменную',
+    newvariableText = 'Напишите название для новой переменной',
+    newvariable = 'Создать переменную',
     editorVar = 'Переменные',
     editorTable = 'Таблицы',
     editorFun = 'Функции',
@@ -171,9 +198,11 @@ stringsLanguage = {
     enterName = 'Введите имя',
     enterTitle = 'Введите название',
     enterTitleProgramText = 'Название нового проекта...',
+    enterTitleResourceText = 'Название нового ресурса...',
     enterTitleSceneText = 'Название новой группы...',
     enterTitleObjectText = 'Имя нового объекта...',
     enterNewTitleProgramText = 'Введите новое название проекта...',
+    enterNewTitleResourceText = 'Введите новое название ресурса...',
     enterNewTitleSceneText = 'Введите новое название группы...',
     enterNewTitleObjectText = 'Введите новое имя объекта...',
     chooseAction = 'Выберите действие',
@@ -201,7 +230,7 @@ stringsLanguage = {
       -- data
       ['setVar'] = {'Set variable value', {'Variable name:', 'Value:'}},
       ['updVar'] = {'Add value to variable', {'Variable name:', 'Value:'}},
-      ['setShowText'] = {'Show text on screen', {'Variable name:', 'Font:', 'Color:', 'Size:'}},
+      ['setShowText'] = {'Show text on screen', {'Variable name:', 'Font:', 'Color:', 'Size:', 'Align:', 'Transparency:'}},
       ['setHideText'] = {'Hide text from screen', {'Variable name:'}},
       ['setTable'] = {'Add item to table', {'Table name:', 'Key:', 'Value:'}},
 
@@ -217,6 +246,8 @@ stringsLanguage = {
       ['setPosCopy'] = {'Set copy position', {'Copy:', 'Value (X):', 'Value (Y):'}},
 
       -- control
+      ['fun'] = {'Call a function', {'Function name:'}},
+      ['funParams'] = {'Call a function with parameters', {'Function name:', 'Table name:'}},
       ['if'] = {'If the condition is true', {'Condition:'}},
       ['ifEnd'] = {'End of condition'},
       ['for'] = {'Repeat N times', {'Number of repetitions (N):'}},
@@ -239,8 +270,8 @@ stringsLanguage = {
 
       -- physicscopy
       ['setGravityCopy'] = {'Set copy gravity', {'Copy:', 'Value (Gravity):'}},
-      ['setSensorCopy'] = {'Physical invisibility type body copy', {'Copy:', 'Value:'}},
-      ['setPhyRotationCopy'] = {'Rotation type nat. body copy', {'Copy:', 'Value:'}},
+      ['setSensorCopy'] = {'Invisibility type phys. body copy', {'Copy:', 'Type:'}},
+      ['setPhyRotationCopy'] = {'Rotation type phys. body copy', {'Copy:', 'Type:'}},
 
       -- network
       ['openUrl'] = {'Open link in browser', {'Value (Link):'}},
@@ -248,10 +279,6 @@ stringsLanguage = {
       ['setPost'] = {'POST request', {'Table name:', 'Variable name:', 'Value (Link):'}}
     },
     editorList = {
-      table = {
-        {'[', '['},
-        {']', ']'},
-      },
       fun = {
         {'sinus', 'sin'},
         {'cosinus', 'cos'},
@@ -290,6 +317,35 @@ stringsLanguage = {
         {'not', 'not'},
       },
     },
+    resourcesTitle = 'Resources',
+    resource = 'Manage resources',
+    leftAlign = 'Left',
+    centerAlign = 'Center',
+    rightAlign = 'Right',
+    inputHexTitle = 'Enter hex',
+    inputHexText = 'Enter hex (e.g. #FFFFFF)',
+    red = 'Red:',
+    green = 'Green:',
+    blue = 'Blue:',
+    isNotPhyRotation = 'Not rotatable',
+    isPhyRotation = 'Rotatable',
+    isSensor = 'Not visible',
+    isNotSensor = 'Visible',
+    staticBody = 'Static',
+    dynamicBody = 'Dinynamic',
+    currentCopy = 'Current',
+    lastCopy = 'Last',
+    allCopy = 'All',
+    selfCopy = 'Self',
+    newfuncTitle = 'Name the function',
+    newfuncText = 'Write a name for the new function',
+    newfunc = 'Create function',
+    newtablTitle = 'Name the table',
+    newtablText = 'Write a name for the new table',
+    newtabl = 'Create table',
+    newvariableTitle = 'Name the variable',
+    newvariableText = 'Write a name for the new variable',
+    newvariable = 'Create variable',
     editorVar = 'Variables',
     editorTable = 'Tables',
     editorFun = 'Functions',
@@ -352,9 +408,11 @@ stringsLanguage = {
     enterName = 'Enter name',
     enterTitle = 'Enter title',
     enterTitleProgramText = 'New project name...',
+    enterTitleResourceText = 'New resource name...',
     enterTitleSceneText = 'New group name...',
     enterTitleObjectText = 'New object name...',
     enterNewTitleProgramText = 'Enter a new project name...',
+    enterNewTitleResourceText = 'Enter a new resource name...',
     enterNewTitleSceneText = 'Enter a new group name...',
     enterNewTitleObjectText = 'Enter a new object name...',
     chooseAction = 'Choose action',

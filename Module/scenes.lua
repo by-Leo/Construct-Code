@@ -58,9 +58,58 @@ activity.scenes.hide = function()
   activity.scenes[activity.programs.name].scroll.isVisible = false
 end
 
+activity.scenes.getVarFunTable = function()
+  local data = ccodeToJson(activity.programs.name)
+  activity.scenes[activity.programs.name].vars = {}
+  activity.scenes[activity.programs.name].funs = {}
+  activity.scenes[activity.programs.name].tables = {}
+
+  for s = 1, #data.scenes do
+    for o = 1, #data.scenes[s].objects do
+      for e = 1, #data.scenes[s].objects[o].events do
+        for f = 1, #data.scenes[s].objects[o].events[e].formulas do
+          local nameFormula = data.scenes[s].objects[o].events[e].formulas[f].name
+          local paramsFormula = data.scenes[s].objects[o].events[e].formulas[f].params
+          for p = 1, #activity.paramsFormulas[nameFormula] do
+            if activity.paramsFormulas[nameFormula][p] == 'variable' then
+              if paramsFormula[p][1] and paramsFormula[p][1][1] then
+                for u = 1, #activity.scenes[activity.programs.name].vars + 1 do
+                  if activity.scenes[activity.programs.name].vars[u] and paramsFormula[p][1][1] == activity.scenes[activity.programs.name].vars[u] then break
+                  elseif u == #activity.scenes[activity.programs.name].vars + 1 then
+                    activity.scenes[activity.programs.name].vars[#activity.scenes[activity.programs.name].vars + 1] = paramsFormula[p][1][1]
+                  end
+                end
+              end
+            elseif activity.paramsFormulas[nameFormula][p] == 'func' then
+              if paramsFormula[p][1] and paramsFormula[p][1][1] then
+                for u = 1, #activity.scenes[activity.programs.name].funs + 1 do
+                  if activity.scenes[activity.programs.name].funs[u] and paramsFormula[p][1][1] == activity.scenes[activity.programs.name].funs[u] then break
+                  elseif u == #activity.scenes[activity.programs.name].funs + 1 then
+                    activity.scenes[activity.programs.name].funs[#activity.scenes[activity.programs.name].funs + 1] = paramsFormula[p][1][1]
+                  end
+                end
+              end
+            elseif activity.paramsFormulas[nameFormula][p] == 'tabl' then
+              if paramsFormula[p][1] and paramsFormula[p][1][1] then
+                for u = 1, #activity.scenes[activity.programs.name].tables + 1 do
+                  if activity.scenes[activity.programs.name].tables[u] and paramsFormula[p][1][1] == activity.scenes[activity.programs.name].tables[u] then break
+                  elseif u == #activity.scenes[activity.programs.name].tables + 1 then
+                    activity.scenes[activity.programs.name].tables[#activity.scenes[activity.programs.name].tables + 1] = paramsFormula[p][1][1]
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 activity.scenes.view = function()
   activity.scenes.group.isVisible = true
   activity.scenes[activity.programs.name].scroll.isVisible = true
+  activity.scenes.getVarFunTable()
 end
 
 activity.scenes.create = function()

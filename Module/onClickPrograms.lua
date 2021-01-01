@@ -99,6 +99,61 @@ activity.onClickButton.programs.block = function(e)
   activity.programs.hide()
   activity.scenes.create()
   settingsSave()
+
+  for i = 1, #activity.downloadApp + 1 do
+    if activity.downloadApp[i] == e.target.text.text then break
+    elseif i == #activity.downloadApp + 1 then
+      local rectDownloadApp = display.newRect(_x, _y, 600, 200)
+      rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
+
+      local rectDownloadAppShadow = display.newRect(_x, _y, _aW, _aH)
+      rectDownloadAppShadow:setFillColor(0, 0.005)
+
+      local rectDownloadAppText = display.newText({
+        text = 'Подождите, пожалуйста. Идёт подгрузка приложения для более удобной работы: ' .. e.target.text.text,
+        font = 'ubuntu_!bold.ttf', fontSize = 30, width = 560, x = _x - 280, y = _y - 80
+      })
+
+      activity.downloadApp[#activity.downloadApp + 1] = e.target.text.text
+      rectDownloadApp.height = rectDownloadAppText.height + 40
+      rectDownloadAppText.anchorX, rectDownloadAppText.anchorY = 0, 0
+      rectDownloadAppText.y = _y - rectDownloadApp.height / 2 + 20
+
+      rectDownloadAppShadow:addEventListener('touch', function(e)
+        if e.phase == 'began' then display.getCurrentStage():setFocus(e.target)
+        elseif e.phase == 'ended' then display.getCurrentStage():setFocus(nil)
+        end return true
+      end)
+
+      timer.performWithDelay(1, function()
+        activity.scenes.hide()
+        activity.resources.create()
+        activity.resources.hide()
+        for i = 1, #activity.scenes[activity.programs.name].block do
+          activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[i].text.text
+          activity.scenes.scene = activity.scenes[activity.programs.name].block[i].text.text
+          activity.objects.create()
+          activity.objects.hide()
+          for j = 1, #activity.objects[activity.scenes.name].block do
+            activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[j].text.text
+            activity.objects.texture = activity.objects.name
+            activity.objects.object = activity.objects[activity.scenes.name].block[j].text.text
+            activity.textures.create()
+            activity.textures.hide()
+            activity.blocks.create()
+            activity.blocks.hide()
+          end
+        end
+        alertActive = false
+        rectDownloadApp:removeSelf()
+        rectDownloadAppText:removeSelf()
+        timer.performWithDelay(1, function() rectDownloadAppShadow:removeSelf() end)
+        activity.scenes.create()
+        activity.scenes.name, activity.scenes.scene = '', ''
+        activity.objects.name, activity.objects.texture, activity.objects.object = '', '', ''
+      end)
+    end
+  end
 end
 
 activity.onClickButton.programs[1] = function()

@@ -55,7 +55,7 @@ activity.onClickBlock = function(names, types, e)
         e.target:setFillColor(30/255, 31/255, 37/255)
         e.target.alpha = 0.8
         if types == 'objects' or types == 'textures' then e.target.container.alpha = 0.9 end
-        if types ~= 'programs' then e.target.timer = timer.performWithDelay(300, function() activity.onTimer(e.target, types, names) end) end
+        if types ~= 'programs' and types ~= 'resources' then e.target.timer = timer.performWithDelay(300, function() activity.onTimer(e.target, types, names) end) end
       end
     elseif e.phase == 'moved' then
       local dy = math.abs(e.y - e.yStart)
@@ -64,7 +64,7 @@ activity.onClickBlock = function(names, types, e)
         e.target:setFillColor(25/255, 26/255, 32/255)
         e.target.alpha = 0.9
         if types == 'objects' or types == 'textures' then e.target.container.alpha = 1 end
-        if types ~= 'programs' then if e.target.timer then timer.cancel(e.target.timer) end end
+        if types ~= 'programs' and types ~= 'resources' then if e.target.timer then timer.cancel(e.target.timer) end end
       end
     elseif e.phase == 'ended' or e.phase == 'cancelled' then
       display.getCurrentStage():setFocus(nil)
@@ -80,7 +80,7 @@ activity.onClickBlock = function(names, types, e)
         e.target:setFillColor(25/255, 26/255, 32/255)
         e.target.alpha = 0.9
         if types == 'objects' or types == 'textures' then e.target.container.alpha = 1 end
-        if types ~= 'programs' then if e.target.timer then if not e.target.timer._removed then
+        if types ~= 'programs' and types ~= 'resources' then if e.target.timer then if not e.target.timer._removed then
           timer.cancel(e.target.timer) activity.onClickButton[types].block(e) end end
         else activity.onClickButton[types].block(e) end
       end

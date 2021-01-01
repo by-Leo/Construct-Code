@@ -15,7 +15,7 @@ activity.onClickButton.blocks.list = function(e)
     list({activity.objects.object, strings.remove, strings.copy, strings.comment}, {x = e.target.x, y = e.target.y, targetHeight = e.target.height, activeBut = activity.objects.object}, function(event)
       activity.blocks[activity.objects.name].scroll:setIsLocked(false, 'vertical')
 
-      activity.blocks[activity.objects.name].alertActive = event.num ~= 0
+      activity.blocks[activity.objects.name].alertActive = event.num > 1
       activity.blocks[activity.objects.name].listMany = event.num ~= 3
       if event.num > 1 then
         activity.blocks.add.isVisible = false
@@ -84,7 +84,8 @@ end
 
 activity.onClickButton.blocks.block = function(e)
   if activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'ifEnd'
-  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forEnd' then
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forEnd'
+  and not activity.blocks[activity.objects.name].alertActive then
     blockList(e.target.num)
   end
 end

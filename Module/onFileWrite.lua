@@ -98,7 +98,7 @@ activity.onFileWrite.textures = function(t)
   end
 end
 
-activity.blocksFileUpdate = function(editor)
+activity.blocksFileUpdate = function()
   local group = activity.blocks[activity.objects.name]
   local data = ccodeToJson(activity.programs.name)
 
