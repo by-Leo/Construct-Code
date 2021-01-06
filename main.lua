@@ -241,57 +241,61 @@ activity.scrollSettings = {
   listener = function(e) return true end
 }
 
--- require 'Module.alert'
--- require 'Module.input'
--- require 'Module.list'
--- require 'Module.fsd'
--- require 'Module.blockList'
---
--- require 'Module.paramsColorInBlocks'
--- require 'Module.updateTextLanguage'
--- require 'Module.returnModule'
--- require 'Module.moveBlock'
--- require 'Module.moveLogBlock'
--- require 'Module.newBlock'
--- require 'Module.genBlock'
---
--- require 'Module.onInputEvent'
--- require 'Module.onFileRead'
--- require 'Module.onFileWrite'
--- require 'Module.onClick'
--- require 'Module.onClickPrograms'
--- require 'Module.onClickScenes'
--- require 'Module.onClickResources'
--- require 'Module.onClickObjects'
--- require 'Module.onClickTextures'
--- require 'Module.onClickBlocks'
---
--- require 'Module.setting'
--- require 'Module.programs'
--- require 'Module.scenes'
--- require 'Module.resources'
--- require 'Module.objects'
--- require 'Module.textures'
--- require 'Module.blocks'
--- require 'Module.newblocks'
--- require 'Module.formulasEditor'
+require 'Module.alert'
+require 'Module.input'
+require 'Module.list'
+require 'Module.fsd'
+require 'Module.blockList'
+
+require 'Module.paramsColorInBlocks'
+require 'Module.updateTextLanguage'
+require 'Module.returnModule'
+require 'Module.moveBlock'
+require 'Module.moveLogBlock'
+require 'Module.newBlock'
+require 'Module.genBlock'
+
+require 'Module.onInputEvent'
+require 'Module.onFileRead'
+require 'Module.onFileWrite'
+require 'Module.onClick'
+require 'Module.onClickPrograms'
+require 'Module.onClickScenes'
+require 'Module.onClickResources'
+require 'Module.onClickObjects'
+require 'Module.onClickTextures'
+require 'Module.onClickBlocks'
+
+require 'Module.setting'
+require 'Module.programs'
+require 'Module.scenes'
+require 'Module.resources'
+require 'Module.objects'
+require 'Module.textures'
+require 'Module.blocks'
+require 'Module.newblocks'
+require 'Module.formulasEditor'
+
 require 'Module.calc'
 require 'Module.calcFun'
+require 'Module.calcProp'
 require 'Module.game'
-require 'Module.gameFormula'
+require 'Module.gameFormula1'
+require 'Module.gameFormula2'
+require 'Module.gameFormula3'
 
 -- Предварительная подгрузка виджета
--- alert('', '', {''}, function() end)
--- setting.lib.isVisible = false
--- activity.programs.group.isVisible = false
--- activity.scenes.group.isVisible = false
--- activity.resources.group.isVisible = false
--- activity.objects.group.isVisible = false
--- activity.textures.group.isVisible = false
--- activity.blocks.group.isVisible = false
--- activity.newblocks.group.isVisible = false
--- activity.editor.group.isVisible = false
+alert('', '', {''}, function() end)
+setting.lib.isVisible = false
+activity.programs.group.isVisible = false
+activity.scenes.group.isVisible = false
+activity.resources.group.isVisible = false
+activity.objects.group.isVisible = false
+activity.textures.group.isVisible = false
+activity.blocks.group.isVisible = false
+activity.newblocks.group.isVisible = false
+activity.editor.group.isVisible = false
 
 -- Запуск
--- alertActive = true
+alertActive = true
 composer.gotoScene 'Module.menu'
