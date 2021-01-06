@@ -36,6 +36,8 @@ activity.onClickButton.scenes.add = function(e)
 end
 
 activity.onClickButton.scenes.play = function(e)
+  activity.scenes.hide()
+  startProject('App', 'scenes')
 end
 
 activity.onClickButton.scenes.list = function(e)

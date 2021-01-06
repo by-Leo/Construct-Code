@@ -98,6 +98,8 @@ activity.onClickButton.objects.add = function(e)
 end
 
 activity.onClickButton.objects.play = function(e)
+  activity.objects.hide()
+  startProject('App', 'objects')
 end
 
 activity.onClickButton.objects.list = function(e)

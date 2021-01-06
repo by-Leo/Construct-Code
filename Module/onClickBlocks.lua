@@ -6,6 +6,8 @@ activity.onClickButton.blocks.add = function(e)
 end
 
 activity.onClickButton.blocks.play = function(e)
+  activity.blocks.hide()
+  startProject('App', 'blocks')
 end
 
 activity.onClickButton.blocks.list = function(e)

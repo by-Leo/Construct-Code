@@ -64,6 +64,8 @@ activity.onClickButton.resources.add = function(e)
 end
 
 activity.onClickButton.resources.play = function(e)
+  activity.resources.hide()
+  startProject('App', 'resources')
 end
 
 activity.onClickButton.resources.list = function(e)

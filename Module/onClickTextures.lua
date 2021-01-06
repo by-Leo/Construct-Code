@@ -125,6 +125,8 @@ activity.onClickButton.textures.add = function(e)
 end
 
 activity.onClickButton.textures.play = function(e)
+  activity.textures.hide()
+  startProject('App', 'textures')
 end
 
 activity.onClickButton.textures.list = function(e)

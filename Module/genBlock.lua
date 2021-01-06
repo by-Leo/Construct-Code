@@ -360,7 +360,7 @@ activity.putBlockParams = function(i)
 
                     if #tableParams > 0 then
                       group.scroll:setIsLocked(true, 'vertical')
-                      list(tableParams, {x = e.target.x, y = e.target.y + yScroll + _tH / 2 + _bH / 2, targetHeight = e.target.height, activeBut = activeBut}, function(event)
+                      list(tableParams, {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
                         group.scroll:setIsLocked(false, 'vertical')
                         if event.text then addVariableInRect(k, n, event.text, typeParams) end
                       end)
@@ -378,7 +378,7 @@ activity.putBlockParams = function(i)
                     elseif activeBut ~= strings.selfCopy then activeButVar = strings.selfCopy end
 
                     group.scroll:setIsLocked(true, 'vertical')
-                    list(getObjectInList(), {x = e.target.x, y = e.target.y + yScroll + _tH / 2 + _bH / 2, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
+                    list(getObjectInList(), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
                       group.scroll:setIsLocked(false, 'vertical')
                       if event.text then addVariableInRect(k, n, event.text, typeParams) end
                     end)
@@ -404,7 +404,7 @@ activity.putBlockParams = function(i)
                     end
 
                     group.scroll:setIsLocked(true, 'vertical')
-                    list(varTable, {x = e.target.x, y = e.target.y + yScroll + _tH / 2 + _bH / 2, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
+                    list(varTable, {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
                       group.scroll:setIsLocked(false, 'vertical')
                       if event.text == strings['new' .. typeParams] then
                         input(strings['new' .. typeParams .. 'Title'], strings['new' .. typeParams .. 'Text'], function(event)
