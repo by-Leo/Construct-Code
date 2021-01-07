@@ -1,7 +1,7 @@
 activity.returnModule = function(types, names)
   if types == 'editor' then
-    activity.editor.scroll:scrollTo('top',{time=0,onComplete=function()end})
-    activity.editor.listScroll:scrollTo('top',{time=0,onComplete=function()end})
+    activity.editor.scroll:scrollToPosition({y=0,time=0,onComplete=function()end})
+    activity.editor.listScroll:scrollToPosition({y=0,time=0,onComplete=function()end})
     for i = 1, 24 do
       activity.editor.buttons[i]:setFillColor(0.15, 0.15, 0.17)
       activity.editor.buttons[i].click = false
@@ -52,7 +52,7 @@ activity.returnModule = function(types, names)
         end
       end
     end
-    activity[types][names].scroll:scrollTo('top',{time=0,onComplete=function()end})
+    activity[types][names].scroll:scrollToPosition({y=0,time=0,onComplete=function()end})
     activity[types].add.width, activity[types].add.height, activity[types].add.alpha = 306, 107, 0.9
     activity[types].okay.width, activity[types].okay.height, activity[types].okay.alpha = 306, 107, 0.9
     activity[types].list.width, activity[types].list.height, activity[types].list.alpha = 103.2, 84, 1

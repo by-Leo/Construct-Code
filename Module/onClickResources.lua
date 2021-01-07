@@ -18,7 +18,8 @@ activity.onClickButton.resources.add = function(e)
           break
         end
       end
-      if utf8.find(event.text, '\n', 1, true) or utf8.len(event.text) == 0 or utf8.len(event.text) > 30 or utf8.byte(utf8.sub(event.text, 1, 1)) == 32 or utf8.byte(utf8.sub(event.text, utf8.len(event.text), utf8.len(event.text))) == 32 then
+      if utf8.find(event.text, '\n', 1, true) or utf8.len(event.text) == 0 or event.text == 'ubuntu.ttf' or event.text == 'sans.ttf' or event.text == 'system.ttf'
+      or utf8.len(event.text) > 30 or utf8.byte(utf8.sub(event.text, 1, 1)) == 32 or utf8.byte(utf8.sub(event.text, utf8.len(event.text), utf8.len(event.text))) == 32 then
         inputPermission(false)
       end
     end
@@ -38,7 +39,8 @@ activity.onClickButton.resources.add = function(e)
           break
         end
       end
-      if utf8.find(e.text, '\n', 1, true) or utf8.len(e.text) == 0 or utf8.len(e.text) > 30 or utf8.byte(utf8.sub(e.text, 1, 1)) == 32 or utf8.byte(utf8.sub(e.text, utf8.len(e.text), utf8.len(e.text))) == 32 then
+      if utf8.find(e.text, '\n', 1, true) or utf8.len(e.text) == 0 or e.text == 'ubuntu.ttf' or e.text == 'sans.ttf' or e.text == 'system.ttf'
+      or utf8.len(e.text) > 30 or utf8.byte(utf8.sub(e.text, 1, 1)) == 32 or utf8.byte(utf8.sub(e.text, utf8.len(e.text), utf8.len(e.text))) == 32 then
         e.text = 'Не используй T9_' .. math.random(111111111, 999999999)
       end
 
@@ -65,7 +67,7 @@ end
 
 activity.onClickButton.resources.play = function(e)
   activity.resources.hide()
-  startProject('App', 'resources')
+  startProject(activity.programs.name, 'resources')
 end
 
 activity.onClickButton.resources.list = function(e)

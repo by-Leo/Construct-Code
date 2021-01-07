@@ -109,14 +109,20 @@ createScene = function(indexScene)
   game.objects[indexScene] = {}
 
   for o = 1, #scene.objects do
-    local res = gameName .. '/' .. scene.name .. '.' .. scene.objects[o].name .. '.' .. scene.objects[o].textures[1]
+    local res if #scene.objects[o].textures > 0 then
+      res = gameName .. '/' .. scene.name .. '.' .. scene.objects[o].name .. '.' .. scene.objects[o].textures[1]
+    end
 
     if scene.objects[o].import == 'linear' then display.setDefault('magTextureFilter', 'linear')
     else display.setDefault('magTextureFilter', 'nearest') end
 
-    pcall(function() game.objects[indexScene][o] = display.newImage(res, system.DocumentsDirectory) end)
+    pcall(function()
+      if res then game.objects[indexScene][o] = display.newImage(res, system.DocumentsDirectory)
+      else game.objects[indexScene][o] = display.newRect(0,0,0,0) end
+    end)
 
     if game.objects[indexScene][o] then
+      if not res then game.objects[indexScene][o]:setFillColor(0,0,0,0) end
       game.objects[indexScene][o].x, game.objects[indexScene][o].y = _x, _y
       game.objects[indexScene][o].name = scene.objects[o].name
       game.objects[indexScene][o].data = {
@@ -145,7 +151,7 @@ startProject = function(app, name)
   projectActivity = name
   display.setDefault('background', 0, 0)
 
-  timer.performWithDelay(20, function()
+  timer.performWithDelay(1, function()
     if projectActive then
       local data = ccodeToJson(app)
 
@@ -203,8 +209,8 @@ stopProject = function(name)
   display.getCurrentStage():setFocus(nil)
   display.setDefault('background', 0.15, 0.15, 0.17)
 
-  for i = 1, #game.texts do game.texts[i]:removeSelf() end
-  for i = 1, #game.objects do for j = 1, #game.objects[i] do game.objects[i][j]:removeSelf() end end
+  for i = 1, #game.texts do pcall(function() game.texts[i]:removeSelf() end) end
+  for i = 1, #game.objects do for j = 1, #game.objects[i] do pcall(function() game.objects[i][j]:removeSelf() end) end end
 
   activity[name].create()
 end

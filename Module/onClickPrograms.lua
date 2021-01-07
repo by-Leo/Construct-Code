@@ -27,12 +27,10 @@ activity.onClickButton.programs.add = function(e)
 
           local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', e.text, e.text)
           local file = io.open(path, 'w')
-
-          if file then
-            local orientation = event.num == 1 and 'portrait' or 'landscape'
-            file:write(string.format('p %s\n  s ' .. strings.firstScene, orientation))
-            io.close(file)
-          end
+          local data = {
+            program = event.num == 1 and 'portrait' or 'landscape',
+            scenes = {{name = strings.firstScene, objects = {}}}
+          } if file then file:write(jsonToCCode(data)) io.close(file) end
 
           activity.programs['nil'].data[#activity.programs['nil'].data+1] = e.text
           activity.newBlock({
@@ -94,10 +92,11 @@ activity.onClickButton.programs.okay = function(e)
 end
 
 activity.onClickButton.programs.block = function(e)
+  local data = ccodeToJson(e.target.text.text)
   settings.lastApp = e.target.text.text
   activity.programs.name = e.target.text.text
   activity.programs.hide()
-  activity.scenes.create()
+  activity.scenes.create(data)
   settingsSave()
 
   for i = 1, #activity.downloadApp + 1 do
@@ -127,20 +126,20 @@ activity.onClickButton.programs.block = function(e)
 
       timer.performWithDelay(1, function()
         activity.scenes.hide()
-        activity.resources.create()
+        activity.resources.create(data)
         activity.resources.hide()
         for i = 1, #activity.scenes[activity.programs.name].block do
           activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[i].text.text
           activity.scenes.scene = activity.scenes[activity.programs.name].block[i].text.text
-          activity.objects.create()
+          activity.objects.create(data)
           activity.objects.hide()
           for j = 1, #activity.objects[activity.scenes.name].block do
             activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[j].text.text
             activity.objects.texture = activity.objects.name
             activity.objects.object = activity.objects[activity.scenes.name].block[j].text.text
-            activity.textures.create()
+            activity.textures.create(data)
             activity.textures.hide()
-            activity.blocks.create()
+            activity.blocks.create(data)
             activity.blocks.hide()
           end
         end

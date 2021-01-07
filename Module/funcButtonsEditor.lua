@@ -122,6 +122,9 @@ activity.editor.funcList = function(id, ID)
     table.remove(cursor, activity.editor.cursorIndex[1] + 4)
     activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] + 2
     activity.editor.cursorIndex[2] = '|'
+    if id == 'value_by_key' or id == 'random' or id == 'round' or id == '%' then
+      table.insert(cursor, activity.editor.cursorIndex[1] + 1, {',', 'sym'})
+    end
   else
     activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] + 1
     activity.editor.cursorIndex[2] = '|'

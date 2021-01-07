@@ -63,11 +63,12 @@ activity.objects.view = function()
   activity.objects[activity.scenes.name].scroll.isVisible = true
 end
 
-activity.objects.create = function()
+activity.objects.create = function(data)
   activity.objects.group.isVisible = true
 
   if activity.objects[activity.scenes.name] then activity.objects.view()
   else
+    local data = data or ccodeToJson(activity.programs.name)
     activity.objects[activity.scenes.name] = {}
 
     -- Переменные активити
@@ -85,26 +86,17 @@ activity.objects.create = function()
     activity.objects[activity.scenes.name].scroll:setScrollHeight(20)
     activity.objects[activity.scenes.name].block = {}
 
-    local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
-    local file = io.open(path, 'r')
-    local bool = false
-
-    if file then
-      for line in file:lines() do
-        if utf8.sub(line, 1, 3) == '  s' then
-          bool = activity.programs.name .. '.' .. utf8.match(line, '  s (.*)') == activity.scenes.name
-        elseif utf8.sub(line, 1, 5) == '    o' and bool then
-          local name = utf8.match(line, '    o (.*):')
-          local import = utf8.match(line, '/(.*)')
-          local json = json.decode(utf8.match(line, ':(.*)/'))
-          activity.objects[activity.scenes.name].data[#activity.objects[activity.scenes.name].data+1] = name
+    for i = 1, #data.scenes do
+      if data.scenes[i].name == activity.scenes.scene then
+        for j = 1, #data.scenes[i].objects do
+          activity.objects[activity.scenes.name].data[#activity.objects[activity.scenes.name].data+1] = data.scenes[i].objects[j].name
           activity.objects[activity.scenes.name].dataOption[#activity.objects[activity.scenes.name].data] = {
-            import = import,
-            json = json
+            import = data.scenes[i].objects[j].import,
+            json = data.scenes[i].objects[j].textures
           }
         end
+        break
       end
-      io.close(file)
     end
 
     for i = 1, #activity.objects[activity.scenes.name].data do
@@ -117,6 +109,8 @@ activity.objects.create = function()
         json = activity.objects[activity.scenes.name].dataOption[i].json
       })
     end
+
+    activity.objects[activity.scenes.name].scroll:setScrollHeight(activity.objects[activity.scenes.name].scrollHeight)
 
     if not activity.createActivity[activity.scenes.name] then
       activity.createActivity[activity.scenes.name] = true

@@ -119,10 +119,7 @@ activity.setBlock = function(yTarget, textTarget, i, mode, types, names, import,
     import = import,
     json = json
   })
-  activity.onFileRead[types]({
-    name = mode,
-    index = i
-  })
+  activity.onFile[types](mode, i)
   activity[types][names].block[i].copy = ''
 
   if types == 'textures' then

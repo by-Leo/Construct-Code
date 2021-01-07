@@ -63,11 +63,12 @@ activity.resources.view = function()
   activity.resources[activity.programs.name].scroll.isVisible = true
 end
 
-activity.resources.create = function()
+activity.resources.create = function(data)
   activity.resources.group.isVisible = true
 
   if activity.resources[activity.programs.name] then activity.resources.view()
   else
+    local data = data or ccodeToJson(activity.programs.name)
     activity.resources[activity.programs.name] = {}
 
     -- Переменные активити
@@ -105,6 +106,8 @@ activity.resources.create = function()
         name = activity.programs.name
       })
     end
+
+    activity.resources[activity.programs.name].scroll:setScrollHeight(activity.resources[activity.programs.name].scrollHeight)
 
     if not activity.createActivity[activity.programs.name .. '.res '] then
       activity.createActivity[activity.programs.name .. '.res '] = true

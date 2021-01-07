@@ -1,19 +1,22 @@
 activity.onClickButton.scenes = {}
 
 activity.onClickButton.scenes.add = function(e)
-  activity.scenes[activity.programs.name].scroll:setIsLocked(true, "vertical")
+  activity.scenes[activity.programs.name].scroll:setIsLocked(true, 'vertical')
 
   input(strings.enterTitle, strings.enterTitleSceneText, function(event) activity.onInputEvent(event, activity.scenes[activity.programs.name].data, 'scenes') end, function(e)
-    activity.scenes[activity.programs.name].scroll:setIsLocked(false, "vertical")
+    activity.scenes[activity.programs.name].scroll:setIsLocked(false, 'vertical')
 
     if e.input then
       e.text = activity.onInputEvent({phase='ok', text=e.text}, activity.scenes[activity.programs.name].data, 'scenes')
 
+      local data = ccodeToJson(activity.programs.name)
       local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
-      local file = io.open(path, 'a')
+      local file = io.open(path, 'w')
+
+      data.scenes[#data.scenes + 1] = {name = e.text, objects = {}}
 
       if file then
-        file:write(string.format('\n  s %s', e.text))
+        file:write(jsonToCCode(data))
         io.close(file)
       end
 
@@ -37,7 +40,7 @@ end
 
 activity.onClickButton.scenes.play = function(e)
   activity.scenes.hide()
-  startProject('App', 'scenes')
+  startProject(activity.programs.name, 'scenes')
 end
 
 activity.onClickButton.scenes.list = function(e)
@@ -97,10 +100,7 @@ activity.onClickButton.scenes[2] = function()
   while i < #activity.scenes[activity.programs.name].block do
     i = i + 1
     if activity.scenes[activity.programs.name].block[i].checkbox.isOn then
-      activity.onFileRead.scenes({
-        name = 'remove',
-        index = i
-      })
+      activity.onFile.scenes('remove', i)
 
       table.remove(activity.scenes[activity.programs.name].data, i)
 
@@ -111,7 +111,7 @@ activity.onClickButton.scenes[2] = function()
         local theFile = system.pathForFile('', system.DocumentsDirectory) .. '/' .. activity.programs.name .. '/' .. file
         if type(theFile) ~= 'string' then theFile = '' end
 
-        if lfs.attributes(theFile, "mode") ~= "directory" then
+        if lfs.attributes(theFile, 'mode') ~= 'directory' then
           pcall(function()
             local nameScene, nameObject, nameTexture = utf8.match(file, '(.*)%.(.*)%.(.*)')
             if nameScene == scenesScene then
@@ -171,10 +171,10 @@ end
 activity.onClickButton.scenes[5] = function()
   for i = 1, #activity.scenes[activity.programs.name].block do
     if activity.scenes[activity.programs.name].block[i].checkbox.isOn then
-      activity.scenes[activity.programs.name].scroll:setIsLocked(true, "vertical")
+      activity.scenes[activity.programs.name].scroll:setIsLocked(true, 'vertical')
 
       input(strings.enterTitle, strings.enterNewTitleSceneText, function(event) activity.onInputEvent(event, activity.scenes[activity.programs.name].data, 'scenes') end, function(event)
-        activity.scenes[activity.programs.name].scroll:setIsLocked(false, "vertical")
+        activity.scenes[activity.programs.name].scroll:setIsLocked(false, 'vertical')
 
         if event.input then
           event.text = activity.onInputEvent({phase='ok', text=event.text}, activity.scenes[activity.programs.name].data, 'scenes')
@@ -202,11 +202,7 @@ activity.onClickButton.scenes[5] = function()
           activity.scenes[activity.programs.name].scroll:insert(activity.scenes[activity.programs.name].block[i].text)
           activity.scenes[activity.programs.name].data[i] = event.text
 
-          activity.onFileRead.scenes({
-            name = 'rename',
-            index = i,
-            oldTitle = oldTitle
-          })
+          activity.onFile.scenes('rename', i)
 
           local scenesName = activity.programs.name .. '.' .. oldTitle
 

@@ -63,11 +63,12 @@ activity.textures.view = function()
   activity.textures[activity.objects.texture].scroll.isVisible = true
 end
 
-activity.textures.create = function()
+activity.textures.create = function(data)
   activity.textures.group.isVisible = true
 
   if activity.textures[activity.objects.texture] then activity.textures.view()
   else
+    local data = data or ccodeToJson(activity.programs.name)
     activity.textures[activity.objects.texture] = {}
 
     -- Переменные активити
@@ -85,30 +86,19 @@ activity.textures.create = function()
     activity.textures[activity.objects.texture].scroll:setScrollHeight(20)
     activity.textures[activity.objects.texture].block = {}
 
-    local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
-    local file = io.open(path, 'r')
-    local bool = false
-
-    if file then
-      for line in file:lines() do
-        if utf8.sub(line, 1, 3) == '  s' then
-          bool = activity.programs.name .. '.' .. utf8.match(line, '  s (.*)') == activity.scenes.name
-        elseif utf8.sub(line, 1, 5) == '    o' and bool then
-          local name = utf8.match(line, '    o (.*):')
-          if name == activity.objects.object then
-            local import = utf8.match(line, '/(.*)')
-            local json = json.decode(utf8.match(line, ':(.*)/'))
-
-            for i = 1, #json do
-              activity.textures[activity.objects.texture].data[#activity.textures[activity.objects.texture].data+1] = json[i]
+    for i = 1, #data.scenes do
+      if data.scenes[i].name == activity.scenes.scene then
+        for j = 1, #data.scenes[i].objects do
+          if data.scenes[i].objects[j].name == activity.objects.object then
+            local import = data.scenes[i].objects[j].import
+            local json = data.scenes[i].objects[j].textures
+            for k = 1, #json do
+              activity.textures[activity.objects.texture].data[#activity.textures[activity.objects.texture].data+1] = json[k]
               activity.textures[activity.objects.texture].dataOption[#activity.textures[activity.objects.texture].data] = import
             end
-
-            break
           end
         end
       end
-      io.close(file)
     end
 
     for i = 1, #activity.textures[activity.objects.texture].data do
@@ -120,6 +110,8 @@ activity.textures.create = function()
         import = activity.textures[activity.objects.texture].dataOption[i]
       })
     end
+
+    activity.textures[activity.objects.texture].scroll:setScrollHeight(activity.textures[activity.objects.texture].scrollHeight)
 
     if not activity.createActivity[activity.objects.texture .. '_texture'] then
       activity.createActivity[activity.objects.texture .. '_texture'] = true

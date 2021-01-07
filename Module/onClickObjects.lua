@@ -11,27 +11,16 @@ activity.onClickButton.objects.add = function(e)
 
       alert(strings.whichObject, strings.chooseTypeObject, {strings.noPixelImage, strings.pixelImage}, function(event)
         if event.num ~= 0 then
-          local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
-          local file = io.open(path, 'r')
-          local bool = false
-          local newData = ''
+          local data = ccodeToJson(activity.programs.name)
           local importType = event.num == 1 and 'linear' or 'nearest'
 
-          if file then
-            for line in file:lines() do
-              if utf8.sub(line, 1, 3) == '  s' then
-                if bool then newData = event.isOn == false and string.format('%s\n    o %s:["%s"]/%s\n      e onStart:[]/false', newData, e.text, e.text, importType) or string.format('%s\n    o %s:[]/%s\n      e onStart:[]/false', newData, e.text, importType) end
-                bool = activity.programs.name .. '.' .. utf8.match(line, '  s (.*)') == activity.scenes.name
-                newData = newData .. '\n' .. line
-              else
-                if newData == '' then newData = line
-                else newData = newData .. '\n' .. line end
-              end
+          for i = 1, #data.scenes do
+            if data.scenes[i].name == activity.scenes.scene then
+              data.scenes[i].objects[#data.scenes[i].objects + 1] = {
+                name = e.text, import = importType, events = {},
+                textures = event.isOn == false and {e.text} or {}
+              }
             end
-            if bool then
-              newData = event.isOn == false and string.format('%s\n    o %s:["%s"]/%s\n      e onStart:[]/false', newData, e.text, e.text, importType) or string.format('%s\n    o %s:[]/%s\n      e onStart:[]/false', newData, e.text, importType)
-            end
-            io.close(file)
           end
 
           local completeImportPicture = function(import)
@@ -39,11 +28,7 @@ activity.onClickButton.objects.add = function(e)
               if import.done == 'ok' then
                 local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
                 local file = io.open(path, 'w')
-
-                if file then
-                  file:write(newData)
-                  io.close(file)
-                end
+                if file then file:write(jsonToCCode(data)) io.close(file) end
 
                 if #activity.objects[activity.scenes.name].block == 0 then
                   activity.objects[activity.scenes.name].data[1] = e.text
@@ -99,7 +84,7 @@ end
 
 activity.onClickButton.objects.play = function(e)
   activity.objects.hide()
-  startProject('App', 'objects')
+  startProject(activity.programs.name, 'objects')
 end
 
 activity.onClickButton.objects.list = function(e)
@@ -157,10 +142,7 @@ activity.onClickButton.objects[2] = function()
     if activity.objects[activity.scenes.name].block[i].checkbox.isOn then
       local objectsTexture = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[i].text.text
 
-      activity.onFileRead.objects({
-        name = 'remove',
-        index = i
-      })
+      activity.onFile.objects('remove', i)
 
       for file in lfs.dir(system.pathForFile('', system.DocumentsDirectory) .. '/' .. activity.programs.name) do
         local theFile = system.pathForFile('', system.DocumentsDirectory) .. '/' .. activity.programs.name .. '/' .. file
@@ -261,11 +243,7 @@ activity.onClickButton.objects[5] = function()
           activity.objects[activity.scenes.name].scroll:insert(activity.objects[activity.scenes.name].block[i].text)
           activity.objects[activity.scenes.name].data[i] = event.text
 
-          activity.onFileRead.objects({
-            name = 'rename',
-            index = i,
-            oldTitle = oldTitle
-          })
+          activity.onFile.objects('rename', i)
 
           local objectsTexture = activity.scenes.name .. '.' .. oldTitle
 

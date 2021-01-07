@@ -73,7 +73,7 @@ list = function(buttons, config, listener)
 
   if config.width < _aW then config.width = config.width + 40 end
   if config.width > _aW then config.width = _aW end
-  if config.x + config.width / 2 > _x + _aX then config.x = _x + _aX - config.width / 2 end
+  if (config.x + config.width / 2 > _x + _aX) or (config.x - config.width / 2 < _x - _aX) then config.x = _x + _aX - config.width / 2 end
 
   local listRoundedRect = display.newRoundedRect(listGroup, config.x, config.y > _y and config.y - config.height / 2 + config.targetHeight / 2 or config.y + config.height / 2 - config.targetHeight / 2, config.width, config.height + 20, 14)
   listRoundedRect:setFillColor(0.2, 0.2, 0.22)

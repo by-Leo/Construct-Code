@@ -32,14 +32,21 @@ frm.setShowText = function(indexScene, indexObject, params, localtable)
   local align = params[5][1] and params[5][1][1] or 'center'
   local alpha = calc(indexScene, indexObject, table.copy(params[6]), table.copy(localtable))
 
+  if not font then
+    if font ~= 'ubuntu.ttf' and font ~= 'sans.ttf' and font ~= 'system.ttf' then
+      font = game.baseDir .. '/' .. gameName .. '/res .' .. font
+    elseif font == 'system.ttf' then font = nil 
+    else font = system.pathForFile(font, system.ResourcesDirectory) end
+  end
+
   for i = 1, #game.vars do
     if game.vars[i].name == name then
       if game.vars[i].value[2] == 'log' then game.vars[i].value[1] = 'log' end
       if game.vars[i].value[2] == 'table' then game.vars[i].value[1] = 'table' end
-      game.texts[i] = display.newText(game.vars[i].value[1], game.x, game.y, font and game.baseDir .. '/' .. gameName .. '/res .' .. font or nil, size[2] == 'num' and size[1] or 36)
+      game.texts[i] = display.newText(game.vars[i].value[1], game.x, game.y, font, size[2] == 'num' and size[1] or 36)
       game.texts[i]:setFillColor(color[1]/255, color[2]/255, color[3]/255)
-      game.texts[i].anchorX = align == 'center' and game.texts[i].anchorX or align == 'left' and 0 or align == 'right' and 1
-      game.texts[i].alpha = alpha[2] == 'num' and alpha[1] or 1
+      game.texts[i].anchorX = align == 'centerAlign' and game.texts[i].anchorX or align == 'leftAlign' and 0 or align == 'rightAlign' and 1
+      game.texts[i].alpha = alpha[2] == 'num' and alpha[1] / 100 or 1
       break
     end
   end

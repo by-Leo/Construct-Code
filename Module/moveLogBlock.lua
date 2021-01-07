@@ -167,6 +167,10 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
   activity.blocksReturnBlock(1, group, 0)
   activity.blocksFileUpdate()
 
+  activity.scrollHeightUpdate()
+  activity.blocks[activity.objects.name].scroll:setScrollHeight(
+  activity.blocks[activity.objects.name].scrollHeight)
+
   if data.type == 'event' then
     group.scroll:scrollToPosition {y = _aH - 100 - relatedHeight - group.block[num].y > 0 and 0 or _aH - 100 - relatedHeight - group.block[num].y, time = 10}
   end
@@ -199,9 +203,6 @@ activity.blocksDeleteBlock = function(target, num, group)
   table.remove(group.block, num)
 
   for i = 1, #group.block do group.block[i].num = i end
-
-  activity.scrollHeightUpdate()
-  group.scroll:setScrollHeight(group.scrollHeight)
 end
 
 -- Создать перемещаемый блок

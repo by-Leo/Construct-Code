@@ -214,7 +214,7 @@ activity.newblocks.onKeyEvent = function(event)
   if activity.newblocks.group.isVisible and (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' then
     timer.performWithDelay(1, function()
       activity.newblocks[currentType].scroll.isVisible = false
-      activity.newblocks[currentType].scroll:scrollTo('top', {time = 0})
+      activity.newblocks[currentType].scroll:scrollToPosition({y=0,time = 0})
       activity.newblocks.event.scroll.isVisible = true
       currentType = 'event'
       activity.newblocks.group.isVisible = false

@@ -126,88 +126,13 @@ encoder = function(stroke, types, key)
 end
 -- print(encoder('', '', '?.cc_ode' ))
 
-jsonToCCode = function(t)
-  local data = 'p ' .. t.program
-
-  for sI = 1, #t.scenes do
-    data = data .. '\n' .. string.format('  s %s', t.scenes[sI].name)
-
-    for oI = 1, #t.scenes[sI].objects do
-      data = data .. '\n' .. string.format('    o %s:%s/%s',
-        t.scenes[sI].objects[oI].name, json.encode(t.scenes[sI].objects[oI].textures), t.scenes[sI].objects[oI].import)
-
-      for eI = 1, #t.scenes[sI].objects[oI].events do
-        data = data .. '\n' .. string.format('      e %s:%s/%s',
-          t.scenes[sI].objects[oI].events[eI].name, json.encode(t.scenes[sI].objects[oI].events[eI].params), t.scenes[sI].objects[oI].events[eI].comment)
-
-        for fI = 1, #t.scenes[sI].objects[oI].events[eI].formulas do
-          data = data .. '\n' .. string.format('        f %s:%s/%s',
-            t.scenes[sI].objects[oI].events[eI].formulas[fI].name, json.encode(t.scenes[sI].objects[oI].events[eI].formulas[fI].params), t.scenes[sI].objects[oI].events[eI].formulas[fI].comment)
-        end
-      end
-    end
-  end
-
-  return data
+jsonToCCode = function(data)
+  return json.prettify(data)
 end
 
 ccodeToJson = function(name)
-  local path = system.pathForFile('', system.DocumentsDirectory) .. '/' .. name .. '/' .. name .. '.cc'
-  local file = io.open(path, 'r')
-  local data = {}
-
-  if file then
-    for line in file:lines() do
-      if utf8.sub(line, 1, 1) == 'p' then
-        data.program = utf8.sub(line, 3, utf8.len(line))
-        data.scenes = {}
-      elseif utf8.sub(line, 1, 3) == '  s' then
-        data.scenes[#data.scenes+1] = {
-          name = utf8.sub(line, 5, utf8.len(line)),
-          objects = {}
-        }
-      elseif utf8.sub(line, 1, 5) == '    o' then
-        local name = utf8.match(line, '    o (.*):')
-        local textures = utf8.match(line, ':(.*)/')
-        local import = utf8.match(line, '/(.*)')
-
-        data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects+1] = {
-          name = name,
-          textures = json.decode(textures),
-          import = import,
-          events = {}
-        }
-      elseif utf8.sub(line, 1, 7) == '      e' then
-        local name = utf8.sub(line, 9, utf8.find(line, ':') - 1)
-        local params = utf8.match(line, ':(.*)/')
-        local comment = utf8.match(line, '/(.*)')
-
-        data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].
-        events[#data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].events+1] = {
-          name = name,
-          params = json.decode(params),
-          comment = comment,
-          formulas = {}
-        }
-      elseif utf8.sub(line, 1, 9) == '        f' then
-        local name = utf8.sub(line, 11, utf8.find(line, ':') - 1)
-        local params = utf8.match(line, ':(.*)/')
-        local comment = utf8.reverse(utf8.sub(utf8.reverse(line), 1, utf8.find(utf8.reverse(line), '/') - 1))
-
-        data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].
-        events[#data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].events].
-        formulas[#data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].events[#data.scenes[#data.scenes].objects[#data.scenes[#data.scenes].objects].events].formulas+1] = {
-          name = name,
-          params = json.decode(params),
-          comment = comment
-        }
-      end
-    end
-
-    io.close(file)
-  end
-
-  return data
+  local file = io.open(system.pathForFile('', system.DocumentsDirectory) .. '/' .. name .. '/' .. name .. '.cc', 'r')
+  local data = {} if file then data = json.decode(file:read('*a')) io.close(file) end return data
 end
 
 hex = function(hex)
@@ -256,8 +181,7 @@ require 'Module.newBlock'
 require 'Module.genBlock'
 
 require 'Module.onInputEvent'
-require 'Module.onFileRead'
-require 'Module.onFileWrite'
+require 'Module.onFile'
 require 'Module.onClick'
 require 'Module.onClickPrograms'
 require 'Module.onClickScenes'
@@ -297,5 +221,7 @@ activity.newblocks.group.isVisible = false
 activity.editor.group.isVisible = false
 
 -- Запуск
-alertActive = true
-composer.gotoScene 'Module.menu'
+timer.performWithDelay(1, function()
+  alertActive = true
+  composer.gotoScene 'Module.menu'
+end)

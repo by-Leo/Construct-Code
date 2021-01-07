@@ -227,9 +227,12 @@ activity.putBlockParams = function(i)
       elseif group.block[i].data.params[j][p][2] == 'fun' or group.block[i].data.params[j][p][2] == 'prop' or group.block[i].data.params[j][p][2] == 'log' then
         for n = 1, #strings.editorList[group.block[i].data.params[j][p][2]] do
           if strings.editorList[group.block[i].data.params[j][p][2]][n][2] == value then
-            value =  strings.editorList[group.block[i].data.params[j][p][2]][n][1]
+            value = strings.editorList[group.block[i].data.params[j][p][2]][n][1]
           end
         end
+      elseif group.block[i].data.params[j][p][2] == 'body' or group.block[i].data.params[j][p][2] == 'sensor' or group.block[i].data.params[j][p][2] == 'phyrotation'
+      or group.block[i].data.params[j][p][2] == 'copy' or group.block[i].data.params[j][p][2] == 'align' or group.block[i].data.params[j][p][2] == 'basedir' then
+        value = strings[group.block[i].data.params[j][p][1]]
       end
 
       textFromParams = textFromParams == '' and textFromParams .. value or textFromParams .. ' ' .. value
@@ -346,7 +349,7 @@ activity.putBlockParams = function(i)
                     elseif typeParams == 'align' then tableParams = {strings.leftAlign, strings.centerAlign, strings.rightAlign}
                     elseif typeParams == 'basedir' then tableParams = {'ResDirectory', 'DocDirectory', 'TempDirectory'}
                     elseif typeParams == 'font' then
-                      tableParams = {}
+                      tableParams = {'ubuntu.ttf', 'sans.ttf', 'system.ttf'}
                       for u = 1, #activity.resources[activity.programs.name].block do
                         local nameRes = activity.resources[activity.programs.name].block[u].text.text
                         local extensionRes = utf8.sub(nameRes, utf8.len(nameRes) - 2, utf8.len(nameRes))
@@ -362,7 +365,18 @@ activity.putBlockParams = function(i)
                       group.scroll:setIsLocked(true, 'vertical')
                       list(tableParams, {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
                         group.scroll:setIsLocked(false, 'vertical')
-                        if event.text then addVariableInRect(k, n, event.text, typeParams) end
+                        if event.text then
+                          local type, table = '', {
+                            'staticBody', 'dynamicBody',
+                            'isSensor', 'isNotSensor',
+                            'isPhyRotation', 'isNotPhyRotation',
+                            'currentCopy', 'lastCopy', 'allCopy',
+                            'leftAlign', 'centerAlign', 'rightAlign',
+                            'ResDirectory', 'DocDirectory', 'TempDirectory'
+                          } for u = 1, #table do if event.text == strings[table[u]] then type = table[u] end end
+                          if typeParams == 'font' then type = event.text end
+                          addVariableInRect(k, n, type, typeParams)
+                        end
                       end)
                     end
                   elseif typeParams == 'setcopy' then
@@ -599,8 +613,6 @@ activity.putBlock = function(i)
   activity.putBlockParams(i)
 
   group.block[i]:addEventListener('touch', activity.onClickLogBlock)
-
-  group.scroll:setScrollHeight(group.scrollHeight)
 end
 
 activity.scrollHeightUpdate = function()
@@ -635,8 +647,6 @@ activity.genBlock = function(i)
 
     group.blockY = group.blockY + newHeight
   end
-
-  activity.scrollHeightUpdate()
 
   local newHeight = 0
 

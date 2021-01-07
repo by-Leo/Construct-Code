@@ -9,7 +9,7 @@ local myprogrambut, myprogramtext
 local donatebut, donatetext
 local settingsbut, settingstext
 local buildtext
---[[ Номер билда ]] buildVersion = 931
+--[[ Номер билда ]] buildVersion = 932
 
 function visibleMenu(visible)
   bg.isVisible = visible
@@ -169,7 +169,7 @@ function scene:create( event )
     end)
 
     activity.downloadApp = {}
-    if settings.lastApp ~= '' then
+    if settings.lastApp ~= '' then visibleMenu(false)
       local rectDownloadApp = display.newRect(_x, _y, 600, 200)
       rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
 
@@ -193,18 +193,19 @@ function scene:create( event )
       end)
 
       timer.performWithDelay(1, function()
+        local data = ccodeToJson(settings.lastApp)
         activity.programs.create()
         activity.programs.name = settings.lastApp
         activity.programs.hide()
-        activity.resources.create()
+        activity.resources.create(data)
         activity.resources.hide()
-        activity.scenes.create()
+        activity.scenes.create(data)
         activity.scenes.hide()
         for i = 1, #activity.scenes[activity.programs.name].block do
           activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[i].text.text
           activity.scenes.scene = activity.scenes[activity.programs.name].block[i].text.text
           -- rectDownloadAppText.text = rectDownloadAppText.text .. '\nПодгрузка сцены (' .. i .. '): ' .. activity.scenes.scene
-          activity.objects.create()
+          activity.objects.create(data)
           activity.objects.hide()
           for j = 1, #activity.objects[activity.scenes.name].block do
             activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[j].text.text
@@ -212,13 +213,14 @@ function scene:create( event )
             activity.objects.object = activity.objects[activity.scenes.name].block[j].text.text
             -- rectDownloadAppText.text = rectDownloadAppText.text .. '\nПодгрузка объекта (' .. j .. '): ' .. activity.objects.object
             -- rectDownloadAppText.text = rectDownloadAppText.text .. '\nПодгрузка текстур объекта (' .. j .. '): ' .. activity.objects.object
-            activity.textures.create()
+            activity.textures.create(data)
             activity.textures.hide()
             -- rectDownloadAppText.text = rectDownloadAppText.text .. '\nПодгрузка блоков объекта (' .. j .. '): ' .. activity.objects.object
-            activity.blocks.create()
+            activity.blocks.create(data)
             activity.blocks.hide()
           end
         end
+        visibleMenu(true)
         alertActive = false
         rectDownloadApp:removeSelf()
         rectDownloadAppText:removeSelf()

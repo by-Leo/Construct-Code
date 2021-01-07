@@ -88,7 +88,10 @@ blockList = function(num)
   blocksListButtons = {}
   y = y + blocksTarget.height / 2 + 43
 
-  local getTextButton = function() return strings.remove, strings.copy, strings.comment, strings.documentation end
+  local getTextButton = function()
+    if group.block[num].data.comment == 'false' then return strings.remove, strings.copy, strings.comment, strings.documentation
+    else return strings.remove, strings.copy, strings.ucomment, strings.documentation end
+  end
 
   for j = 1, 4 do
     blocksListButtons[j] = display.newRect(blockListGroup, _x, y, 415, 66)

@@ -63,11 +63,12 @@ activity.blocks.view = function()
   activity.blocks[activity.objects.name].scroll.isVisible = true
 end
 
-activity.blocks.create = function()
+activity.blocks.create = function(data)
   activity.blocks.group.isVisible = true
 
   if activity.blocks[activity.objects.name] then activity.blocks.view()
   else
+    local data = data or ccodeToJson(activity.programs.name)
     activity.blocks[activity.objects.name] = {}
 
     -- Переменные активити
@@ -95,8 +96,6 @@ activity.blocks.create = function()
     })
     activity.blocks[activity.objects.name].scroll:setScrollHeight(20)
     activity.blocks[activity.objects.name].block = {}
-
-    local data = ccodeToJson(activity.programs.name)
 
     for i = 1, #data.scenes do
       if data.scenes[i].name == activity.scenes.scene then
@@ -126,6 +125,9 @@ activity.blocks.create = function()
     end
 
     for i = 1, #activity.blocks[activity.objects.name].data do activity.genBlock(i) end
+    activity.scrollHeightUpdate()
+    activity.blocks[activity.objects.name].scroll:setScrollHeight(
+    activity.blocks[activity.objects.name].scrollHeight)
 
     if not activity.createActivity[activity.objects.name] then
       activity.createActivity[activity.objects.name] = true

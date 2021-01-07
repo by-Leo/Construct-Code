@@ -87,7 +87,6 @@ activity.newBlock = function(config)
   if config.type == 'objects' or config.type == 'textures' then config.group.scroll:insert(config.group.block[i].container) end
 
   config.group.scrollHeight = config.group.scrollHeight + 153
-  config.group.scroll:setScrollHeight(config.group.scrollHeight)
 
   -- Слушатель прикосновений
   config.group.block[i]:addEventListener('touch', function(e) activity.onClickBlock(config.name, config.type, e) return true end)

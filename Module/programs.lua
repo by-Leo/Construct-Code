@@ -100,7 +100,7 @@ activity.programs.create = function()
         type = 'programs',
         name = 'nil'
       })
-    end
+    end activity.programs['nil'].scroll:setScrollHeight(activity.programs['nil'].scrollHeight)
 
     activity.programs['nil'].onKeyEvent = function(event)
       if (event.keyName == "back" or event.keyName == "escape") and not alertActive and not activity.programs['nil'].alertActive and event.phase == 'up' and activity.programs['nil'].scroll.isVisible then

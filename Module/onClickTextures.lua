@@ -9,10 +9,7 @@ activity.onClickButton.textures.add = function(e)
     if e.input then
       e.text = activity.onInputEvent({phase='ok', text=e.text}, activity.textures[activity.objects.texture].data, 'textures')
 
-      local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
-      local file = io.open(path, 'r')
-      local bool = false
-      local newData = ''
+      local data = ccodeToJson(activity.programs.name)
       local importType = 'linear'
 
       for i = 1, #activity.objects[activity.scenes.name].block do
@@ -22,26 +19,14 @@ activity.onClickButton.textures.add = function(e)
         end
       end
 
-      if file then
-        for line in file:lines() do
-          if utf8.sub(line, 1, 3) == '  s' then
-            bool = activity.programs.name .. '.' .. utf8.match(line, '  s (.*)') == activity.scenes.name
-            newData = newData .. '\n' .. line
-          elseif utf8.sub(line, 1, 5) == '    o' then
-            local name = utf8.match(line, '    o (.*):')
-            local import = utf8.match(line, '/(.*)')
-            local jsonTextures = json.decode(utf8.match(line, ':(.*)/'))
-
-            if name == activity.objects.object then
-              jsonTextures[#jsonTextures+1] = e.text
-              newData = newData .. string.format('\n    o %s:%s/%s', name, json.encode(jsonTextures), import)
-            else newData = newData .. '\n' .. line end
-          else
-            if newData == '' then newData = line
-            else newData = newData .. '\n' .. line end
+      for i = 1, #data.scenes do
+        if data.scenes[i].name == activity.scenes.scene then
+          for j = 1, #data.scenes[i].objects do
+            if data.scenes[i].objects[j].name == activity.objects.object then
+              data.scenes[i].objects[j].textures[#data.scenes[i].objects[j].textures + 1] = e.text
+            end
           end
         end
-        io.close(file)
       end
 
       local completeImportPicture = function(import)
@@ -49,11 +34,7 @@ activity.onClickButton.textures.add = function(e)
           if import.done == 'ok' then
             local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', activity.programs.name, activity.programs.name)
             local file = io.open(path, 'w')
-
-            if file then
-              file:write(newData)
-              io.close(file)
-            end
+            if file then file:write(jsonToCCode(data)) io.close(file) end
 
             if #activity.textures[activity.objects.texture].block == 0 then
               activity.textures[activity.objects.texture].data[1] = e.text
@@ -126,7 +107,7 @@ end
 
 activity.onClickButton.textures.play = function(e)
   activity.textures.hide()
-  startProject('App', 'textures')
+  startProject(activity.programs.name, 'textures')
 end
 
 activity.onClickButton.textures.list = function(e)
@@ -184,10 +165,7 @@ activity.onClickButton.textures[2] = function()
   while i < #activity.textures[activity.objects.texture].block do
     i = i + 1
     if activity.textures[activity.objects.texture].block[i].checkbox.isOn then
-      activity.onFileRead.textures({
-        name = 'remove',
-        index = i
-      })
+      activity.onFile.textures('remove', i)
 
       for file in lfs.dir(system.pathForFile('', system.DocumentsDirectory) .. '/' .. activity.programs.name) do
         local theFile = system.pathForFile('', system.DocumentsDirectory) .. '/' .. activity.programs.name .. '/' .. file
@@ -374,10 +352,7 @@ activity.onClickButton.textures[5] = function()
           activity.textures[activity.objects.texture].scroll:insert(activity.textures[activity.objects.texture].block[i].text)
           activity.textures[activity.objects.texture].data[i] = event.text
 
-          activity.onFileRead.textures({
-            name = 'rename',
-            index = i
-          })
+          activity.onFile.textures('rename', i)
 
           for file in lfs.dir(system.pathForFile(activity.programs.name, system.DocumentsDirectory)) do
             local theFile = system.pathForFile(file, system.DocumentsDirectory)
