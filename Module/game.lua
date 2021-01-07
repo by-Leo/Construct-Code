@@ -181,16 +181,18 @@ startProject = function(app, name)
           }
           for e = 1, #data.scenes[s].objects[o].events do
             if data.scenes[s].objects[o].events[e].comment == 'false' then
-              gameData[s].objects[o].events[e] = {
-                name = data.scenes[s].objects[o].events[e].name,
-                params = data.scenes[s].objects[o].events[e].params,
+              local countE = #gameData[s].objects[o].events + 1
+              gameData[s].objects[o].events[countE] = {
+                name = data.scenes[s].objects[o].events[countE].name,
+                params = data.scenes[s].objects[o].events[countE].params,
                 formulas = {}
               }
-              for f = 1, #data.scenes[s].objects[o].events[e].formulas do
-                if data.scenes[s].objects[o].events[e].formulas[f].comment == 'false' then
-                  gameData[s].objects[o].events[e].formulas[f] = {
-                    name = data.scenes[s].objects[o].events[e].formulas[f].name,
-                    params = data.scenes[s].objects[o].events[e].formulas[f].params
+              for f = 1, #data.scenes[s].objects[o].events[countE].formulas do
+                if data.scenes[s].objects[o].events[countE].formulas[f].comment == 'false' then
+                  local countF = #gameData[s].objects[o].events[countE].formulas + 1
+                  gameData[s].objects[o].events[countE].formulas[countF] = {
+                    name = data.scenes[s].objects[o].events[countE].formulas[countF].name,
+                    params = data.scenes[s].objects[o].events[countE].formulas[countF].params
                   }
                 end
               end

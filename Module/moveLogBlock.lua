@@ -156,7 +156,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
     for j = 1, #group.block do
       if group.block[j].data.type == 'event' then
         if group.block[j + 1] and group.block[j + 1].data.type == 'event' then
-          activity.blocksDeleteBlock(group.block[j], group.block[j].num, group)
+          activity.blocksDeleteBlock(group.block[j], j, group)
           break
         end
       end

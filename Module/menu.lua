@@ -9,7 +9,7 @@ local myprogrambut, myprogramtext
 local donatebut, donatetext
 local settingsbut, settingstext
 local buildtext
---[[ Номер билда ]] buildVersion = 932
+--[[ Номер билда ]] buildVersion = 933
 
 function visibleMenu(visible)
   bg.isVisible = visible
