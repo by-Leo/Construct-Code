@@ -31,11 +31,11 @@ cprop.tag = function(exp, indexScene, indexObject)
   if exp then
     for i = 1, #game.objects[indexScene] do
       if game.objects[indexScene][i].name == exp[1] then
-        return {tostring(game.objects[indexScene][i].data.tag), 'num'}
+        return {tostring(game.objects[indexScene][i].data.tag), 'text'}
       end
     end return {'false', 'log'}
   else
-    return {tostring(game.objects[indexScene][indexObject].data.tag), 'num'}
+    return {tostring(game.objects[indexScene][indexObject].data.tag), 'text'}
   end
 end
 

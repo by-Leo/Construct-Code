@@ -13,13 +13,35 @@ activity.paramsFormulas = {
   ['updVar'] = {'variable', 'value'},
   ['setShowText'] = {'variable', 'font', 'color', 'value', 'align', 'value'},
   ['setHideText'] = {'variable'},
+  ['updTable'] = {'tabl', 'variable'},
   ['setTable'] = {'tabl', 'value', 'value'},
+  ['removeTable'] = {'tabl', 'value'},
+  ['setPosText'] = {'variable', 'value', 'value'},
+  ['setPosXText'] = {'variable', 'value'},
+  ['setPosYText'] = {'variable', 'value'},
+  ['setRotationText'] = {'variable', 'value'},
+  ['setAlignText'] = {'variable', 'align'},
+  ['setAlphaText'] = {'variable', 'value'},
+  ['setColorText'] = {'variable', 'color'},
+  ['setFrontText'] = {'variable'},
+  ['setBackText'] = {'variable'},
+  ['readVar'] = {'variable'},
+  ['writeVar'] = {'variable'},
 
   -- object
   ['setPos'] = {'value', 'value'},
   ['setX'] = {'value'},
   ['setY'] = {'value'},
   ['setSize'] = {'value'},
+  ['setHide'] = {},
+  ['setView'] = {},
+  ['setRotation'] = {'value'},
+  ['setAlpha'] = {'value'},
+  ['setTag'] = {'tag'},
+  ['setFront'] = {},
+  ['setBack'] = {},
+  ['setLinkTexture'] = {'value'},
+  ['resetSize'] = {},
 
   -- copy
   ['setCopy'] = {'setcopy'},
@@ -29,12 +51,19 @@ activity.paramsFormulas = {
   -- control
   ['fun'] = {'func'},
   ['funParams'] = {'func', 'tabl'},
+  ['useTag'] = {'tag'},
+  ['useTagEnd'] = {},
   ['if'] = {'value'},
-  ['if'] = {'value'},
+  ['ifElse'] = {'value'},
+  ['else'] = {},
   ['ifEnd'] = {},
   ['for'] = {'value'},
   ['forEnd'] = {},
+  ['enterFrame'] = {},
+  ['enterFrameEnd'] = {},
   ['timer'] = {'value'},
+  ['groupCreate'] = {'scene'},
+  ['groupView'] = {'scene'},
   ['fileLine'] = {'variable', 'value', 'basedir'},
   ['fileLineEnd'] = {},
   ['fileRead'] = {'variable', 'value', 'basedir'},
@@ -43,6 +72,7 @@ activity.paramsFormulas = {
   ['fileMove'] = {'value', 'basedir', 'value', 'basedir'},
   ['fileCopy'] = {'value', 'basedir', 'value', 'basedir'},
   ['fileRemove'] = {'value', 'basedir'},
+  ['closeApp'] = {},
 
   -- physics
   ['setBody'] = {'body', 'value', 'value', 'value'},
@@ -67,65 +97,95 @@ activity.typeFormulas = {
     'onClick',
     'onClickEnd',
     'onFun',
-    'onBack',
-    'onHide',
-    'onView'
+    -- 'onBack',
+    -- 'onHide',
+    -- 'onView'
   },
   data = {
     'setVar',
     'updVar',
     'setShowText',
     'setHideText',
-    'setTable'
+    'updTable',
+    'setTable',
+    'removeTable',
+    'setPosText',
+    'setPosXText',
+    'setPosYText',
+    'setRotationText',
+    'setAlignText',
+    'setAlphaText',
+    'setColorText',
+    'setFrontText',
+    'setBackText',
+    'readVar',
+    'writeVar'
   },
   object = {
     'setPos',
     'setX',
     'setY',
-    'setSize'
+    'setSize',
+    'setHide',
+    'setView',
+    'setRotation',
+    'setAlpha',
+    'setTag',
+    'setFront',
+    'setBack',
+    'setLinkTexture',
+    'resetSize'
   },
   copy = {
-    'setCopy',
-    'removeCopy',
-    'setPosCopy'
+    -- 'setCopy',
+    -- 'removeCopy',
+    -- 'setPosCopy'
   },
   control = {
     'fun',
     'funParams',
+    'useTag',
     'if',
+    'ifElse',
     'for',
+    'enterFrame',
     'timer',
-    'fileLine',
-    'fileRead',
-    'fileWrite',
-    'fileUpdate',
-    'fileMove',
-    'fileCopy',
-    'fileRemove',
+    'groupCreate',
+    'groupView',
+    -- 'fileLine',
+    -- 'fileRead',
+    -- 'fileWrite',
+    -- 'fileUpdate',
+    -- 'fileMove',
+    -- 'fileCopy',
+    -- 'fileRemove',
+    'closeApp',
+    'else',
     'ifEnd',
     'forEnd',
-    'fileLineEnd'
+    'enterFrameEnd',
+    'useTagEnd',
+    -- 'fileLineEnd'
   },
   physics = {
-    'setBody',
-    'removeBody',
-    'startPhysics',
-    'stopPhysics'
+    -- 'setBody',
+    -- 'removeBody',
+    -- 'startPhysics',
+    -- 'stopPhysics'
   },
   physicscopy = {
-    'setGravityCopy',
-    'setSensorCopy',
-    'setPhyRotationCopy'
+    -- 'setGravityCopy',
+    -- 'setSensorCopy',
+    -- 'setPhyRotationCopy'
   },
   network = {
     'openUrl',
     'setGet',
-    'setPost'
+    -- 'setPost'
   }
 }
 
-activity.genType = function(i)
-  local group = activity.blocks[activity.objects.name]
+activity.genType = function(i, group)
   local types = {'data', 'object', 'copy', 'control', 'physics', 'physicscopy', 'network'}
 
   if group.data[i].comment == 'false' and group.data[i].type == 'event' then return 'event'
@@ -141,121 +201,123 @@ activity.genType = function(i)
   end
 end
 
-activity.putBlockParams = function(i)
-  local group = activity.blocks[activity.objects.name]
-
-  local getXParams = function(targetName)
-    if targetName == 'text' then
-      if #group.block[i].data.params < 3 then return _pW / 2 - 240, _pW / 2 + 80
-      elseif #group.block[i].data.params == 3 then return _pW / 2 - 240, _pW / 2 - 240, _pW / 2 + 80
-      elseif #group.block[i].data.params == 4 then return _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80
-      elseif #group.block[i].data.params == 5 then return _pW / 2 - 240, _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80
-      elseif #group.block[i].data.params == 6 then return _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80
-      end
-    elseif targetName == 'line' then
-      if #group.block[i].data.params == 1 then return _pW / 2 + 75
-      elseif #group.block[i].data.params == 2 then return _pW / 2 - 85, _pW / 2 + 235
-      elseif #group.block[i].data.params == 3 then return _pW / 2 + 75, _pW / 2 - 85, _pW / 2 + 235
-      elseif #group.block[i].data.params == 4 then return _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235
-      elseif #group.block[i].data.params == 5 then return _pW / 2 + 75, _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235
-      elseif #group.block[i].data.params == 6 then return _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235
-      end
+local getXParams = function(targetName, i, group)
+  if targetName == 'text' then
+    if #group.block[i].data.params < 3 then return _pW / 2 - 240, _pW / 2 + 80
+    elseif #group.block[i].data.params == 3 then return _pW / 2 - 240, _pW / 2 - 240, _pW / 2 + 80
+    elseif #group.block[i].data.params == 4 then return _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80
+    elseif #group.block[i].data.params == 5 then return _pW / 2 - 240, _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80
+    elseif #group.block[i].data.params == 6 then return _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80, _pW / 2 - 240, _pW / 2 + 80
+    end
+  elseif targetName == 'line' then
+    if #group.block[i].data.params == 1 then return _pW / 2 + 75
+    elseif #group.block[i].data.params == 2 then return _pW / 2 - 85, _pW / 2 + 235
+    elseif #group.block[i].data.params == 3 then return _pW / 2 + 75, _pW / 2 - 85, _pW / 2 + 235
+    elseif #group.block[i].data.params == 4 then return _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235
+    elseif #group.block[i].data.params == 5 then return _pW / 2 + 75, _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235
+    elseif #group.block[i].data.params == 6 then return _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235, _pW / 2 - 85, _pW / 2 + 235
     end
   end
+end
 
-  local getYParams = function(targetName)
-    if targetName == 'text' then
-      if #group.block[i].data.params < 3 then return group.blockY + 22, group.blockY + 22
-      elseif #group.block[i].data.params == 3 then return group.blockY - 8, group.blockY + 52, group.blockY + 52
-      elseif #group.block[i].data.params == 4 then return group.blockY - 8, group.blockY - 8, group.blockY + 52, group.blockY + 52
-      elseif #group.block[i].data.params == 5 then return group.blockY - 38, group.blockY + 22, group.blockY + 22, group.blockY + 82, group.blockY + 82
-      elseif #group.block[i].data.params == 6 then return group.blockY - 38, group.blockY - 38, group.blockY + 22, group.blockY + 22, group.blockY + 82, group.blockY + 82
-      end
-    elseif targetName == 'line' then
-      if #group.block[i].data.params < 3 then return group.blockY + 42, group.blockY + 42
-      elseif #group.block[i].data.params == 3 then return group.blockY + 12, group.blockY + 72, group.blockY + 72
-      elseif #group.block[i].data.params == 4 then return group.blockY + 12, group.blockY + 12, group.blockY + 72, group.blockY + 72
-      elseif #group.block[i].data.params == 5 then return group.blockY - 18, group.blockY + 42, group.blockY + 42, group.blockY + 102, group.blockY + 102
-      elseif #group.block[i].data.params == 6 then return group.blockY - 18, group.blockY - 18, group.blockY + 42, group.blockY + 42, group.blockY + 102, group.blockY + 102
-      end
-    elseif targetName == 'textParams' then
-      if #group.block[i].data.params < 3 then return group.blockY + 27, group.blockY + 27
-      elseif #group.block[i].data.params == 3 then return group.blockY - 3, group.blockY + 57, group.blockY + 57
-      elseif #group.block[i].data.params == 4 then return group.blockY - 3, group.blockY - 3, group.blockY + 57, group.blockY + 57
-      elseif #group.block[i].data.params == 5 then return group.blockY - 33, group.blockY + 27, group.blockY + 27, group.blockY + 87, group.blockY + 87
-      elseif #group.block[i].data.params == 6 then return group.blockY - 33, group.blockY - 33, group.blockY + 27, group.blockY + 27, group.blockY + 87, group.blockY + 87
-      end
+local getYParams = function(targetName, i, group)
+  if targetName == 'text' then
+    if #group.block[i].data.params < 3 then return group.blockY + 22, group.blockY + 22
+    elseif #group.block[i].data.params == 3 then return group.blockY - 8, group.blockY + 52, group.blockY + 52
+    elseif #group.block[i].data.params == 4 then return group.blockY - 8, group.blockY - 8, group.blockY + 52, group.blockY + 52
+    elseif #group.block[i].data.params == 5 then return group.blockY - 38, group.blockY + 22, group.blockY + 22, group.blockY + 82, group.blockY + 82
+    elseif #group.block[i].data.params == 6 then return group.blockY - 38, group.blockY - 38, group.blockY + 22, group.blockY + 22, group.blockY + 82, group.blockY + 82
+    end
+  elseif targetName == 'line' then
+    if #group.block[i].data.params < 3 then return group.blockY + 42, group.blockY + 42
+    elseif #group.block[i].data.params == 3 then return group.blockY + 12, group.blockY + 72, group.blockY + 72
+    elseif #group.block[i].data.params == 4 then return group.blockY + 12, group.blockY + 12, group.blockY + 72, group.blockY + 72
+    elseif #group.block[i].data.params == 5 then return group.blockY - 18, group.blockY + 42, group.blockY + 42, group.blockY + 102, group.blockY + 102
+    elseif #group.block[i].data.params == 6 then return group.blockY - 18, group.blockY - 18, group.blockY + 42, group.blockY + 42, group.blockY + 102, group.blockY + 102
+    end
+  elseif targetName == 'textParams' then
+    if #group.block[i].data.params < 3 then return group.blockY + 27, group.blockY + 27
+    elseif #group.block[i].data.params == 3 then return group.blockY - 3, group.blockY + 57, group.blockY + 57
+    elseif #group.block[i].data.params == 4 then return group.blockY - 3, group.blockY - 3, group.blockY + 57, group.blockY + 57
+    elseif #group.block[i].data.params == 5 then return group.blockY - 33, group.blockY + 27, group.blockY + 27, group.blockY + 87, group.blockY + 87
+    elseif #group.block[i].data.params == 6 then return group.blockY - 33, group.blockY - 33, group.blockY + 27, group.blockY + 27, group.blockY + 87, group.blockY + 87
     end
   end
+end
 
-  local getWidthLine = function()
-    if #group.block[i].data.params == 1 then return 470
-    elseif #group.block[i].data.params == 2 then return 150, 150
-    elseif #group.block[i].data.params == 3 then return 470, 150, 150
-    elseif #group.block[i].data.params == 4 then return 150, 150, 150, 150
-    elseif #group.block[i].data.params == 5 then return 470, 150, 150, 150, 150
-    elseif #group.block[i].data.params == 6 then return 150, 150, 150, 150, 150, 150
+local getWidthLine = function(i, group)
+  if #group.block[i].data.params == 1 then return 470
+  elseif #group.block[i].data.params == 2 then return 150, 150
+  elseif #group.block[i].data.params == 3 then return 470, 150, 150
+  elseif #group.block[i].data.params == 4 then return 150, 150, 150, 150
+  elseif #group.block[i].data.params == 5 then return 470, 150, 150, 150, 150
+  elseif #group.block[i].data.params == 6 then return 150, 150, 150, 150, 150, 150
+  end
+end
+
+local addVariableInRect = function(k, n, text, type, i, group)
+  local paramsTable = {}
+  for f = 1, #group.block[k].data.params[n] do
+    if group.block[k].data.params[n][f] then
+      paramsTable[f] = table.copy(group.block[k].data.params[n][f])
     end
-  end
+  end paramsTable[1] = table.copy({text, type})
+  group.block[k].data.params[n] = table.copy(paramsTable)
+  group.block[k].params[n].text.text = getTextParams(k, n, group)
+  activity.blocksFileUpdate()
+end
 
-  local addVariableInRect = function(k, n, text, type)
-    local group = activity.blocks[activity.objects.name]
-    local paramsTable = {}
-    for f = 1, #group.block[k].data.params[n] do
-      if group.block[k].data.params[n][f] then
-        paramsTable[f] = table.copy(group.block[k].data.params[n][f])
+getTextParams = function(i, j, group)
+  local group = group or activity.blocks[activity.objects.name]
+  local textFromParams = ''
+
+  for p = 1, #group.block[i].data.params[j] do
+    local value = group.block[i].data.params[j][p][1]
+
+    if group.block[i].data.params[j][p][2] == 'text' then value = '\'' .. utf8.gsub(value, '\n', '\\n') .. '\''
+    elseif group.block[i].data.params[j][p][2] == 'var' then value = '"' .. value .. '"'
+    elseif group.block[i].data.params[j][p][2] == 'table' and group.block[i].data.params[j][p][1] ~= '[' and group.block[i].data.params[j][p][1] ~= ']' then value = '{' .. value .. '}'
+    elseif group.block[i].data.params[j][p][2] == 'local' then value = '{' .. strings.editorLocalTable .. '}'
+    elseif group.block[i].data.params[j][p][2] == 'fun' or group.block[i].data.params[j][p][2] == 'prop' or group.block[i].data.params[j][p][2] == 'log' then
+      for n = 1, #strings.editorList[group.block[i].data.params[j][p][2]] do
+        if strings.editorList[group.block[i].data.params[j][p][2]][n][2] == value then
+          value = strings.editorList[group.block[i].data.params[j][p][2]][n][1]
+        end
       end
-    end paramsTable[1] = table.copy({text, type})
-    group.block[k].data.params[n] = table.copy(paramsTable)
-    group.block[k].params[n].text.text = getTextParams(k, n)
-    activity.blocksFileUpdate()
+    elseif group.block[i].data.params[j][p][2] == 'body' or group.block[i].data.params[j][p][2] == 'sensor' or group.block[i].data.params[j][p][2] == 'phyrotation'
+    or group.block[i].data.params[j][p][2] == 'copy' or group.block[i].data.params[j][p][2] == 'align' or group.block[i].data.params[j][p][2] == 'basedir' then
+      value = strings[group.block[i].data.params[j][p][1]]
+    end
+
+    textFromParams = textFromParams == '' and textFromParams .. value or textFromParams .. ' ' .. value
   end
 
+  return textFromParams
+end
+
+getScenesInList = function(i, group)
+  local data, scenes = ccodeToJson(activity.programs.name), {}
+  for s = 1, #data.scenes do scenes[#scenes + 1] = data.scenes[s].name end return scenes
+end
+
+getObjectInList = function(i, group)
+  local data = ccodeToJson(activity.programs.name)
+  objects = {strings.selfCopy}
+
+  for s = 1, #data.scenes do
+    if data.scenes[s].name == activity.scenes.scene then
+      for o = 1, #data.scenes[s].objects do
+        if data.scenes[s].objects[o].name ~= activity.objects.object then
+          objects[#objects + 1] = data.scenes[s].objects[o].name
+        end
+      end
+      break
+    end
+  end return objects
+end
+
+activity.putBlockParams = function(i, group)
   group.block[i].params = {}
-
-  getTextParams = function(i, j)
-    local group = activity.blocks[activity.objects.name]
-    local textFromParams = ''
-
-    for p = 1, #group.block[i].data.params[j] do
-      local value = group.block[i].data.params[j][p][1]
-
-      if group.block[i].data.params[j][p][2] == 'text' then value = '\'' .. utf8.gsub(value, '\n', '\\n') .. '\''
-      elseif group.block[i].data.params[j][p][2] == 'var' then value = '"' .. value .. '"'
-      elseif group.block[i].data.params[j][p][2] == 'table' and group.block[i].data.params[j][p][1] ~= '[' and group.block[i].data.params[j][p][1] ~= ']' then value = '{' .. value .. '}'
-      elseif group.block[i].data.params[j][p][2] == 'local' then value = '{' .. strings.editorLocalTable .. '}'
-      elseif group.block[i].data.params[j][p][2] == 'fun' or group.block[i].data.params[j][p][2] == 'prop' or group.block[i].data.params[j][p][2] == 'log' then
-        for n = 1, #strings.editorList[group.block[i].data.params[j][p][2]] do
-          if strings.editorList[group.block[i].data.params[j][p][2]][n][2] == value then
-            value = strings.editorList[group.block[i].data.params[j][p][2]][n][1]
-          end
-        end
-      elseif group.block[i].data.params[j][p][2] == 'body' or group.block[i].data.params[j][p][2] == 'sensor' or group.block[i].data.params[j][p][2] == 'phyrotation'
-      or group.block[i].data.params[j][p][2] == 'copy' or group.block[i].data.params[j][p][2] == 'align' or group.block[i].data.params[j][p][2] == 'basedir' then
-        value = strings[group.block[i].data.params[j][p][1]]
-      end
-
-      textFromParams = textFromParams == '' and textFromParams .. value or textFromParams .. ' ' .. value
-    end
-
-    return textFromParams
-  end
-
-  getObjectInList = function()
-    local data = ccodeToJson(activity.programs.name)
-    objects = {strings.selfCopy}
-
-    for s = 1, #data.scenes do
-      if data.scenes[s].name == activity.scenes.scene then
-        for o = 1, #data.scenes[s].objects do
-          if data.scenes[s].objects[o].name ~= activity.objects.object then
-            objects[#objects + 1] = data.scenes[s].objects[o].name
-          end
-        end
-        break
-      end
-    end return objects
-  end
 
   for j = 1, #activity.paramsFormulas[group.block[i].data.name] do
     group.block[i].params[j] = {}
@@ -269,23 +331,23 @@ activity.putBlockParams = function(i)
 
     group.block[i].params[j].name = display.newText({
       text = strings.blocks[group.block[i].data.name][2][j], align = 'left', height = textGetHeight.height,
-      x = select(j, getXParams('text')), y = select(j, getYParams('text')), font = 'ubuntu_!bold.ttf', fontSize = 22, width = 150
+      x = select(j, getXParams('text', i, group)), y = select(j, getYParams('text', i, group)), font = 'ubuntu_!bold.ttf', fontSize = 22, width = 150
     })
-    group.block[i].params[j].name.additionX = select(j, getXParams('text')) - _pW / 2
-    group.block[i].params[j].name.additionY = select(j, getYParams('text')) - group.blockY
+    group.block[i].params[j].name.additionX = select(j, getXParams('text', i, group)) - _pW / 2
+    group.block[i].params[j].name.additionY = select(j, getYParams('text', i, group)) - group.blockY
 
     textGetHeight:removeSelf()
 
-    group.block[i].params[j].line = display.newRect(select(j, getXParams('line')), select(j, getYParams('line')), select(j, getWidthLine()), 3)
+    group.block[i].params[j].line = display.newRect(select(j, getXParams('line', i, group)), select(j, getYParams('line', i, group)), select(j, getWidthLine(i, group)), 3)
     group.block[i].params[j].line:setFillColor(84/255,84/255,84/255)
-    group.block[i].params[j].line.additionX = select(j, getXParams('line')) - _pW / 2
-    group.block[i].params[j].line.additionY = select(j, getYParams('line')) - group.blockY
+    group.block[i].params[j].line.additionX = select(j, getXParams('line', i, group)) - _pW / 2
+    group.block[i].params[j].line.additionY = select(j, getYParams('line', i, group)) - group.blockY
 
-    group.block[i].params[j].rect = display.newRect(select(j, getXParams('line')), select(j, getYParams('line')) - 21.5, select(j, getWidthLine()), 40)
+    group.block[i].params[j].rect = display.newRect(select(j, getXParams('line', i, group)), select(j, getYParams('line', i, group)) - 21.5, select(j, getWidthLine(i, group)), 40)
     group.block[i].params[j].rect:setFillColor(1)
     group.block[i].params[j].rect.alpha = 0.005
     group.block[i].params[j].rect.targetX = group.block[i].params[j].rect.x
-    group.block[i].params[j].rect.additionY = select(j, getYParams('line')) - 21.5 - group.blockY
+    group.block[i].params[j].rect.additionY = select(j, getYParams('line', i, group)) - 21.5 - group.blockY
 
     group.block[i].params[j].rect:addEventListener('touch', function(e)
       if not alertActive and group.scroll.isVisible then
@@ -335,10 +397,11 @@ activity.putBlockParams = function(i)
                     activity.inputColor(rgb, function(e)
                       if e.input then
                         r, g, b = unpack(e.color)
-                        addVariableInRect(k, n, '[' .. r .. ', ' .. g .. ', ' .. b .. ']', typeParams)
+                        addVariableInRect(k, n, '[' .. r .. ', ' .. g .. ', ' .. b .. ']', typeParams, i, group)
                       end
                     end)
-                  elseif typeParams == 'font' or typeParams == 'body' or typeParams == 'sensor' or typeParams == 'phyrotation' or typeParams == 'basedir' or typeParams == 'copy' or typeParams == 'align' then
+                  elseif typeParams == 'font' or typeParams == 'body' or typeParams == 'sensor'
+                  or typeParams == 'phyrotation' or typeParams == 'basedir' or typeParams == 'copy' or typeParams == 'align' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local activeBut
                     local tableParams = {strings.staticBody, strings.dynamicBody}
@@ -348,6 +411,7 @@ activity.putBlockParams = function(i)
                     elseif typeParams == 'copy' then tableParams = {strings.currentCopy, strings.lastCopy, strings.allCopy}
                     elseif typeParams == 'align' then tableParams = {strings.leftAlign, strings.centerAlign, strings.rightAlign}
                     elseif typeParams == 'basedir' then tableParams = {'ResDirectory', 'DocDirectory', 'TempDirectory'}
+                    elseif typeParams == 'fps' then tableParams = {'60', '30', '15'}
                     elseif typeParams == 'font' then
                       tableParams = {'ubuntu.ttf', 'sans.ttf', 'system.ttf'}
                       for u = 1, #activity.resources[activity.programs.name].block do
@@ -375,10 +439,23 @@ activity.putBlockParams = function(i)
                             'ResDirectory', 'DocDirectory', 'TempDirectory'
                           } for u = 1, #table do if event.text == strings[table[u]] then type = table[u] end end
                           if typeParams == 'font' then type = event.text end
-                          addVariableInRect(k, n, type, typeParams)
+                          addVariableInRect(k, n, type, typeParams, i, group)
                         end
                       end)
                     end
+                  elseif typeParams == 'scene' then
+                    local yScroll = select(2, group.scroll:getContentPosition())
+                    local activeBut
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      activeBut = group.block[k].data.params[n][1][1]
+                    end
+
+                    group.scroll:setIsLocked(true, 'vertical')
+                    list(getScenesInList(i, group), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
+                      group.scroll:setIsLocked(false, 'vertical')
+                      if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
+                    end)
                   elseif typeParams == 'setcopy' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local activeBut
@@ -392,11 +469,11 @@ activity.putBlockParams = function(i)
                     elseif activeBut ~= strings.selfCopy then activeButVar = strings.selfCopy end
 
                     group.scroll:setIsLocked(true, 'vertical')
-                    list(getObjectInList(), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
+                    list(getObjectInList(i, group), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut, activeButVar = activeButVar}, function(event)
                       group.scroll:setIsLocked(false, 'vertical')
-                      if event.text then addVariableInRect(k, n, event.text, typeParams) end
+                      if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
                     end)
-                  elseif typeParams == 'variable' or typeParams == 'tabl' or typeParams == 'func' then
+                  elseif typeParams == 'variable' or typeParams == 'tabl' or typeParams == 'func' or typeParams == 'tag' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local varTable = {strings['new' .. typeParams]}
                     local typeTable = 'vars'
@@ -404,7 +481,8 @@ activity.putBlockParams = function(i)
                     local activeButVar
 
                     if typeParams == 'tabl' then typeTable = 'tables'
-                    elseif typeParams == 'func' then typeTable = 'funs' end
+                    elseif typeParams == 'func' then typeTable = 'funs'
+                    elseif typeParams == 'tag' then typeTable = 'tags' end
 
                     if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
                       activeBut = group.block[k].data.params[n][1][1]
@@ -413,8 +491,14 @@ activity.putBlockParams = function(i)
                     if not activeBut then activeBut = strings['new' .. typeParams]
                     else activeButVar = strings['new' .. typeParams] end
 
-                    for u = 1, #activity.scenes[activity.programs.name][typeTable] do
-                      varTable[#varTable + 1] = activity.scenes[activity.programs.name][typeTable][u]
+                    if typeParams == 'func' then
+                      for u = 1, #activity.scenes[activity.programs.name][typeTable][activity.scenes.scene] do
+                        varTable[#varTable + 1] = activity.scenes[activity.programs.name][typeTable][activity.scenes.scene][u]
+                      end
+                    else
+                      for u = 1, #activity.scenes[activity.programs.name][typeTable] do
+                        varTable[#varTable + 1] = activity.scenes[activity.programs.name][typeTable][u]
+                      end
                     end
 
                     group.scroll:setIsLocked(true, 'vertical')
@@ -424,28 +508,48 @@ activity.putBlockParams = function(i)
                         input(strings['new' .. typeParams .. 'Title'], strings['new' .. typeParams .. 'Text'], function(event)
                           if event.phase == 'editing' then
                             inputPermission(true)
-                            for f = 1, #activity.scenes[activity.programs.name][typeTable] do
-                              if trim(event.text) == activity.scenes[activity.programs.name][typeTable][f] then
-                                inputPermission(false)
+                            if typeParams == 'func' then
+                              for f = 1, #activity.scenes[activity.programs.name][typeTable][activity.scenes.scene] do
+                                if trim(event.text) == activity.scenes[activity.programs.name][typeTable][activity.scenes.scene][f] then
+                                  inputPermission(false)
+                                end
+                              end
+                            else
+                              for f = 1, #activity.scenes[activity.programs.name][typeTable] do
+                                if trim(event.text) == activity.scenes[activity.programs.name][typeTable][f] then
+                                  inputPermission(false)
+                                end
                               end
                             end
                             if trim(event.text) == '' then inputPermission(false) end
                           end
                         end, function(e)
                           if e.input then
-                            for f = 1, #activity.scenes[activity.programs.name][typeTable] do
-                              if e.text == activity.scenes[activity.programs.name][typeTable][f] then
-                                e.text = 'Не используй T9_' .. math.random(111111111, 999999999)
+                            if typeParams == 'func' then
+                              for f = 1, #activity.scenes[activity.programs.name][typeTable][activity.scenes.scene] do
+                                if e.text == activity.scenes[activity.programs.name][typeTable][activity.scenes.scene][f] then
+                                  e.text = 'Не используй T9_' .. math.random(111111111, 999999999)
+                                end
+                              end
+                            else
+                              for f = 1, #activity.scenes[activity.programs.name][typeTable] do
+                                if e.text == activity.scenes[activity.programs.name][typeTable][f] then
+                                  e.text = 'Не используй T9_' .. math.random(111111111, 999999999)
+                                end
                               end
                             end
                             if trim(e.text) ~= '' then
-                              activity.scenes[activity.programs.name][typeTable][#activity.scenes[activity.programs.name][typeTable] + 1] = trim(e.text)
-                              addVariableInRect(k, n, trim(e.text), typeParams)
+                              if typeParams == 'func' then
+                                activity.scenes[activity.programs.name][typeTable][activity.scenes.scene][#activity.scenes[activity.programs.name][typeTable][activity.scenes.scene] + 1] = trim(e.text)
+                              else
+                                activity.scenes[activity.programs.name][typeTable][#activity.scenes[activity.programs.name][typeTable] + 1] = trim(e.text)
+                              end
+                              addVariableInRect(k, n, trim(e.text), typeParams, i, group)
                             end
                           end
                         end)
                       elseif event.text then
-                        addVariableInRect(k, n, event.text, typeParams)
+                        addVariableInRect(k, n, event.text, typeParams, i, group)
                       end
                     end)
                   end
@@ -461,11 +565,11 @@ activity.putBlockParams = function(i)
     end)
 
     group.block[i].params[j].text = display.newText({
-      text = getTextParams(i, j), align = 'center', height = 26,
-      x = select(j, getXParams('line')), y = select(j, getYParams('textParams')), font = 'ubuntu_!bold.ttf', fontSize = 20, width = select(j, getWidthLine())-5
+      text = getTextParams(i, j, group), align = 'center', height = 26,
+      x = select(j, getXParams('line', i, group)), y = select(j, getYParams('textParams', i, group)), font = 'ubuntu_!bold.ttf', fontSize = 20, width = select(j, getWidthLine(i, group))-5
     })
-    group.block[i].params[j].text.additionX = select(j, getXParams('line')) - _pW / 2
-    group.block[i].params[j].text.additionY = select(j, getYParams('textParams')) - group.blockY
+    group.block[i].params[j].text.additionX = select(j, getXParams('line', i, group)) - _pW / 2
+    group.block[i].params[j].text.additionY = select(j, getYParams('textParams', i, group)) - group.blockY
 
     group.scroll:insert(group.block[i].params[j].name)
     group.scroll:insert(group.block[i].params[j].line)
@@ -487,7 +591,7 @@ activity.putBlockParams = function(i)
             else
               local name = group.block[j].data.name
 
-              if name ~= 'ifEnd' then
+              if name ~= 'ifEnd' and name ~= 'enterFrameEnd' and name ~= 'useTagEnd' and name ~= 'forEnd' and name ~= 'else' then
                 group.block[j].checkbox.isVisible = true
               end
 
@@ -495,20 +599,23 @@ activity.putBlockParams = function(i)
             end
           end
         else
-          if name == 'if' then
+          if name == 'if' or name == 'ifElse' or name == 'for'
+          or name == 'enterFrame' or name == 'useTag' then
             local nestedFactor = 1
+            local nameEnd = name .. 'End'
+            if name == 'ifElse' then nameEnd = 'ifEnd' end
 
             for j = group.listPressNum + 1, #group.block do
               local name2 = group.block[j].data.name
 
-              if name2 ~= name .. 'End' then
+              if name2 ~= nameEnd then
                 group.block[j].checkbox.isVisible = true
               end
 
               group.block[j].checkbox:setState({isOn=false})
 
               if group.block[j].data.name == name then nestedFactor = nestedFactor + 1
-              elseif group.block[j].data.name == name .. 'End' then nestedFactor = nestedFactor - 1 end
+              elseif group.block[j].data.name == nameEnd then nestedFactor = nestedFactor - 1 end
               if nestedFactor == 0 then break end
             end
           end
@@ -530,7 +637,7 @@ activity.putBlockParams = function(i)
         else
           local name = group.block[j].data.name
 
-          if name ~= 'ifEnd' then
+          if name ~= 'ifEnd' and name ~= 'useTagEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
             group.block[j].checkbox.isVisible = not group.block[i].checkbox.isOn
           end
 
@@ -539,13 +646,16 @@ activity.putBlockParams = function(i)
         end
       end
     else
-      if name == 'if' then
+      if name == 'if' or name == 'ifElse' or name == 'for'
+      or name == 'enterFrame' or name == 'useTag' then
         local nestedFactor = 1
+        local nameEnd = group.block[i].data.name .. 'End'
+        if name == 'ifElse' then nameEnd = 'ifEnd' end
 
         for j = i + 1, #group.block do
           local name = group.block[j].data.name
 
-          if name ~= group.block[i].data.name .. 'End' then
+          if name ~= nameEnd then
             group.block[j].checkbox.isVisible = not group.block[i].checkbox.isOn
           end
 
@@ -553,7 +663,7 @@ activity.putBlockParams = function(i)
           group.block[j].parentIndex = i
 
           if name == group.block[i].data.name then nestedFactor = nestedFactor + 1
-          elseif name == group.block[i].data.name .. 'End' then nestedFactor = nestedFactor - 1 end
+          elseif name == nameEnd then nestedFactor = nestedFactor - 1 end
           if nestedFactor == 0 then break end
         end
       end
@@ -569,15 +679,13 @@ activity.putBlockParams = function(i)
   group.scroll:insert(group.block[i].checkbox)
 end
 
-activity.putBlock = function(i)
-  local group = activity.blocks[activity.objects.name]
-
+activity.putBlock = function(i, group)
   table.insert(group.block, i, {})
-  group.block[i] = display.newImage('Image/' .. activity.genType(i) .. 'Block.png', _pW / 2, group.blockY)
+  group.block[i] = display.newImage('Image/' .. activity.genType(i, group) .. 'Block.png', _pW / 2, group.blockY)
   group.block[i].num = i
   group.block[i].data = group.data[i]
   group.block[i].press = false
-  group.block[i].path = 'Image/' .. activity.genType(i) .. 'Block.png'
+  group.block[i].path = 'Image/' .. activity.genType(i, group) .. 'Block.png'
 
   if group.block[i].data.type == 'formula' then
     if #group.block[i].data.params < 3 then
@@ -610,14 +718,13 @@ activity.putBlock = function(i)
   group.scroll:insert(group.block[i].text)
   if group.block[i].data.type == 'formula' then group.scroll:insert(group.block[i].corner) end
 
-  activity.putBlockParams(i)
+  activity.putBlockParams(i, group)
 
   group.block[i]:addEventListener('touch', activity.onClickLogBlock)
 end
 
-activity.scrollHeightUpdate = function()
-  local group = activity.blocks[activity.objects.name]
-
+activity.scrollHeightUpdate = function(group)
+  local group = group or activity.blocks[activity.objects.name]
   group.scrollHeight = 20
 
   for j = 1, #group.block do
@@ -632,9 +739,8 @@ activity.scrollHeightUpdate = function()
   end
 end
 
-activity.genBlock = function(i)
-  local group = activity.blocks[activity.objects.name]
-
+activity.genBlock = function(i, group)
+  local group = group or activity.blocks[activity.objects.name]
   group.blockY = -66
 
   for j = 1, i-1 do
@@ -656,6 +762,5 @@ activity.genBlock = function(i)
   elseif #group.data[i].params < 7 then newHeight = 176 end
 
   group.blockY, group.scrollHeight = group.blockY + newHeight, group.scrollHeight + newHeight
-
-  activity.putBlock(i)
+  activity.putBlock(i, group)
 end

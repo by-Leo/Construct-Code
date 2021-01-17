@@ -99,7 +99,7 @@ for i = 1, #typeblocks do
 
   if utf8.sub(typeblocks[i], 1, 3) ~= 'not' then
     for j = 1, #activity.typeFormulas[typeblocks[i]] do
-      if not utf8.find(activity.typeFormulas[typeblocks[i]][j], 'End') or i == 1 then
+      if (not utf8.find(activity.typeFormulas[typeblocks[i]][j], 'End') and activity.typeFormulas[typeblocks[i]][j] ~= 'else') or i == 1 then
         activity.newblocks[typeblocks[i]].blocks[#activity.newblocks[typeblocks[i]].blocks + 1] = display.newImage('Image/' .. typeblocks[i] .. 'Block.png')
         activity.newblocks[typeblocks[i]].blocks[#activity.newblocks[typeblocks[i]].blocks].name = activity.typeFormulas[typeblocks[i]][j]
         activity.newblocks[typeblocks[i]].blocks[#activity.newblocks[typeblocks[i]].blocks].type = i == 1 and 'event' or 'formula'
@@ -183,14 +183,24 @@ for i = 1, #typeblocks do
             }
             activity.genBlock(i)
 
-            if e.target.name == 'if' or e.target.name == 'for' then
-              group.data[i + 1] = {
-                name = e.target.name .. 'End',
+            if e.target.name == 'if' or e.target.name == 'ifElse' or e.target.name == 'for'
+            or e.target.name == 'enterFrame' or e.target.name == 'useTag' then
+              local name, c = e.target.name, 1
+              if e.target.name == 'ifElse' then
+                name = 'if'
+                group.data[i + 1] = {
+                  name = 'else',
+                  params = {},
+                  comment = 'false',
+                  type = 'formula'
+                } c = 2 activity.genBlock(i + 1)
+              end 
+              group.data[i + c] = {
+                name = name .. 'End',
                 params = {},
                 comment = 'false',
                 type = 'formula'
-              }
-              activity.genBlock(i + 1)
+              } activity.genBlock(i + c)
             end
 
             for j = 1, #group.block do group.block[j].num = j end

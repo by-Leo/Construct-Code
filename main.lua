@@ -166,6 +166,92 @@ activity.scrollSettings = {
   listener = function(e) return true end
 }
 
+-- print(1, system.getTimer())
+-- local text1 = display.newText({
+--   text = 'Пиздец нахой блять', align = 'left',
+--   x = 300, y = 0, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 161
+-- }) print(2, system.getTimer())
+--
+-- print(3, system.getTimer())
+-- local text2 = display.newText({
+--   text = 'Пиздец нахой блять', align = 'left',
+--   x = 600, y = 0, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 161
+-- }) print(4, system.getTimer())
+
+-- local s = widget.newScrollView(activity.scrollSettings)
+
+-- display.newText('TestTestTest', 0, 0, 'ubuntu_!bold.ttf', 30)
+
+-- local c = 50000
+-- local d = c % 6000
+-- local u = c - d
+-- local b = u / 6000
+-- local a = 0
+-- local k = 1
+--
+-- print(system.getTimer())
+-- timer.performWithDelay(1, function() k = k + 0.001
+--   timer.performWithDelay(k, function()
+--     a = a + 1
+--     for i = 1, 6000 do
+--       display.newText('TestTestTest', 0, 0, 'ubuntu_!bold.ttf', 30)
+--     end
+--
+--     if a == b then
+--       print(system.getTimer())
+--       timer.performWithDelay(1, function() print(system.getTimer())  end)
+--     end
+--   end)
+-- end, b)
+
+-- display.newText('TestTestTest', -100000, 0, 'ubuntu_!bold.ttf', 30)
+-- print(system.getTimer())
+-- for i = 1, c do
+--   display.newText('TestTestTest', 0, 0, 'ubuntu_!bold.ttf', 30)
+-- end print(system.getTimer())
+--
+-- timer.performWithDelay(1, function() print(system.getTimer()) end)
+
+-- local sTime = system.getTimer()
+-- local i = 0
+-- timer.performWithDelay(34, function(event)
+--   if i < 4001 then i = i + 1
+--     display.newText('TestTestTest', 0, 0, 'ubuntu_!bold.ttf', 30)
+--     if i == 4000 then print((system.getTimer() - sTime) / 1000) end
+--   end
+-- end, 0)
+
+-- local physics = require 'physics'
+--
+-- -- physics.setDrawMode('hybrid')
+-- physics.setScale(60)
+-- physics.setPositionIterations(6)
+-- physics.setVelocityIterations(16)
+-- physics.setAverageCollisionPositions(true)
+-- physics.start()
+--
+-- local rect1 = display.newRect(0, 0, 200, 200)
+-- rect1.x, rect1.y = _x, _y
+-- rect1.rotation = 45
+--
+-- physics.addBody(rect1, 'static', {bounce=0})
+--
+-- local rect2 = display.newRect(_x, _y, 200, 200)
+--
+-- rect2.x, rect2.y = _x, _y - 400
+--
+-- physics.addBody(rect2, 'dynamic', {bounce=0})
+--
+-- local function onLocalCollision( self, event )
+--   if event.phase == "began" then
+--     print(event.x, event.y)
+--     display.newRect(rect1.x + event.x / 2, rect1.y - event.y, 30, 30):setFillColor(0)
+--   end
+-- end
+--
+-- rect1.collision = onLocalCollision
+-- rect1:addEventListener( "collision" )
+
 require 'Module.alert'
 require 'Module.input'
 require 'Module.list'
@@ -221,7 +307,4 @@ activity.newblocks.group.isVisible = false
 activity.editor.group.isVisible = false
 
 -- Запуск
-timer.performWithDelay(1, function()
-  alertActive = true
-  composer.gotoScene 'Module.menu'
-end)
+composer.gotoScene 'Module.menu'

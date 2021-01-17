@@ -91,6 +91,8 @@ calc = function(indexScene, indexObject, params, localtable)
       if #exp > 1 then
         if exp[1][2] == 'fun' then solution = cfun[exp[1][1]](exp, indexScene, indexObject, table.copy(localtable))
         elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]](exp, indexScene, indexObject, table.copy(localtable))
+        elseif exp[1][2] == 'sym' and exp[1][1] == '-' and exp[2][2] == 'num' then solution = {exp[1][1] .. exp[2][1], 'num'}
+        elseif exp[1][2] == 'sym' and exp[1][1] == '+' and exp[2][2] == 'num' then solution = {exp[2][1], 'num'}
         else
           for i = 1, #exp do
             if exp[i][2] == 'sym' and (exp[i][1] == '*' or exp[i][1] == '/') then

@@ -129,7 +129,9 @@ activity.onClickButton.objects.block = function(e)
   activity.objects.name = activity.scenes.name .. '.' .. e.target.text.text
   activity.objects.object = e.target.text.text
   activity.objects.hide()
-  activity.blocks.create()
+  if not activity.blocks[activity.objects.name] then 
+    timer.performWithDelay(1, function() activity.blocks.hide() end)
+  end activity.blocks.create()
 end
 
 activity.onClickButton.objects[1] = function()

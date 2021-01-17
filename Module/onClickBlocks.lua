@@ -43,7 +43,7 @@ activity.onClickButton.blocks.list = function(e)
 
           local name = activity.blocks[activity.objects.name].block[i].data.name
 
-          if name ~= 'ifEnd' and name ~= 'forEnd' then
+          if name ~= 'ifEnd' and name ~= 'useTagEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
             activity.blocks[activity.objects.name].block[i].checkbox.isVisible = true
           end
         end
@@ -87,6 +87,9 @@ end
 activity.onClickButton.blocks.block = function(e)
   if activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'ifEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'enterFrameEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'useTagEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'else'
   and not activity.blocks[activity.objects.name].alertActive then
     blockList(e.target.num)
   end
@@ -117,7 +120,10 @@ activity.onClickButton.blocks[3] = function(inList)
 
   for i = 1, #group.block do
     if group.block[i].checkbox.isOn then
-      if (group.block[i].data.name == 'if' or group.block[i].data.name == 'for' or group.block[i].data.type == 'event') and count == 0 then j = i count = count + 1
+      if (group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse'
+      or group.block[i].data.name == 'for' or group.block[i].data.type == 'event'
+      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag')
+      and count == 0 then j = i count = count + 1
       elseif count > 0 then count = count + 1
       else j = i count = 1 break end
     end

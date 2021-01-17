@@ -14,7 +14,7 @@ activity.onFile.scenes = function(name, index)
     for i = 1, #group.block do
       if name == 'copy' and group.block[i].text.text == group.block[index].copy then
         copy, copyI = true, i
-        newdata.scenes[#newdata.scenes + 1] = {
+        newdata.scenes[i] = {
           name = t[group.block[i].text.text].name,
           objects = table.copy(t[group.block[i].text.text].objects)
         }
@@ -24,12 +24,12 @@ activity.onFile.scenes = function(name, index)
         }
       else
         if t[group.block[i].text.text] then
-          newdata.scenes[#newdata.scenes + 1] = {
+          newdata.scenes[i] = {
             name = t[group.block[i].text.text].name,
             objects = table.copy(t[group.block[i].text.text].objects)
           }
         elseif name == 'copy' and not copy then
-          newdata.scenes[#newdata.scenes + 1] = {}
+          newdata.scenes[i] = {}
         end
       end
     end data = newdata
@@ -57,7 +57,7 @@ activity.onFile.objects = function(name, index)
         for i = 1, #group.block do
           if name == 'copy' and group.block[i].text.text == group.block[index].copy then
             copy, copyI = true, i
-            newdata.scenes[j].objects[#newdata.scenes[j].objects + 1] = {
+            newdata.scenes[j].objects[i] = {
               name = t[group.block[i].text.text].name,
               import = t[group.block[i].text.text].import,
               textures = table.copy(t[group.block[i].text.text].textures),
@@ -71,14 +71,14 @@ activity.onFile.objects = function(name, index)
             }
           else
             if t[group.block[i].text.text] then
-              newdata.scenes[j].objects[#newdata.scenes[j].objects + 1] = {
+              newdata.scenes[j].objects[i] = {
                 name = t[group.block[i].text.text].name,
                 import = t[group.block[i].text.text].import,
                 textures = table.copy(t[group.block[i].text.text].textures),
                 events = table.copy(t[group.block[i].text.text].events)
               }
             elseif name == 'copy' and not copy then
-              newdata.scenes[j].objects[#newdata.scenes[j].objects + 1] = {}
+              newdata.scenes[j].objects[i] = {}
             end
           end
         end data = newdata

@@ -68,7 +68,7 @@ activity.objects.create = function(data)
 
   if activity.objects[activity.scenes.name] then activity.objects.view()
   else
-    local data = data or ccodeToJson(activity.programs.name)
+    local create, data = data, data or ccodeToJson(activity.programs.name)
     activity.objects[activity.scenes.name] = {}
 
     -- Переменные активити
@@ -100,6 +100,7 @@ activity.objects.create = function(data)
     end
 
     for i = 1, #activity.objects[activity.scenes.name].data do
+      countGenBlocks = countGenBlocks + 1
       activity.newBlock({
         i = i,
         group = activity.objects[activity.scenes.name],
@@ -111,6 +112,7 @@ activity.objects.create = function(data)
     end
 
     activity.objects[activity.scenes.name].scroll:setScrollHeight(activity.objects[activity.scenes.name].scrollHeight)
+    if create then genBlocks() end
 
     if not activity.createActivity[activity.scenes.name] then
       activity.createActivity[activity.scenes.name] = true

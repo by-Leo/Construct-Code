@@ -4,12 +4,10 @@ activity.blocksOnTimer = function(target, group)
     display.getCurrentStage():setFocus(nil)
     target.press = false
     if #group.block > 1 then
-      if target.data.name ~= 'ifEnd' and target.data.name ~= 'forEnd' then
+      if target.data.name ~= 'ifEnd' and target.data.name ~= 'useTagEnd' and target.data.name ~= 'enterFrameEnd' and target.data.name ~= 'else' and target.data.name ~= 'forEnd' then
         if target.data.type == 'event' then
           local events = 0
-
           for i = 1, #group.block do if group.block[i].data.type == 'event' then events = events + 1 end end
-
           if events > 1 then activity.blocksMove(target, 'move', group) end
         else
           activity.blocksMove(target, 'move', group)
@@ -87,7 +85,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
   group.scroll:setIsLocked(false, 'vertical')
   group.data[i] = data
 
-  activity.genBlock(i)
+  activity.genBlock(i, group)
 
   if group.block[1].data.type == 'formula' then
     group.data[1] = {
@@ -96,7 +94,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
       comment = 'false',
       type = 'event'
     }
-    activity.genBlock(1)
+    activity.genBlock(1, group)
     i = i + 1
     num = num + 1
   end
@@ -111,7 +109,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
           comment = group.block[j].data.comment,
           type = 'event'
         }
-        activity.genBlock(i + 1)
+        activity.genBlock(i + 1, group)
         break
       end
     end
@@ -124,7 +122,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
       comment = relatedBlocks[j].comment,
       type = 'formula'
     }
-    activity.genBlock(j + i)
+    activity.genBlock(j + i, group)
     relatedCount = relatedCount + 1
     if relatedCount < 7 then relatedHeight = relatedHeight + group.block[j + i].height end
   end
@@ -139,7 +137,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
           comment = group.block[i].relatedBlocks[j].comment,
           type = 'formula'
         }
-        activity.genBlock(j + i)
+        activity.genBlock(j + i, group)
 
         if j + i <= num then num = num + 1 end
       end
@@ -167,9 +165,8 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
   activity.blocksReturnBlock(1, group, 0)
   activity.blocksFileUpdate()
 
-  activity.scrollHeightUpdate()
-  activity.blocks[activity.objects.name].scroll:setScrollHeight(
-  activity.blocks[activity.objects.name].scrollHeight)
+  activity.scrollHeightUpdate(group)
+  group.scroll:setScrollHeight(group.scrollHeight)
 
   if data.type == 'event' then
     group.scroll:scrollToPosition {y = _aH - 100 - relatedHeight - group.block[num].y > 0 and 0 or _aH - 100 - relatedHeight - group.block[num].y, time = 10}
@@ -216,6 +213,7 @@ activity.blocksMove = function(target, mode, group)
   local relatedBlocks = {}
   local relatedEvent = true
   local relatedHeight = 0
+  local nameEnd = data.name == 'ifElse' and 'ifEnd' or data.name .. 'End'
 
   if data.type == 'event' then
     for i = target.num + 1, #group.block do
@@ -232,22 +230,21 @@ activity.blocksMove = function(target, mode, group)
     end
   end
 
-  if data.name == 'if' or data.name == 'for' then
-    local nestedFactor = 1
-
-    relatedEvent = false
+  if data.name == 'if' or data.name == 'ifElse' or data.name == 'for'
+  or data.name == 'enterFrame' or data.name == 'useTag' then
+    local nestedFactor = 1 relatedEvent = false
 
     for i = target.num + 1, #group.block do
       relatedBlocks[#relatedBlocks+1] = {
         name = group.block[i].data.name,
-        params = group.block[i].data.params,
+        params = table.copy(group.block[i].data.params),
         comment = group.block[i].data.comment,
         type = 'formula',
         num = i
       }
 
       if group.block[i].data.name == data.name then nestedFactor = nestedFactor + 1
-      elseif group.block[i].data.name == data.name .. 'End' then nestedFactor = nestedFactor - 1 end
+      elseif group.block[i].data.name == nameEnd then nestedFactor = nestedFactor - 1 end
       if nestedFactor == 0 then break end
     end
   end
@@ -260,8 +257,10 @@ activity.blocksMove = function(target, mode, group)
     local i = 0
     while i < #group.block do
       i = i + 1
-      if group.block[i].data.name == 'if' or group.block[i].data.name == 'for' then
+      if group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse' or group.block[i].data.name == 'for'
+      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag' then
         local nestedFactor = 1
+        local nameEnd = group.block[i].data.name == 'ifElse' and 'ifEnd' or group.block[i].data.name .. 'End'
 
         group.block[i].relatedBlocks = {}
 
@@ -275,7 +274,7 @@ activity.blocksMove = function(target, mode, group)
           }
 
           if group.block[j].data.name == group.block[i].data.name then nestedFactor = nestedFactor + 1
-          elseif group.block[j].data.name == group.block[i].data.name .. 'End' then nestedFactor = nestedFactor - 1 end
+          elseif group.block[j].data.name == nameEnd then nestedFactor = nestedFactor - 1 end
           if nestedFactor == 0 then break end
         end
 
@@ -341,9 +340,7 @@ activity.blocksMove = function(target, mode, group)
     })
     newTarget.params[j].text.additionX = target.params[j].text.additionX
     newTarget.params[j].text.additionY = target.params[j].text.additionY
-  end
-
-  if mode == 'move' or mode == 'create' then activity.blocksDeleteBlock(target, target.num, group) end
+  end if mode == 'move' or mode == 'create' then activity.blocksDeleteBlock(target, target.num, group) end
 
   newTarget:addEventListener('touch', function(e)
     if not alertActive and group.scroll.isVisible then

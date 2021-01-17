@@ -68,7 +68,7 @@ activity.blocks.create = function(data)
 
   if activity.blocks[activity.objects.name] then activity.blocks.view()
   else
-    local data = data or ccodeToJson(activity.programs.name)
+    local create, data = data, data or ccodeToJson(activity.programs.name)
     activity.blocks[activity.objects.name] = {}
 
     -- Переменные активити
@@ -94,8 +94,9 @@ activity.blocks.create = function(data)
         return true
       end
     })
-    activity.blocks[activity.objects.name].scroll:setScrollHeight(20)
     activity.blocks[activity.objects.name].block = {}
+
+    local group, name, k, genBlockOpt = activity.blocks[activity.objects.name], activity.objects.name, 0
 
     for i = 1, #data.scenes do
       if data.scenes[i].name == activity.scenes.scene then
@@ -124,56 +125,83 @@ activity.blocks.create = function(data)
       end
     end
 
-    for i = 1, #activity.blocks[activity.objects.name].data do activity.genBlock(i) end
-    activity.scrollHeightUpdate()
-    activity.blocks[activity.objects.name].scroll:setScrollHeight(
-    activity.blocks[activity.objects.name].scrollHeight)
+    local c = #group.data
+    local d = c % 300
+    local u = c - d
+    local b = c >= 300 and u / 300 or 1
+    local a = 0
+    local k = 1
+    local r = 0
+    local p = c >= 300
 
-    if not activity.createActivity[activity.objects.name] then
-      activity.createActivity[activity.objects.name] = true
-      activity.blocks[activity.objects.name].onKeyEvent = function(event)
-        if activity.blocks[activity.objects.name] then
-          if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not activity.blocks[activity.objects.name].alertActive and not activity.blocks[activity.objects.name].targetActive and event.phase == 'up' and activity.blocks[activity.objects.name].scroll.isVisible then
-            activity.blocks[activity.objects.name].scroll.isVisible = false
-            timer.performWithDelay(1, function()
-              activity.returnModule('blocks', activity.objects.name)
-              activity.blocks.hide()
-              activity.objects.view()
-            end)
-            display.getCurrentStage():setFocus(nil)
-          elseif (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and activity.blocks[activity.objects.name].alertActive and not activity.blocks[activity.objects.name].targetActive and event.phase == 'up' and activity.blocks[activity.objects.name].scroll.isVisible then
-            activity.blocks[activity.objects.name].alertActive = false
-            activity.blocks[activity.objects.name].listPressNum = 0
+    local newKeyEvent = function()
+      if not activity.createActivity[name] then
+        activity.createActivity[name] = true
+        group.onKeyEvent = function(event)
+          if group then
+            if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not group.alertActive and not group.targetActive and event.phase == 'up' and group.scroll.isVisible then
+              group.scroll.isVisible = false
+              timer.performWithDelay(1, function()
+                activity.returnModule('blocks', name)
+                activity.blocks.hide()
+                activity.objects.view()
+              end)
+              display.getCurrentStage():setFocus(nil)
+            elseif (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and group.alertActive and not group.targetActive and event.phase == 'up' and group.scroll.isVisible then
+              group.alertActive = false
+              group.listPressNum = 0
 
-            activity.blocks.add.isVisible = true
-            activity.blocks.play.isVisible = true
-            activity.blocks.okay.isVisible = false
-            for i = 1, #activity.blocks[activity.objects.name].block do
-              activity.blocks[activity.objects.name].block[i].x = activity.blocks[activity.objects.name].block[i].x - 20
-              activity.blocks[activity.objects.name].block[i].text.x = activity.blocks[activity.objects.name].block[i].text.x - 20
+              activity.blocks.add.isVisible = true
+              activity.blocks.play.isVisible = true
+              activity.blocks.okay.isVisible = false
+              for i = 1, #group.block do
+                group.block[i].x = group.block[i].x - 20
+                group.block[i].text.x = group.block[i].text.x - 20
 
-              if activity.blocks[activity.objects.name].block[i].data.type == 'formula' then
-                activity.blocks[activity.objects.name].block[i].corner.x = activity.blocks[activity.objects.name].block[i].corner.x - 20
-              end
-
-              if activity.blocks[activity.objects.name].block[i].params then
-                for p = 1, #activity.blocks[activity.objects.name].block[i].params do
-                  activity.blocks[activity.objects.name].block[i].params[p].name.x = activity.blocks[activity.objects.name].block[i].params[p].name.x - 20
-                  activity.blocks[activity.objects.name].block[i].params[p].line.x = activity.blocks[activity.objects.name].block[i].params[p].line.x - 20
-                  activity.blocks[activity.objects.name].block[i].params[p].text.x = activity.blocks[activity.objects.name].block[i].params[p].text.x - 20
-                  activity.blocks[activity.objects.name].block[i].params[p].rect.isVisible = true
+                if group.block[i].data.type == 'formula' then
+                  group.block[i].corner.x = group.block[i].corner.x - 20
                 end
-              end
 
-              activity.blocks[activity.objects.name].block[i].checkbox.isVisible = false
-              activity.blocks[activity.objects.name].block[i].checkbox:setState({isOn=false})
+                if group.block[i].params then
+                  for p = 1, #group.block[i].params do
+                    group.block[i].params[p].name.x = group.block[i].params[p].name.x - 20
+                    group.block[i].params[p].line.x = group.block[i].params[p].line.x - 20
+                    group.block[i].params[p].text.x = group.block[i].params[p].text.x - 20
+                    group.block[i].params[p].rect.isVisible = true
+                  end
+                end
+
+                group.block[i].checkbox.isVisible = false
+                group.block[i].checkbox:setState({isOn=false})
+              end
+              activity.blocks.act.text = ''
             end
-            activity.blocks.act.text = ''
           end
+          return true
         end
-        return true
+        Runtime:addEventListener('key', group.onKeyEvent)
       end
-      Runtime:addEventListener('key', activity.blocks[activity.objects.name].onKeyEvent)
     end
+
+    timer.performWithDelay(1, function() k, r = k + 1, r + 1
+      local r, k = r, k timer.performWithDelay(k, function() a = a + 1
+        if p then for i = 1, 300 do
+          activity.genBlock(i + (r - 1) * 300, group)
+          countGenBlocks = countGenBlocks + 1
+          if create then progressView:setProgress(countGenBlocks / countBlocks) end
+        end end if a == b and d ~= 0 then
+          timer.performWithDelay(1, function()
+            local r = p and u or 0 for i = 1, d do
+              activity.genBlock(r + i, group)
+              countGenBlocks = countGenBlocks + 1
+              if create then progressView:setProgress(countGenBlocks / countBlocks) end
+            end
+            activity.scrollHeightUpdate(group)
+            group.scroll:setScrollHeight(group.scrollHeight)
+            newKeyEvent() if create then genBlocks() else activity.blocks.view() end
+          end)
+        end
+      end)
+    end, b) if c == 0 then newKeyEvent() end if not create and c == 0 then activity.blocks.view() end
   end
 end

@@ -32,6 +32,9 @@ activity.onClickButton.programs.add = function(e)
             scenes = {{name = strings.firstScene, objects = {}}}
           } if file then file:write(jsonToCCode(data)) io.close(file) end
 
+          local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/save.json', e.text)
+          local file = io.open(path, 'w') if file then file:write('{}') io.close(file) end
+
           activity.programs['nil'].data[#activity.programs['nil'].data+1] = e.text
           activity.newBlock({
             i = #activity.programs['nil'].data,
@@ -93,16 +96,19 @@ end
 
 activity.onClickButton.programs.block = function(e)
   local data = ccodeToJson(e.target.text.text)
+  countBlocks = #data.scenes
+  countGenBlocks = 0
   settings.lastApp = e.target.text.text
   activity.programs.name = e.target.text.text
   activity.programs.hide()
   activity.scenes.create(data)
+  activity.scenes.hide()
   settingsSave()
 
   for i = 1, #activity.downloadApp + 1 do
-    if activity.downloadApp[i] == e.target.text.text then break
+    if activity.downloadApp[i] == e.target.text.text then activity.scenes.view() break
     elseif i == #activity.downloadApp + 1 then
-      local rectDownloadApp = display.newRect(_x, _y, 600, 200)
+      local rectDownloadApp = display.newRect(_x, _y - 5, 600, 210)
       rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
 
       local rectDownloadAppShadow = display.newRect(_x, _y, _aW, _aH)
@@ -112,6 +118,9 @@ activity.onClickButton.programs.block = function(e)
         text = 'Подождите, пожалуйста. Идёт подгрузка приложения для более удобной работы: ' .. e.target.text.text,
         font = 'ubuntu_!bold.ttf', fontSize = 30, width = 560, x = _x - 280, y = _y - 80
       })
+
+      progressView = widget.newProgressView({x = _x, y = _y - 65, width = 560, isAnimated = false})
+      progressView:setProgress(0)
 
       activity.downloadApp[#activity.downloadApp + 1] = e.target.text.text
       rectDownloadApp.height = rectDownloadAppText.height + 40
@@ -125,31 +134,62 @@ activity.onClickButton.programs.block = function(e)
       end)
 
       timer.performWithDelay(1, function()
-        activity.scenes.hide()
+        for s = 1, #data.scenes do
+          countBlocks = countBlocks + #data.scenes[s].objects
+          for o = 1, #data.scenes[s].objects do
+            countBlocks = countBlocks + #data.scenes[s].objects[o].textures
+            countBlocks = countBlocks + #data.scenes[s].objects[o].events
+            for e = 1, #data.scenes[s].objects[o].events do
+              countBlocks = countBlocks +  #data.scenes[s].objects[o].events[e].formulas
+            end
+          end
+        end
+
+        timer.performWithDelay(1, function(event)
+          if countGenBlocks == countBlocks then
+            timer.cancel(event.source)
+            countGenBlocks = 0
+            alertActive = false
+            progressView.isVisible = false
+            rectDownloadApp:removeSelf()
+            rectDownloadAppText:removeSelf()
+            timer.performWithDelay(1, function() progressView = nil rectDownloadAppShadow:removeSelf() activity.scenes.view() end)
+            activity.scenes.name, activity.scenes.scene = '', ''
+            activity.objects.name, activity.objects.texture, activity.objects.object = '', '', ''
+          end
+        end, 0)
+
         activity.resources.create(data)
         activity.resources.hide()
-        for i = 1, #activity.scenes[activity.programs.name].block do
-          activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[i].text.text
-          activity.scenes.scene = activity.scenes[activity.programs.name].block[i].text.text
-          activity.objects.create(data)
-          activity.objects.hide()
-          for j = 1, #activity.objects[activity.scenes.name].block do
-            activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[j].text.text
+        progressView:setProgress(countGenBlocks / countBlocks)
+
+        genObjectsIndex = 0
+        genBlocksIndex = 0
+
+        genObjects = function()
+          if genObjectsIndex < #activity.scenes[activity.programs.name].block then
+            genObjectsIndex = genObjectsIndex + 1
+            progressView:setProgress(countGenBlocks / countBlocks)
+            activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[genObjectsIndex].text.text
+            activity.scenes.scene = activity.scenes[activity.programs.name].block[genObjectsIndex].text.text
+            activity.objects.create(data)
+            activity.objects.hide()
+          end
+        end
+
+        genBlocks = function()
+          if genBlocksIndex < #activity.objects[activity.scenes.name].block then
+            genBlocksIndex = genBlocksIndex + 1
+            progressView:setProgress(countGenBlocks / countBlocks)
+            activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[genBlocksIndex].text.text
             activity.objects.texture = activity.objects.name
-            activity.objects.object = activity.objects[activity.scenes.name].block[j].text.text
+            activity.objects.object = activity.objects[activity.scenes.name].block[genBlocksIndex].text.text
             activity.textures.create(data)
             activity.textures.hide()
             activity.blocks.create(data)
             activity.blocks.hide()
-          end
-        end
-        alertActive = false
-        rectDownloadApp:removeSelf()
-        rectDownloadAppText:removeSelf()
-        timer.performWithDelay(1, function() rectDownloadAppShadow:removeSelf() end)
-        activity.scenes.create()
-        activity.scenes.name, activity.scenes.scene = '', ''
-        activity.objects.name, activity.objects.texture, activity.objects.object = '', '', ''
+          else genBlocksIndex = 0 genObjects() end
+        end genObjects()
       end)
     end
   end
