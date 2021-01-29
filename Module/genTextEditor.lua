@@ -20,18 +20,32 @@ activity.editor.newText = function()
   activity.editor.cursor = table.copy(activity.editor.table)
   activity.editor.cursor[#activity.editor.cursor + 1] = {'|', '|'}
 
-  for i = 2, #activity.editor.cursor do
-    if activity.editor.cursor[i][2] == 'num' then
+  local i = 1
+  while i < #activity.editor.cursor do
+    i = i + 1
+    if activity.editor.cursor[i][2] == 'num' and utf8.len(activity.editor.cursor[i][1]) > 1 then
       for j = utf8.len(activity.editor.cursor[i][1]), 1, -1 do
         if utf8.sub(activity.editor.cursor[i][1], j, j) == '.' then
           table.insert(activity.editor.cursor, i + 1, {'.', 'sym'})
         else
           table.insert(activity.editor.cursor, i + 1, {utf8.sub(activity.editor.cursor[i][1], j, j), 'num'})
         end
-      end
-      table.remove(activity.editor.cursor, i)
+      end table.remove(activity.editor.cursor, i)
     end
   end
+
+  -- for i = 2, #activity.editor.cursor do
+  --   if activity.editor.cursor[i][2] == 'num' then
+  --     for j = utf8.len(activity.editor.cursor[i][1]), 1, -1 do
+  --       if utf8.sub(activity.editor.cursor[i][1], j, j) == '.' then
+  --         table.insert(activity.editor.cursor, i + 1, {'.', 'sym'})
+  --       else
+  --         table.insert(activity.editor.cursor, i + 1, {utf8.sub(activity.editor.cursor[i][1], j, j), 'num'})
+  --       end
+  --     end
+  --     table.remove(activity.editor.cursor, i)
+  --   end
+  -- end
 
   activity.editor.cursorIndex = {#activity.editor.cursor, '|'}
   activity.editor.undoredo = {[1] = table.copy(activity.editor.cursor)}

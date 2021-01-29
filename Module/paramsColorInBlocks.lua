@@ -114,8 +114,7 @@ activity.inputColor = function(rgb, listener)
           colorActive, alertActive = false, true
           if e.input then e.text = trim(e.text)
             if utf8.sub(e.text, 1, 1) == '#' then e.text = utf8.sub(e.text, 2, 7) end
-            if utf8.len(e.text) ~= 6 then e.text = 'FFFFFF' end
-            local errorHex = false
+            if utf8.len(e.text) ~= 6 then e.text = 'FFFFFF' end local errorHex = false
             local filterHex = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'}
             for indexHex = 1, 6 do local symHex = utf8.upper(utf8.sub(e.text, indexHex, indexHex))
               for i = 1, #filterHex do

@@ -138,7 +138,7 @@ activity.blocks.create = function(data)
       if not activity.createActivity[name] then
         activity.createActivity[name] = true
         group.onKeyEvent = function(event)
-          if group then
+          local group = activity.blocks[name] if group then
             if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not group.alertActive and not group.targetActive and event.phase == 'up' and group.scroll.isVisible then
               group.scroll.isVisible = false
               timer.performWithDelay(1, function()

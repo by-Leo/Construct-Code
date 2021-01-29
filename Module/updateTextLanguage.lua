@@ -70,7 +70,7 @@ activity.updateTextLanguage = function(i)
     activity.editor.listTitle[i].text.text = select(1, editorGetListTitle(i))
   end
 
-  local typeblocks = {'event', 'data', 'object', 'copy', 'control', 'network', 'physics', 'physicscopy', 'not1', 'not2', 'not3', 'not4'}
+  local typeblocks = {'event', 'data', 'object', 'controlother', 'control', 'network', 'physics', 'not'}
   for i = 1, #typeblocks do
     activity.newblocks[typeblocks[i]].text.text = strings['type' .. typeblocks[i]]
     if utf8.sub(typeblocks[i], 1, 3) ~= 'not' then

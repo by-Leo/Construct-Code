@@ -9,7 +9,7 @@ activity.newblocks.bg.x, activity.newblocks.bg.y = _x, _y
 activity.newblocks.bg.width, activity.newblocks.bg.height = _aW, _aH
 
 -- Фон выбора типа блока
-activity.newblocks.rightbg = display.newRect(activity.newblocks.group, _x, _y + _aY - 300, _aW, 2)
+activity.newblocks.rightbg = display.newRect(activity.newblocks.group, _x, _y + _aY - 300 + 85, _aW, 2)
 activity.newblocks.rightbg:setFillColor(115/255)
 
 local currentType = 'event'
@@ -39,20 +39,18 @@ local colorblocks = function(typeblock)
   if typeblock == 'event' then return {9/255, 155/255, 163/255}
   elseif typeblock == 'data' then return {200/255, 151/255, 77/255}
   elseif typeblock == 'object' then return {104/255, 172/255, 76/255}
-  elseif typeblock == 'copy' then return {160/255, 179/255, 86/255}
+  -- elseif typeblock == 'copy' then return {160/255, 179/255, 86/255}
   elseif typeblock == 'control' then return {158/255, 138/255, 109/255}
+  elseif typeblock == 'controlother' then return {158/255, 136/255, 160/255}
   elseif typeblock == 'physics' then return {200/255, 74/255, 76/255}
-  elseif typeblock == 'physicscopy' then return {161/255, 90/255, 183/255}
+  -- elseif typeblock == 'physicscopy' then return {161/255, 90/255, 183/255}
   elseif typeblock == 'network' then return {36/255, 102/255, 201/255}
-  elseif typeblock == 'not1' then return {152/255, 152/255, 154/255}
-  elseif typeblock == 'not2' then return {152/255, 152/255, 154/255}
-  elseif typeblock == 'not3' then return {152/255, 152/255, 154/255}
-  elseif typeblock == 'not4' then return {152/255, 152/255, 154/255} end
+  elseif typeblock == 'not' then return {152/255, 152/255, 154/255} end
 end
 
-local typeblocks = {'event', 'data', 'object', 'copy', 'control', 'network', 'physics', 'physicscopy', 'not1', 'not2', 'not3', 'not4'}
+local typeblocks = {'event', 'data', 'object', 'controlother', 'control', 'network', 'physics', 'not'}
 
-local lastTypeY = _y + _aY - 236
+local lastTypeY = _y + _aY - 236 + 85
 local lastTypeX = 98
 
 for i = 1, #typeblocks do
@@ -185,18 +183,16 @@ for i = 1, #typeblocks do
 
             if e.target.name == 'if' or e.target.name == 'ifElse' or e.target.name == 'for'
             or e.target.name == 'enterFrame' or e.target.name == 'useTag' then
-              local name, c = e.target.name, 1
-              if e.target.name == 'ifElse' then
-                name = 'if'
+              local c = 1 if e.target.name == 'ifElse' then
                 group.data[i + 1] = {
                   name = 'else',
                   params = {},
                   comment = 'false',
                   type = 'formula'
                 } c = 2 activity.genBlock(i + 1)
-              end 
+              end
               group.data[i + c] = {
-                name = name .. 'End',
+                name = e.target.name .. 'End',
                 params = {},
                 comment = 'false',
                 type = 'formula'

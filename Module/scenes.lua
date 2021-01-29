@@ -64,6 +64,7 @@ activity.scenes.getVarFunTable = function()
   activity.scenes[activity.programs.name].funs = {}
   activity.scenes[activity.programs.name].tables = {}
   activity.scenes[activity.programs.name].tags = {}
+  activity.scenes[activity.programs.name].fields = {}
 
   for s = 1, #data.scenes do
     local str = data.scenes[s].name
@@ -118,6 +119,15 @@ activity.scenes.getVarFunTable = function()
                   if activity.scenes[activity.programs.name].tags[u] and paramsFormula[p][1][1] == activity.scenes[activity.programs.name].tags[u] then break
                   elseif u == #activity.scenes[activity.programs.name].tags + 1 then
                     activity.scenes[activity.programs.name].tags[#activity.scenes[activity.programs.name].tags + 1] = paramsFormula[p][1][1]
+                  end
+                end
+              end
+            elseif activity.paramsFormulas[nameFormula][p] == 'field' then
+              if paramsFormula[p][1] and paramsFormula[p][1][1] then
+                for u = 1, #activity.scenes[activity.programs.name].fields + 1 do
+                  if activity.scenes[activity.programs.name].fields[u] and paramsFormula[p][1][1] == activity.scenes[activity.programs.name].fields[u] then break
+                  elseif u == #activity.scenes[activity.programs.name].fields + 1 then
+                    activity.scenes[activity.programs.name].fields[#activity.scenes[activity.programs.name].fields + 1] = paramsFormula[p][1][1]
                   end
                 end
               end

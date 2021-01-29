@@ -1,192 +1,5 @@
-activity.paramsFormulas = {
-  -- event
-  ['onStart'] = {},
-  ['onClick'] = {},
-  ['onClickEnd'] = {},
-  ['onFun'] = {'func'},
-  ['onBack'] = {},
-  ['onHide'] = {},
-  ['onView'] = {},
-
-  -- data
-  ['setVar'] = {'variable', 'value'},
-  ['updVar'] = {'variable', 'value'},
-  ['setShowText'] = {'variable', 'font', 'color', 'value', 'align', 'value'},
-  ['setHideText'] = {'variable'},
-  ['updTable'] = {'tabl', 'variable'},
-  ['setTable'] = {'tabl', 'value', 'value'},
-  ['removeTable'] = {'tabl', 'value'},
-  ['setPosText'] = {'variable', 'value', 'value'},
-  ['setPosXText'] = {'variable', 'value'},
-  ['setPosYText'] = {'variable', 'value'},
-  ['setRotationText'] = {'variable', 'value'},
-  ['setAlignText'] = {'variable', 'align'},
-  ['setAlphaText'] = {'variable', 'value'},
-  ['setColorText'] = {'variable', 'color'},
-  ['setFrontText'] = {'variable'},
-  ['setBackText'] = {'variable'},
-  ['readVar'] = {'variable'},
-  ['writeVar'] = {'variable'},
-
-  -- object
-  ['setPos'] = {'value', 'value'},
-  ['setX'] = {'value'},
-  ['setY'] = {'value'},
-  ['setSize'] = {'value'},
-  ['setHide'] = {},
-  ['setView'] = {},
-  ['setRotation'] = {'value'},
-  ['setAlpha'] = {'value'},
-  ['setTag'] = {'tag'},
-  ['setFront'] = {},
-  ['setBack'] = {},
-  ['setLinkTexture'] = {'value'},
-  ['resetSize'] = {},
-
-  -- copy
-  ['setCopy'] = {'setcopy'},
-  ['removeCopy'] = {'copy'},
-  ['setPosCopy'] = {'copy', 'value', 'value'},
-
-  -- control
-  ['fun'] = {'func'},
-  ['funParams'] = {'func', 'tabl'},
-  ['useTag'] = {'tag'},
-  ['useTagEnd'] = {},
-  ['if'] = {'value'},
-  ['ifElse'] = {'value'},
-  ['else'] = {},
-  ['ifEnd'] = {},
-  ['for'] = {'value'},
-  ['forEnd'] = {},
-  ['enterFrame'] = {},
-  ['enterFrameEnd'] = {},
-  ['timer'] = {'value'},
-  ['groupCreate'] = {'scene'},
-  ['groupView'] = {'scene'},
-  ['fileLine'] = {'variable', 'value', 'basedir'},
-  ['fileLineEnd'] = {},
-  ['fileRead'] = {'variable', 'value', 'basedir'},
-  ['fileWrite'] = {'value', 'value', 'basedir'},
-  ['fileUpdate'] = {'value', 'value', 'basedir'},
-  ['fileMove'] = {'value', 'basedir', 'value', 'basedir'},
-  ['fileCopy'] = {'value', 'basedir', 'value', 'basedir'},
-  ['fileRemove'] = {'value', 'basedir'},
-  ['closeApp'] = {},
-
-  -- physics
-  ['setBody'] = {'body', 'value', 'value', 'value'},
-  ['removeBody'] = {},
-  ['startPhysics'] = {},
-  ['stopPhysics'] = {},
-
-  -- physicscopy
-  ['setGravityCopy'] = {'copy', 'value'},
-  ['setSensorCopy'] = {'copy', 'sensor'},
-  ['setPhyRotationCopy'] = {'copy', 'phyrotation'},
-
-  -- network
-  ['openUrl'] = {'value'},
-  ['setGet'] = {'variable', 'value'},
-  ['setPost'] = {'tabl', 'variable', 'value'}
-}
-
-activity.typeFormulas = {
-  event = {
-    'onStart',
-    'onClick',
-    'onClickEnd',
-    'onFun',
-    -- 'onBack',
-    -- 'onHide',
-    -- 'onView'
-  },
-  data = {
-    'setVar',
-    'updVar',
-    'setShowText',
-    'setHideText',
-    'updTable',
-    'setTable',
-    'removeTable',
-    'setPosText',
-    'setPosXText',
-    'setPosYText',
-    'setRotationText',
-    'setAlignText',
-    'setAlphaText',
-    'setColorText',
-    'setFrontText',
-    'setBackText',
-    'readVar',
-    'writeVar'
-  },
-  object = {
-    'setPos',
-    'setX',
-    'setY',
-    'setSize',
-    'setHide',
-    'setView',
-    'setRotation',
-    'setAlpha',
-    'setTag',
-    'setFront',
-    'setBack',
-    'setLinkTexture',
-    'resetSize'
-  },
-  copy = {
-    -- 'setCopy',
-    -- 'removeCopy',
-    -- 'setPosCopy'
-  },
-  control = {
-    'fun',
-    'funParams',
-    'useTag',
-    'if',
-    'ifElse',
-    'for',
-    'enterFrame',
-    'timer',
-    'groupCreate',
-    'groupView',
-    -- 'fileLine',
-    -- 'fileRead',
-    -- 'fileWrite',
-    -- 'fileUpdate',
-    -- 'fileMove',
-    -- 'fileCopy',
-    -- 'fileRemove',
-    'closeApp',
-    'else',
-    'ifEnd',
-    'forEnd',
-    'enterFrameEnd',
-    'useTagEnd',
-    -- 'fileLineEnd'
-  },
-  physics = {
-    -- 'setBody',
-    -- 'removeBody',
-    -- 'startPhysics',
-    -- 'stopPhysics'
-  },
-  physicscopy = {
-    -- 'setGravityCopy',
-    -- 'setSensorCopy',
-    -- 'setPhyRotationCopy'
-  },
-  network = {
-    'openUrl',
-    'setGet',
-    -- 'setPost'
-  }
-}
-
 activity.genType = function(i, group)
-  local types = {'data', 'object', 'copy', 'control', 'physics', 'physicscopy', 'network'}
+  local types = {'data', 'object', 'copy', 'control', 'controlother', 'physics', 'physicscopy', 'network'}
 
   if group.data[i].comment == 'false' and group.data[i].type == 'event' then return 'event'
   elseif group.data[i].comment == 'true' and group.data[i].type == 'event' then return 'ecomment'
@@ -285,7 +98,8 @@ getTextParams = function(i, j, group)
         end
       end
     elseif group.block[i].data.params[j][p][2] == 'body' or group.block[i].data.params[j][p][2] == 'sensor' or group.block[i].data.params[j][p][2] == 'phyrotation'
-    or group.block[i].data.params[j][p][2] == 'copy' or group.block[i].data.params[j][p][2] == 'align' or group.block[i].data.params[j][p][2] == 'basedir' then
+    or group.block[i].data.params[j][p][2] == 'copy' or group.block[i].data.params[j][p][2] == 'align' or group.block[i].data.params[j][p][2] == 'shapephys'
+    or group.block[i].data.params[j][p][2] == 'bgfield' or group.block[i].data.params[j][p][2] == 'typefield' or group.block[i].data.params[j][p][2] == 'editfield' then
       value = strings[group.block[i].data.params[j][p][1]]
     end
 
@@ -293,6 +107,21 @@ getTextParams = function(i, j, group)
   end
 
   return textFromParams
+end
+
+getTextureInList = function(i, group)
+  local data = ccodeToJson(activity.programs.name)
+
+  for s = 1, #data.scenes do
+    if data.scenes[s].name == activity.scenes.scene then
+      for o = 1, #data.scenes[s].objects do
+        if data.scenes[s].objects[o].name == activity.objects.object then
+          return table.copy(data.scenes[s].objects[o].textures)
+        end
+      end
+      break
+    end
+  end
 end
 
 getScenesInList = function(i, group)
@@ -387,6 +216,23 @@ activity.putBlockParams = function(i, group)
                     activity.editor.group.isVisible = true
                     activity.editor.newText()
                     activity.editor.genBlock()
+                  elseif typeParams == 'editphys' then
+                    local import = 'linear'
+                    local texture = ''
+
+                    for u = 1, #activity.objects[activity.scenes.name].block do
+                      if activity.objects[activity.scenes.name].block[u].text.text == activity.objects.object then
+                        import = activity.objects[activity.scenes.name].block[u].import
+                        texture = #activity.objects[activity.scenes.name].block[u].json > 0
+                        and activity.objects[activity.scenes.name].block[u].json[1] or '' break
+                      end
+                    end
+
+                    activity.blocks.hide()
+                    activity.physedit.table = {
+                      import = import, k = k, n = n, box = group.block[k].params[n].text.text,
+                      path = activity.programs.name .. '/' .. activity.scenes.scene .. '.' .. activity.objects.object .. '.' .. texture
+                    } activity.physedit.view()
                   elseif typeParams == 'color' then
                     local rgb = {255, 255, 255}
 
@@ -400,8 +246,9 @@ activity.putBlockParams = function(i, group)
                         addVariableInRect(k, n, '[' .. r .. ', ' .. g .. ', ' .. b .. ']', typeParams, i, group)
                       end
                     end)
-                  elseif typeParams == 'font' or typeParams == 'body' or typeParams == 'sensor'
-                  or typeParams == 'phyrotation' or typeParams == 'basedir' or typeParams == 'copy' or typeParams == 'align' then
+                  elseif typeParams == 'font' or typeParams == 'body' or typeParams == 'sensor' or typeParams == 'powerphys'
+                  or typeParams == 'phyrotation' or typeParams == 'basedir' or typeParams == 'copy' or typeParams == 'align'
+                  or typeParams == 'bgfield' or typeParams == 'typefield' or typeParams == 'editfield' or typeParams == 'shapephys' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local activeBut
                     local tableParams = {strings.staticBody, strings.dynamicBody}
@@ -410,8 +257,12 @@ activity.putBlockParams = function(i, group)
                     elseif typeParams == 'phyrotation' then tableParams = {strings.isPhyRotation, strings.isNotPhyRotation}
                     elseif typeParams == 'copy' then tableParams = {strings.currentCopy, strings.lastCopy, strings.allCopy}
                     elseif typeParams == 'align' then tableParams = {strings.leftAlign, strings.centerAlign, strings.rightAlign}
+                    elseif typeParams == 'bgfield' then tableParams = {strings.bgfieldtrue, strings.bgfieldfalse}
+                    elseif typeParams == 'typefield' then tableParams = {strings.typefielddefault, strings.typefieldnumber, strings.typefielddecimal, strings.typefieldphone, strings.typefieldurl, strings.typefieldemail, strings.typefieldnoemoji}
+                    elseif typeParams == 'editfield' then tableParams = {strings.editfieldtrue, strings.editfieldfalse}
+                    elseif typeParams == 'shapephys' then tableParams = {strings.shapephyscircle, strings.shapephysbox, strings.shapephysmesh}
                     elseif typeParams == 'basedir' then tableParams = {'ResDirectory', 'DocDirectory', 'TempDirectory'}
-                    elseif typeParams == 'fps' then tableParams = {'60', '30', '15'}
+                    elseif typeParams == 'powerphys' then tableParams = {'1', '2', '3'}
                     elseif typeParams == 'font' then
                       tableParams = {'ubuntu.ttf', 'sans.ttf', 'system.ttf'}
                       for u = 1, #activity.resources[activity.programs.name].block do
@@ -425,6 +276,15 @@ activity.putBlockParams = function(i, group)
                       activeBut = group.block[k].data.params[n][1][1]
                     end
 
+                    if activeBut then
+                      for u = 1, #tableParams do
+                        if tableParams[u] == strings[activeBut] then
+                          table.remove(tableParams, u)
+                          table.insert(tableParams, 1, strings[activeBut])
+                        end
+                      end
+                    end
+
                     if #tableParams > 0 then
                       group.scroll:setIsLocked(true, 'vertical')
                       list(tableParams, {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
@@ -436,13 +296,28 @@ activity.putBlockParams = function(i, group)
                             'isPhyRotation', 'isNotPhyRotation',
                             'currentCopy', 'lastCopy', 'allCopy',
                             'leftAlign', 'centerAlign', 'rightAlign',
-                            'ResDirectory', 'DocDirectory', 'TempDirectory'
+                            'bgfieldtrue', 'bgfieldfalse', 'editfieldtrue', 'editfieldfalse',
+                            'typefielddefault', 'typefieldnumber', 'typefielddecimal',
+                            'typefieldphone', 'typefieldurl', 'typefieldemail', 'typefieldnoemoji',
                           } for u = 1, #table do if event.text == strings[table[u]] then type = table[u] end end
-                          if typeParams == 'font' then type = event.text end
-                          addVariableInRect(k, n, type, typeParams, i, group)
+                          if typeParams == 'font' or typeParams == 'basedir' or typeParams == 'powerphys'
+                          then type = event.text end addVariableInRect(k, n, type, typeParams, i, group)
                         end
                       end)
                     end
+                  elseif typeParams == 'texture' then
+                    local yScroll = select(2, group.scroll:getContentPosition())
+                    local activeBut
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      activeBut = group.block[k].data.params[n][1][1]
+                    end
+
+                    group.scroll:setIsLocked(true, 'vertical')
+                    list(getTextureInList(i, group), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
+                      group.scroll:setIsLocked(false, 'vertical')
+                      if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
+                    end)
                   elseif typeParams == 'scene' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local activeBut
@@ -455,6 +330,16 @@ activity.putBlockParams = function(i, group)
                     list(getScenesInList(i, group), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
                       group.scroll:setIsLocked(false, 'vertical')
                       if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
+                    end)
+                  elseif typeParams == 'text' then
+                    local textBut if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1]
+                    then textBut = group.block[k].data.params[n][1][1] end
+
+                    group.scroll:setIsLocked(true, 'vertical')
+                    input(strings.enterText, strings.enterText, function(e)
+                      if e.phase == 'began' then inputPermission(true) end
+                    end, function(event) group.scroll:setIsLocked(false, 'vertical')
+                      if event.input and event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
                     end)
                   elseif typeParams == 'setcopy' then
                     local yScroll = select(2, group.scroll:getContentPosition())
@@ -473,7 +358,7 @@ activity.putBlockParams = function(i, group)
                       group.scroll:setIsLocked(false, 'vertical')
                       if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
                     end)
-                  elseif typeParams == 'variable' or typeParams == 'tabl' or typeParams == 'func' or typeParams == 'tag' then
+                  elseif typeParams == 'variable' or typeParams == 'tabl' or typeParams == 'func' or typeParams == 'tag' or typeParams == 'field' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local varTable = {strings['new' .. typeParams]}
                     local typeTable = 'vars'
@@ -482,7 +367,8 @@ activity.putBlockParams = function(i, group)
 
                     if typeParams == 'tabl' then typeTable = 'tables'
                     elseif typeParams == 'func' then typeTable = 'funs'
-                    elseif typeParams == 'tag' then typeTable = 'tags' end
+                    elseif typeParams == 'tag' then typeTable = 'tags'
+                    elseif typeParams == 'field' then typeTable = 'fields' end
 
                     if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
                       activeBut = group.block[k].data.params[n][1][1]
@@ -591,7 +477,8 @@ activity.putBlockParams = function(i, group)
             else
               local name = group.block[j].data.name
 
-              if name ~= 'ifEnd' and name ~= 'enterFrameEnd' and name ~= 'useTagEnd' and name ~= 'forEnd' and name ~= 'else' then
+              if name ~= 'ifEnd' and name ~= 'ifElseEnd' and name ~= 'enterFrameEnd' 
+              and name ~= 'useTagEnd' and name ~= 'forEnd' and name ~= 'else' then
                 group.block[j].checkbox.isVisible = true
               end
 
@@ -603,7 +490,6 @@ activity.putBlockParams = function(i, group)
           or name == 'enterFrame' or name == 'useTag' then
             local nestedFactor = 1
             local nameEnd = name .. 'End'
-            if name == 'ifElse' then nameEnd = 'ifEnd' end
 
             for j = group.listPressNum + 1, #group.block do
               local name2 = group.block[j].data.name
@@ -637,7 +523,8 @@ activity.putBlockParams = function(i, group)
         else
           local name = group.block[j].data.name
 
-          if name ~= 'ifEnd' and name ~= 'useTagEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
+          if name ~= 'ifEnd' and name ~= 'ifElseEnd' and name ~= 'useTagEnd'
+          and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
             group.block[j].checkbox.isVisible = not group.block[i].checkbox.isOn
           end
 
@@ -650,7 +537,6 @@ activity.putBlockParams = function(i, group)
       or name == 'enterFrame' or name == 'useTag' then
         local nestedFactor = 1
         local nameEnd = group.block[i].data.name .. 'End'
-        if name == 'ifElse' then nameEnd = 'ifEnd' end
 
         for j = i + 1, #group.block do
           local name = group.block[j].data.name

@@ -142,7 +142,6 @@ blockList = function(num)
         or group.block[num].data.name == 'enterFrame' or group.block[num].data.name == 'useTag' then
           local nestedFactor = 1
           local nameEnd = group.block[num].data.name .. 'End'
-          if group.block[num].data.name == 'ifElse' then nameEnd = 'ifEnd' end
 
           for i = num + 1, #group.block do
             if j ~= 3 then

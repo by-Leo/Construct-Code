@@ -45,8 +45,17 @@ calc = function(indexScene, indexObject, params, localtable)
       if params[i][2] == 'var' then
         for j = 1, #game.vars do
           if game.vars[j].name == params[i][1] then
-            table.remove(params, i)
-            table.insert(params, i, game.vars[j].value)
+            params[i] = table.copy(game.vars[j].value) break
+          end
+        end
+      end
+    end
+
+    for i = 1, #params do
+      if params[i][2] == 'table' then
+        for j = 1, #game.tables do
+          if game.tables[j].name == params[i][1] then
+            params[i] = {json.prettify(game.tables[j].val), 'table'} break
           end
         end
       end
@@ -54,11 +63,11 @@ calc = function(indexScene, indexObject, params, localtable)
 
     for i = 1, #params do
       if params[i][1] == 'pi' and params[i][2] == 'fun' then
-        table.remove(params, i)
-        table.insert(params, i, {tostring(math.pi), 'num'})
+        params[i] = {tostring(math.pi), 'num'}
       elseif params[i][1] == 'unix_time' and params[i][2] == 'fun' then
-        table.remove(params, i)
-        table.insert(params, i, {tostring(os.time()), 'num'})
+        params[i] = {tostring(os.time()), 'num'}
+      elseif params[i][1] == 'local' and params[i][2] == 'local' and localtable and localtable[1] then
+        params[i] = {json.prettify(localtable[1]), 'table'}
       end
     end
 
@@ -87,10 +96,25 @@ calc = function(indexScene, indexObject, params, localtable)
       end parseExp(exp)
     end
 
+    ctable = function(exp, indexScene, indexObject)
+      local t = json.decode(exp[1][1]) if #exp > 3 then
+        table.remove(exp, 1) table.remove(exp, 1) table.remove(exp, #exp)
+        solution = {} parseExp(exp) exp = solution
+        if exp[2] == 'num' or exp[2] == 'text' then
+          if t[exp[1]] then
+            if not t[exp[1]][2] and not t[exp[1]][1] then
+              return {json.prettify(t[exp[1]]), 'table'}
+            else return {t[exp[1]][1], t[exp[1]][2]} end
+          else return {'false', 'log'} end
+        else return {'false', 'log'} end
+      else return {exp[1][1], 'table'} end
+    end
+
     parseExp = function(exp)
       if #exp > 1 then
-        if exp[1][2] == 'fun' then solution = cfun[exp[1][1]](exp, indexScene, indexObject, table.copy(localtable))
-        elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]](exp, indexScene, indexObject, table.copy(localtable))
+        if exp[1][2] == 'fun' then solution = cfun[exp[1][1]](exp, indexScene, indexObject)
+        elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]](exp, indexScene, indexObject)
+        elseif exp[1][2] == 'table' then solution = ctable(exp, indexScene, indexObject)
         elseif exp[1][2] == 'sym' and exp[1][1] == '-' and exp[2][2] == 'num' then solution = {exp[1][1] .. exp[2][1], 'num'}
         elseif exp[1][2] == 'sym' and exp[1][1] == '+' and exp[2][2] == 'num' then solution = {exp[2][1], 'num'}
         else
@@ -113,6 +137,7 @@ calc = function(indexScene, indexObject, params, localtable)
         end
       elseif exp[1][2] == 'fun' then solution = cfun[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
       elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
+      elseif exp[1][2] == 'table' then solution = ctable(exp, indexScene, indexObject, table.copy(localtable))
       else solution = exp[1] end
     end
 
@@ -121,16 +146,16 @@ calc = function(indexScene, indexObject, params, localtable)
       local indexSecondBracket = 0
       for i = 1, #exp do
         if exp[i][2] == 'sym' and exp[i][1] == '(' then
-          if exp[i - 1] and (exp[i - 1][2] == 'fun' or exp[i - 1][2] == 'prop') then indexFirstBracket = i - 1
+          if exp[i - 1] and (exp[i - 1][2] == 'fun' or exp[i - 1][2] == 'prop' or exp[i - 1][2] == 'table') then indexFirstBracket = i - 1
           else indexFirstBracket = i + 1 end
         elseif exp[i][2] == 'sym' and exp[i][1] == ')' and indexFirstBracket > 0 then
-          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop') then indexSecondBracket = i
+          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'table') then indexSecondBracket = i
           else indexSecondBracket = i - 1 end
           local _exp = {} solution = {}
           for j = indexFirstBracket, indexSecondBracket do
             _exp[#_exp + 1] = {exp[j][1], exp[j][2]}
           end parseExp(_exp)
-          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop') then
+          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'table') then
             for j = indexFirstBracket, indexSecondBracket do table.remove(exp, indexFirstBracket) end
             table.insert(exp, indexFirstBracket, solution)
           else

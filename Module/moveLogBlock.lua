@@ -4,7 +4,8 @@ activity.blocksOnTimer = function(target, group)
     display.getCurrentStage():setFocus(nil)
     target.press = false
     if #group.block > 1 then
-      if target.data.name ~= 'ifEnd' and target.data.name ~= 'useTagEnd' and target.data.name ~= 'enterFrameEnd' and target.data.name ~= 'else' and target.data.name ~= 'forEnd' then
+      if target.data.name ~= 'ifEnd' and target.data.name ~= 'ifElseEnd' and target.data.name ~= 'useTagEnd'
+      and target.data.name ~= 'enterFrameEnd' and target.data.name ~= 'else' and target.data.name ~= 'forEnd' then
         if target.data.type == 'event' then
           local events = 0
           for i = 1, #group.block do if group.block[i].data.type == 'event' then events = events + 1 end end
@@ -213,7 +214,7 @@ activity.blocksMove = function(target, mode, group)
   local relatedBlocks = {}
   local relatedEvent = true
   local relatedHeight = 0
-  local nameEnd = data.name == 'ifElse' and 'ifEnd' or data.name .. 'End'
+  local nameEnd = data.name .. 'End'
 
   if data.type == 'event' then
     for i = target.num + 1, #group.block do
@@ -260,7 +261,7 @@ activity.blocksMove = function(target, mode, group)
       if group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse' or group.block[i].data.name == 'for'
       or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag' then
         local nestedFactor = 1
-        local nameEnd = group.block[i].data.name == 'ifElse' and 'ifEnd' or group.block[i].data.name .. 'End'
+        local nameEnd = group.block[i].data.name .. 'End'
 
         group.block[i].relatedBlocks = {}
 

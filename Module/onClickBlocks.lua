@@ -43,7 +43,8 @@ activity.onClickButton.blocks.list = function(e)
 
           local name = activity.blocks[activity.objects.name].block[i].data.name
 
-          if name ~= 'ifEnd' and name ~= 'useTagEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
+          if name ~= 'ifEnd' and name ~= 'ifElseEnd' and name ~= 'useTagEnd' 
+          and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
             activity.blocks[activity.objects.name].block[i].checkbox.isVisible = true
           end
         end
@@ -86,6 +87,7 @@ end
 
 activity.onClickButton.blocks.block = function(e)
   if activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'ifEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'ifElseEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'enterFrameEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'useTagEnd'

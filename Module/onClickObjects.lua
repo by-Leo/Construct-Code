@@ -129,9 +129,7 @@ activity.onClickButton.objects.block = function(e)
   activity.objects.name = activity.scenes.name .. '.' .. e.target.text.text
   activity.objects.object = e.target.text.text
   activity.objects.hide()
-  if not activity.blocks[activity.objects.name] then 
-    timer.performWithDelay(1, function() activity.blocks.hide() end)
-  end activity.blocks.create()
+  activity.blocks.create()
 end
 
 activity.onClickButton.objects[1] = function()
@@ -181,6 +179,11 @@ activity.onClickButton.objects[2] = function()
       end
 
       i = i - 1
+
+      if activity.blocks[objectsTexture] then
+        activity.blocks[objectsTexture].scroll:removeSelf()
+        activity.blocks[objectsTexture] = nil
+      end
 
       if activity.textures[objectsTexture] then
         activity.textures[objectsTexture].scroll:removeSelf()

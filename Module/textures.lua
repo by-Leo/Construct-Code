@@ -68,7 +68,7 @@ activity.textures.create = function(data)
 
   if activity.textures[activity.objects.texture] then activity.textures.view()
   else
-    local create, data = data, data or ccodeToJson(activity.programs.name)
+    local data = data or ccodeToJson(activity.programs.name)
     activity.textures[activity.objects.texture] = {}
 
     -- Переменные активити
@@ -86,35 +86,33 @@ activity.textures.create = function(data)
     activity.textures[activity.objects.texture].scroll:setScrollHeight(20)
     activity.textures[activity.objects.texture].block = {}
 
-    if create then
-      for i = 1, #data.scenes do
-        if data.scenes[i].name == activity.scenes.scene then
-          for j = 1, #data.scenes[i].objects do
-            if data.scenes[i].objects[j].name == activity.objects.object then
-              local import = data.scenes[i].objects[j].import
-              local json = data.scenes[i].objects[j].textures
-              for k = 1, #json do
-                activity.textures[activity.objects.texture].data[#activity.textures[activity.objects.texture].data+1] = json[k]
-                activity.textures[activity.objects.texture].dataOption[#activity.textures[activity.objects.texture].data] = import
-              end
+    for i = 1, #data.scenes do
+      if data.scenes[i].name == activity.scenes.scene then
+        for j = 1, #data.scenes[i].objects do
+          if data.scenes[i].objects[j].name == activity.objects.object then
+            local import = data.scenes[i].objects[j].import
+            local json = data.scenes[i].objects[j].textures
+            for k = 1, #json do
+              activity.textures[activity.objects.texture].data[#activity.textures[activity.objects.texture].data+1] = json[k]
+              activity.textures[activity.objects.texture].dataOption[#activity.textures[activity.objects.texture].data] = import
             end
           end
         end
       end
-
-      for i = 1, #activity.textures[activity.objects.texture].data do
-        countGenBlocks = countGenBlocks + 1
-        activity.newBlock({
-          i = i,
-          group = activity.textures[activity.objects.texture],
-          type = 'textures',
-          name = activity.objects.texture,
-          import = activity.textures[activity.objects.texture].dataOption[i]
-        })
-      end
-
-      activity.textures[activity.objects.texture].scroll:setScrollHeight(activity.textures[activity.objects.texture].scrollHeight)
     end
+
+    for i = 1, #activity.textures[activity.objects.texture].data do
+      countGenBlocks = countGenBlocks + 1
+      activity.newBlock({
+        i = i,
+        group = activity.textures[activity.objects.texture],
+        type = 'textures',
+        name = activity.objects.texture,
+        import = activity.textures[activity.objects.texture].dataOption[i]
+      })
+    end
+
+    activity.textures[activity.objects.texture].scroll:setScrollHeight(activity.textures[activity.objects.texture].scrollHeight)
 
     if not activity.createActivity[activity.objects.texture .. '_texture'] then
       activity.createActivity[activity.objects.texture .. '_texture'] = true

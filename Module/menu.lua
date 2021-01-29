@@ -9,11 +9,11 @@ local myprogrambut, myprogramtext
 local donatebut, donatetext
 local settingsbut, settingstext
 local buildtext
---[[ Номер билда ]] buildVersion = 934
+--[[ Номер билда ]] buildVersion = 945
 
 function visibleMenu(visible)
   bg.isVisible = visible
-  snowflakes.isVisible = visible
+  -- snowflakes.isVisible = visible
   title.isVisible = visible
   vktg.isVisible = visible
   myprogrambut.isVisible = visible
@@ -43,12 +43,12 @@ function scene:create( event )
       bg.width = _aW
       bg.height = _aH + _tH
 
-    snowflakes = display.newImage(sceneGroup, 'Image/snowflakes.png')
-      snowflakes.x = _x
-      snowflakes.y = _y
-      snowflakes.alpha = 0.5
+    -- snowflakes = display.newImage(sceneGroup, 'Image/snowflakes.png')
+    --   snowflakes.x = _x
+    --   snowflakes.y = _y
+    --   snowflakes.alpha = 0.5
 
-    title = display.newText(sceneGroup, '🎄Construct Code🎄', _x, _y - _aY + 182, 'ubuntu_!bold.ttf', 60)
+    title = display.newText(sceneGroup, 'Construct Code', _x, _y - _aY + 182, 'ubuntu_!bold.ttf', 60)
 
     vktg = display.newImage(sceneGroup, 'Image/vk.png')
       vktg.x = _x - _aX + 95 - 48

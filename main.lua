@@ -223,7 +223,7 @@ activity.scrollSettings = {
 
 -- local physics = require 'physics'
 --
--- -- physics.setDrawMode('hybrid')
+-- physics.setDrawMode('hybrid')
 -- physics.setScale(60)
 -- physics.setPositionIterations(6)
 -- physics.setVelocityIterations(16)
@@ -252,6 +252,95 @@ activity.scrollSettings = {
 -- rect1.collision = onLocalCollision
 -- rect1:addEventListener( "collision" )
 
+-- physics.setDrawMode('hybrid')
+-- physics.setScale(60)
+-- physics.setPositionIterations(6)
+-- physics.setVelocityIterations(16)
+-- physics.setAverageCollisionPositions(true)
+-- physics.start()
+--
+-- -- local camera = display.newGroup()
+--
+-- local rect1 = display.newRect(_x, _y + 200, 400, 20)
+-- rect1:setFillColor(0.1, 0.5, 0.1)
+--
+-- physics.addBody(rect1, 'static', {bounce=0, friction=-1})
+--
+-- local rect2 = display.newRect(_x, _y + 140, 40, 100)
+--
+-- physics.addBody(rect2, 'dynamic', {bounce=0, friction=-1})
+--
+-- local rect3 = display.newRect(_x + 150, _y + 139, 40, 100)
+--
+-- physics.addBody(rect3, 'static', {bounce=0, friction=-1})
+--
+-- -- camera:insert(rect1)
+-- -- camera:insert(rect2)
+-- -- camera:insert(rect3)
+--
+-- local but1 = display.newRect(_x + 200, _y + 500, 100, 100)
+-- local but2 = display.newRect(_x - 200, _y + 500, 100, 100)
+-- but1.press = false
+-- but2.press = false
+--
+-- local enterFrame = function()
+--   if but1.press then
+--     local x, y = rect2:getLinearVelocity()
+--     rect2:setLinearVelocity(0, y)
+--     rect2:applyLinearImpulse(0.02, 0, rect2.x, rect2.y)
+--     -- rect1:setLinearVelocity(-50, 0)
+--     -- rect3:setLinearVelocity(-50, 0)
+--     -- rect1.angularDamping = -50
+--     -- rect1.x = rect1.x - 2
+--     -- rect3.x = rect3.x - 2
+--     -- rect2.isAwake = true
+--     -- rect2:setLinearVelocity(0.00000001, -0.00000001)
+--     -- transition.to(camera, {x=camera.x-2, time=0})
+--   elseif but2.press then
+--     local x, y = rect2:getLinearVelocity()
+--     rect2:setLinearVelocity(0, y)
+--     rect2:applyLinearImpulse(-0.02, 0, rect2.x, rect2.y)
+--     -- rect1:setLinearVelocity(50, 0)
+--     -- rect3:setLinearVelocity(50, 0)
+--     -- rect1.x = rect1.x + 2
+--     -- rect3.x = rect3.x + 2
+--     -- rect2.isAwake = true
+--     -- rect2:setLinearVelocity(0.00000001, -0.00000001)
+--     -- transition.to(camera, {x=camera.x+2, time=0})
+--   end
+-- end
+--
+-- Runtime:addEventListener('enterFrame', enterFrame)
+--
+-- local click = function(e)
+--   if e.phase == 'began' then
+--     display.getCurrentStage():setFocus(e.target)
+--     e.target.press = true
+--   elseif e.phase == 'ended' or e.phase == 'cancelled' then
+--     display.getCurrentStage():setFocus(nil)
+--     rect2:setLinearVelocity(0, 0)
+--     e.target.press = false
+--   end return true
+-- end
+--
+-- but1:addEventListener('touch', click)
+-- but2:addEventListener('touch', click)
+
+-- physics.start ''
+--
+-- local a = display.newRect(_x, _y, 100, 100)
+-- local b = display.newRect(_x, _y + 200, 100, 100)
+-- b:setFillColor(0)
+--
+-- physics.addBody(a, 'dynamic', {bounce=0}, {bounce=0})
+-- physics.addBody(b, 'static', {bounce=0})
+--
+-- local function onGlobalCollision(event)
+--   print(json.prettify(event))
+-- end
+--
+-- Runtime:addEventListener('collision', onGlobalCollision)
+
 require 'Module.alert'
 require 'Module.input'
 require 'Module.list'
@@ -264,6 +353,7 @@ require 'Module.returnModule'
 require 'Module.moveBlock'
 require 'Module.moveLogBlock'
 require 'Module.newBlock'
+require 'Module.listBlocks'
 require 'Module.genBlock'
 
 require 'Module.onInputEvent'
@@ -284,6 +374,7 @@ require 'Module.objects'
 require 'Module.textures'
 require 'Module.blocks'
 require 'Module.newblocks'
+require 'Module.physEditor'
 require 'Module.formulasEditor'
 
 require 'Module.calc'
@@ -293,6 +384,7 @@ require 'Module.game'
 require 'Module.gameFormula1'
 require 'Module.gameFormula2'
 require 'Module.gameFormula3'
+require 'Module.gameFormula4'
 
 -- Предварительная подгрузка виджета
 alert('', '', {''}, function() end)
@@ -306,5 +398,10 @@ activity.blocks.group.isVisible = false
 activity.newblocks.group.isVisible = false
 activity.editor.group.isVisible = false
 
+activity.physedit.table = {
+  import = 'linear', box = '',
+  path = 'App/Основная группа.Гусь.Танцующий гусь'
+} activity.physedit.view()
+
 -- Запуск
-composer.gotoScene 'Module.menu'
+-- composer.gotoScene 'Module.menu'

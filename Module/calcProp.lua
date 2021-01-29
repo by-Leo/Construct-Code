@@ -52,6 +52,19 @@ cprop.rotation = function(exp, indexScene, indexObject)
   end
 end
 
+cprop.posZ = function(exp, indexScene, indexObject)
+  local exp = cprop.genExp(exp, #exp - 3)
+  if exp then
+    for i = 1, #game.objects[indexScene] do
+      if game.objects[indexScene][i].name == exp[1] then
+        return {tostring(game.objects[indexScene][i].z), 'num'}
+      end
+    end return {'false', 'log'}
+  else
+    return {tostring(game.objects[indexScene][indexObject].z), 'num'}
+  end
+end
+
 cprop.posY = function(exp, indexScene, indexObject)
   local exp = cprop.genExp(exp, #exp - 3)
   if exp then
