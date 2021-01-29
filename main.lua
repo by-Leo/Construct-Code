@@ -398,10 +398,10 @@ activity.blocks.group.isVisible = false
 activity.newblocks.group.isVisible = false
 activity.editor.group.isVisible = false
 
-activity.physedit.table = {
-  import = 'linear', box = '',
-  path = 'App/Основная группа.Гусь.Танцующий гусь'
-} activity.physedit.view()
+-- activity.physedit.table = {
+--   import = 'linear', box = '',
+--   path = 'App/Основная группа.Гусь.Танцующий гусь'
+-- } activity.physedit.view()
 
 -- Запуск
--- composer.gotoScene 'Module.menu'
+composer.gotoScene 'Module.menu'
