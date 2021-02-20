@@ -9,6 +9,7 @@ physics = require 'physics'
 crypto = require 'crypto'
 zip = require 'plugin.zip'
 orientation = require 'plugin.orientation'
+notifications = require 'plugin.notifications.v2'
 
 -- Глобальные переменные с учётом харак-ик экрана
 _x = display.contentCenterX
@@ -329,17 +330,134 @@ activity.scrollSettings = {
 -- physics.start ''
 --
 -- local a = display.newRect(_x, _y, 100, 100)
--- local b = display.newRect(_x, _y + 200, 100, 100)
+-- local b = display.newRect(_x, _y + 100, 500, 100)
 -- b:setFillColor(0)
 --
--- physics.addBody(a, 'dynamic', {bounce=0}, {bounce=0})
+-- physics.addBody(a, 'dynamic', {bounce=0})
 -- physics.addBody(b, 'static', {bounce=0})
 --
+-- local x, y = a:getLinearVelocity()
+-- a:setLinearVelocity(1000, y)
+-- -- a:applyLinearImpulse(1, 0, a.x, a.y)
+-- timer.performWithDelay(100, function()
+--   a:setLinearVelocity(0, y)
+-- end)
+
 -- local function onGlobalCollision(event)
 --   print(json.prettify(event))
 -- end
 --
 -- Runtime:addEventListener('collision', onGlobalCollision)
+
+-- activity.physedit.table = {
+--   import = 'nearest', box = '',
+--   path = 'App/Основная группа.Бедрок.Бедрок'
+-- } activity.physedit.view()
+
+-- notifications.scheduleNotification(1, {alert = 'Охуеть =)'})
+
+-- local xGravity = display.newText('xGravity:  0', 20, _y - 500, 'ubuntu.ttf', 50)
+-- xGravity.anchorX = 0
+--
+-- local yGravity = display.newText('yGravity:  0', 20, _y - 400, 'ubuntu.ttf', 50)
+-- yGravity.anchorX = 0
+--
+-- local zGravity = display.newText('zGravity:  0', 20, _y - 300, 'ubuntu.ttf', 50)
+-- zGravity.anchorX = 0
+--
+-- local xInstant = display.newText('xInstant:  0', 20, _y - 100, 'ubuntu.ttf', 50)
+-- xInstant.anchorX = 0
+--
+-- local yInstant = display.newText('yInstant:  0', 20, _y, 'ubuntu.ttf', 50)
+-- yInstant.anchorX = 0
+--
+-- local zInstant = display.newText('zInstant:  0', 20, _y + 100, 'ubuntu.ttf', 50)
+-- zInstant.anchorX = 0
+--
+-- local xRaw = display.newText('xRaw:  0', 20, _y + 300, 'ubuntu.ttf', 50)
+-- xRaw.anchorX = 0
+--
+-- local yRaw = display.newText('yRaw:  0', 20, _y + 400, 'ubuntu.ttf', 50)
+-- yRaw.anchorX = 0
+--
+-- local zRaw = display.newText('zRaw:  0', 20, _y + 500, 'ubuntu.ttf', 50)
+-- zRaw.anchorX = 0
+--
+-- local round = function(num, count)
+--   return tonumber(string.format('%.' .. count .. 'f', tostring(num)))
+-- end
+--
+-- Runtime:addEventListener('accelerometer', function(event)
+--   xGravity.text = round(event.xGravity, 2)
+--   yGravity.text = round(event.yGravity, 2)
+--   zGravity.text = round(event.zGravity, 2)
+--   xInstant.text = round(event.xInstant, 2)
+--   yInstant.text = round(event.yInstant, 2)
+--   zInstant.text = round(event.zInstant, 2)
+--   xRaw.text = round(event.xRaw, 2)
+--   yRaw.text = round(event.yRaw, 2)
+--   zRaw.text = round(event.zRaw, 2)
+-- end)
+
+-- local js = '{"data":{"text":"hello world"}}'
+-- local at = {}
+--
+-- local jt = json.decode(js)
+-- local jf
+--
+-- jf = function(at, t)
+--   for i in pairs(t) do
+--     if type(t[i]) == 'table' then
+--       at[i] = {} jf(at[i], t[i])
+--     elseif type(t[i]) == 'string' then
+--       at[i] = {t[i], 'text'}
+--     elseif type(t[i]) == 'number' then
+--       at[i] = {tostring(t[i]), 'num'}
+--     elseif type(t[i]) == 'boolean' then
+--       at[i] = {tostring(t[i]), 'log'}
+--     end
+--   end
+-- end jf(at, jt) print(json.prettify(at))
+
+-- local jf = function(t)
+--   for i in t do
+--     if type(t[i]) == 'table' then
+--       jf(t[i])
+--     else
+--       at[]
+--     end
+--   end
+-- end jf(jt)
+
+-- local path = system.pathForFile('build.sh', system.DocumentsDirectory)
+-- local file = io.open(path, 'w')
+-- local text = display.newText('text', _x, _y, nil, 30)
+--
+-- file:write([[#!/system/bin/sh
+-- JAVA="]] .. system.pathForFile('java', system.ResourcesDirectory) .. [["
+-- XML2AXML="]] .. system.pathForFile('xml2axml.jar', system.ResourcesDirectory) .. [["
+-- MANIFEST="]] .. system.pathForFile('AndroidManifest.xml', system.ResourcesDirectory) .. [["
+-- JAVA_HOME="]] .. system.pathForFile('java', system.DocumentsDirectory) .. [["
+-- XML2AXML_HOME="]] .. system.pathForFile('xml2axml.jar', system.DocumentsDirectory) .. [["
+-- MANIFEST_HOME="]] .. system.pathForFile('AndroidManifest.xml', system.DocumentsDirectory) .. [["
+-- NEW_MANIFEST_HOME="]] .. system.pathForFile('NewAndroidManifest.xml', system.DocumentsDirectory) .. [["
+-- cp "${JAVA}" "${JAVA_HOME}"
+-- cp "${XML2AXML}" "${XML2AXML_HOME}"
+-- cp "${MANIFEST}" "${MANIFEST_HOME}"
+-- "${JAVA_HOME}" -jar "${XML2AXML_HOME}" d "${MANIFEST_HOME}" "${NEW_MANIFEST_HOME}"
+-- cp "${NEW_MANIFEST_HOME}" "/sdcard/Build/Manifest.xml"
+-- ]])
+
+-- print([[#!/system/bin/sh
+-- HOME=]] .. system.pathForFile('', system.DocumentsDirectory) .. [[
+-- cd "${HOME}"
+-- ]])
+
+-- io.close(file)
+--
+-- if system.getInfo 'environment' ~= 'simulator' then
+--   os.execute('/system/bin/sh "' .. path .. '"')
+-- end
 
 require 'Module.alert'
 require 'Module.input'
@@ -380,6 +498,7 @@ require 'Module.formulasEditor'
 require 'Module.calc'
 require 'Module.calcFun'
 require 'Module.calcProp'
+require 'Module.calcDevice'
 require 'Module.game'
 require 'Module.gameFormula1'
 require 'Module.gameFormula2'
@@ -397,11 +516,6 @@ activity.textures.group.isVisible = false
 activity.blocks.group.isVisible = false
 activity.newblocks.group.isVisible = false
 activity.editor.group.isVisible = false
-
--- activity.physedit.table = {
---   import = 'linear', box = '',
---   path = 'App/Основная группа.Гусь.Танцующий гусь'
--- } activity.physedit.view()
 
 -- Запуск
 composer.gotoScene 'Module.menu'
