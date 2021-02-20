@@ -22,7 +22,7 @@ alert = function(title, text, buttons, listener, checkboxText)
     width = 500, x = 0, y = 0, fontSize = 22
   })
 
-  local alertHeight = alertHeightText.height > 120 and 360 or 240 + alertHeightText.height
+  local alertHeight = 240 + alertHeightText.height
   local alertDetermineY = (360 - alertHeight) / 2
   alertHeightText:removeSelf()
 
@@ -45,10 +45,11 @@ alert = function(title, text, buttons, listener, checkboxText)
 
   local alertText = display.newText({
     parent = alertGroup, font = 'sans.ttf',
-    width = 500, height = 120, text = text,
-    x = _x - 252, y = _y - 40 + alertDetermineY, fontSize = 22
+    width = 500, height = alertHeight - 240, text = text,
+    x = _x - 252, y = _y - 90 + alertDetermineY, fontSize = 22
   })
   alertText.anchorX = 0
+  alertText.anchorY = 0
 
   -- local alertButton1 = display.newImage(alertGroup, 'Image/listbut.png')
   --   alertButton1.x = #buttons == 1 and _x + 128 or _x - 128

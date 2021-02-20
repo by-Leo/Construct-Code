@@ -6,7 +6,7 @@ frm.setVar = function(indexScene, indexObject, params, localtable)
 
   for i = 1, #game.vars + 1 do
     if game.vars[i] and game.vars[i].name == name then
-      game.vars[i].value = value if game.texts[i] then
+      game.vars[i].value = {value[1], value[2]} if game.texts[i] then
       game.texts[i].text = tostring(game.vars[i].value[1]) end break
     elseif i == #game.vars + 1 then
       game.vars[i] = {name = name, value = value}
@@ -44,26 +44,21 @@ end
 frm.setShowText = function(indexScene, indexObject, params, localtable)
   local name = params[1][1] and params[1][1][1] or ''
   local font = params[2][1] and params[2][1][1] or ''
-  local align = params[3][1] and params[3][1][1] or ''
+  local color = params[3][1] and json.decode(params[3][1][1]) or {255,255,255}
   local size = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
   local width = calc(indexScene, indexObject, table.copy(params[5]), table.copy(localtable))
   local height = calc(indexScene, indexObject, table.copy(params[6]), table.copy(localtable))
 
-  -- if font ~= 'ubuntu.ttf' and font ~= 'sans.ttf' and font ~= 'system.ttf' then
-  --   local res_path = system.pathForFile('Image') .. '/'
-  --   local font_path = game.baseDir .. gameName .. '/res .' .. font
-  --   local res_count, font_path = 0, utf8.sub(font_path, 2, utf8.len(font_path))
-  --   local res_path, res_count = utf8.gsub(res_path, '%/', '/')
-  --   for i = 1, res_count - 1 do res_path = res_path .. '../'
-  --   end res_path = res_path .. font_path font = res_path
-  -- end
+  for i = 1, #game.vars + 1 do
+    if game.vars[i] and game.vars[i].name == name then break
+    elseif i == #game.vars + 1 then game.vars[i] = {name = name, value = {'0', 'num'}} end
+  end
 
   for i = 1, #game.vars do
     if game.vars[i].name == name then
       local textConfig = {
         x = game.x, y = game.y, text = game.vars[i].value[1],
-        font = native.newFont('ubuntu.ttf'), fontSize = size[2] == 'num' and tonumber(size[1]) or 36,
-        align = align == 'rightAlign' and 'right' or align == 'leftAlign' and 'left' or 'center'
+        font = font, fontSize = size[2] == 'num' and tonumber(size[1]) or 36
       } if game.texts[i] then game.texts[i]:removeSelf() end
 
       if width[2] == 'num' and height[2] == 'num'
@@ -72,182 +67,57 @@ frm.setShowText = function(indexScene, indexObject, params, localtable)
       elseif height[2] == 'num' then textConfig.height = tonumber(height[1]) end
 
       game.texts[i] = display.newText(textConfig)
-      game.texts[i].z, game.texts[i].color = 0, {255, 255, 255} break
+      game.texts[i].z, game.texts[i].color = 0, color
+      game.texts[i]:setFillColor(color[1]/255, color[2]/255, color[3]/255) break
     end
   end
 end
 
 frm.updTable = function(indexScene, indexObject, params, localtable)
-  -- local name = params[1][1] and params[1][1][1] or ''
-  -- local name2 = params[2][1] and params[2][1][1] or ''
-  -- local t = {}
-  --
-  -- for i = 1, #game.vars do
-  --   if game.vars[i].name == name2 and (utf8.sub(game.vars[i].value[1], 1, 1) == '{'
-  --   or utf8.sub(game.vars[i].value[1], 1, 1) == '[') then
-  --     local _t = json.decode(game.vars[i].value[1])
-  --     for k, v in pairs(_t) do t[#t + 1] = {key = k, value = table.copy(v)} end
-  --   end
-  -- end
-  --
-  -- for i = 1, #game.tables + 1 do
-  --   if game.tables[i] and game.tables[i].name == name then game.tables[i].value = t break
-  --   elseif i == #game.tables + 1 then game.tables[i] = {name = name, value = t} end
-  -- end
-end
+  local name = params[1][1] and params[1][1][1]
+  local value = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
 
-frm._setTable = function(keys, value, name)
-  for i = 1, #game.tables + 1 do
-    if game.tables[i] and game.tables[i].name == name then
-      if #keys > 1 then
-        if not (game.tables[i].val[keys[1]]
-        or type(game.tables[i].val[keys[1]]) == 'table')
-        then game.tables[i].val[keys[1]] = {} end
-      end
-
-      if #keys > 2 then
-        if not (game.tables[i].val[keys[1]][keys[2]]
-        or type(game.tables[i].val[keys[1]][keys[2]]) == 'table')
-        then game.tables[i].val[keys[1]][keys[2]] = {} end
-      end
-
-      if #keys > 3 then
-        if not (game.tables[i].val[keys[1]][keys[2]][keys[3]]
-        or type(game.tables[i].val[keys[1]][keys[2]][keys[3]]) == 'table')
-        then game.tables[i].val[keys[1]][keys[2]][keys[3]] = {} end
-      end
-
-      if #keys == 1 then
-        game.tables[i].val[keys[1]] = table.copy(value)
-      elseif #keys == 2 then
-        game.tables[i].val[keys[1]][keys[2]] = table.copy(value)
-      elseif #keys == 3 then
-        game.tables[i].val[keys[1]][keys[2]][keys[3]] = table.copy(value)
-      elseif #keys == 4 then
-        game.tables[i].val[keys[1]][keys[2]][keys[3]][keys[4]] = table.copy(value)
-      end break
-    elseif i == #game.tables + 1 then
-      if #keys == 1 then
-        game.tables[i] = {name = name, val = {[keys[1]] = table.copy(value)}}
-      elseif #keys == 2 then
-        game.tables[i] = {name = name, val = {[keys[1]] = {[keys[2]] = table.copy(value)}}}
-      elseif #keys == 3 then
-        game.tables[i] = {name = name, val = {[keys[1]] = {[keys[2]] = {[keys[3]] = table.copy(value)}}}}
-      elseif #keys == 4 then
-        game.tables[i] = {name = name, val = {[keys[1]] = {[keys[2]] = {[keys[3]] = {[keys[4]] = table.copy(value)}}}}}
+  if value[2] == 'table' then
+    for i = 1, #game.tables + 1 do
+      if game.tables[i] and game.tables[i].name == name then
+        game.tables[i] = {name = name, val = value[1]}
+      elseif i == #game.tables + 1 then
+        game.tables[i] = {name = name, val = value[1]}
       end
     end
   end
 end
 
 frm.setTable = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
+  local name = params[2][1] and params[2][1][1]
+  local key = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))
   local value = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  frm._setTable(table.copy(keys), table.copy(value), name)
-end
 
-frm.setTable2 = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  local key2 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
-  local value = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  if key2[2] == 'text' or key2[2] == 'num' then keys[2] = key2[1] else keys[2] = '' end
-  frm._setTable(table.copy(keys), table.copy(value), name)
-end
-
-frm.setTable3 = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local key2 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  local key3 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
-  local value = calc(indexScene, indexObject, table.copy(params[5]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  if key2[2] == 'text' or key2[2] == 'num' then keys[2] = key2[1] else keys[2] = '' end
-  if key3[2] == 'text' or key3[2] == 'num' then keys[3] = key3[1] else keys[3] = '' end
-  frm._setTable(table.copy(keys), table.copy(value), name)
-end
-
-frm.setTable4 = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  local key2 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
-  local key3 = calc(indexScene, indexObject, table.copy(params[5]), table.copy(localtable))
-  local key4 = calc(indexScene, indexObject, table.copy(params[6]), table.copy(localtable))
-  local value = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  if key2[2] == 'text' or key2[2] == 'num' then keys[2] = key2[1] else keys[2] = '' end
-  if key3[2] == 'text' or key3[2] == 'num' then keys[3] = key3[1] else keys[3] = '' end
-  if key4[2] == 'text' or key4[2] == 'num' then keys[4] = key4[1] else keys[4] = '' end
-  frm._setTable(table.copy(keys), table.copy(value), name)
-end
-
-frm._removeTable = function(keys, name)
-  for i = 1, #game.tables do
-    if game.tables[i].name == name then
-      pcall(function()
-        if #keys == 1 then
-          local isArray = pcall(function()
-            table.remove(game.tables[i].val, tonumber(keys[1]))
-          end) if not isArray then game.tables[i].val[keys[1]] = nil end
-        elseif #keys == 2 then
-          local isArray = pcall(function()
-            table.remove(game.tables[i].val[keys[1]], tonumber(keys[2]))
-          end) if not isArray then game.tables[i].val[keys[1]][keys[2]] = nil end
-        elseif #keys == 3 then
-          local isArray = pcall(function()
-            table.remove(game.tables[i].val[keys[1]][keys[2]], tonumber(keys[3]))
-          end) if not isArray then game.tables[i].val[keys[1]][keys[2]][keys[3]] = nil end
-        elseif #keys == 4 then
-          local isArray = pcall(function()
-            table.remove(game.tables[i].val[keys[1]][keys[2]][keys[3]], tonumber(keys[4]))
-          end) if not isArray then game.tables[i].val[keys[1]][keys[2]][keys[3]][keys[4]] = nil end
-        end
-      end) break
+  if key[2] == 'key' then key = json.decode(key[1])
+    for i = 1, #game.tables + 1 do
+      if game.tables[i] and game.tables[i].name == name then
+        local t = game.tables[i].val for j = 1, #key - 1 do if t[key[j]]
+        then t = t[key[j]] end end t[key[#key]] = {value[1], value[2]} break
+      elseif i == #game.tables + 1 then
+        local t = {} game.tables[i] = {name = name, val = t} for j = 1, #key - 1
+        do t[key[j]] = {} t = t[key[j]] end t[key[#key]] = {value[1], value[2]}
+      end
     end
   end
 end
 
 frm.removeTable = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  frm._removeTable(table.copy(keys), name)
-end
+  local name = params[1][1] and params[1][1][1]
+  local key = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
 
-frm.removeTable2 = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local key2 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  if key2[2] == 'text' or key2[2] == 'num' then keys[2] = key2[1] else keys[2] = '' end
-  frm._removeTable(table.copy(keys), name)
-end
-
-frm.removeTable3 = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local key2 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  local key3 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  if key2[2] == 'text' or key2[2] == 'num' then keys[2] = key2[1] else keys[2] = '' end
-  if key3[2] == 'text' or key3[2] == 'num' then keys[3] = key3[1] else keys[3] = '' end
-  frm._removeTable(table.copy(keys), name)
-end
-
-frm.removeTable4 = function(indexScene, indexObject, params, localtable)
-  local name, keys = params[1][1] and params[1][1][1] or '', {}
-  local key1 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local key2 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  local key3 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
-  local key4 = calc(indexScene, indexObject, table.copy(params[5]), table.copy(localtable))
-  if key1[2] == 'text' or key1[2] == 'num' then keys[1] = key1[1] else keys[1] = '' end
-  if key2[2] == 'text' or key2[2] == 'num' then keys[2] = key2[1] else keys[2] = '' end
-  if key3[2] == 'text' or key3[2] == 'num' then keys[3] = key3[1] else keys[3] = '' end
-  if key4[2] == 'text' or key4[2] == 'num' then keys[4] = key4[1] else keys[4] = '' end
-  frm._removeTable(table.copy(keys), name)
+  if key[2] == 'key' then key = json.decode(key[1])
+    for i = 1, #game.tables do
+      if game.tables[i].name == name then
+        local t = game.tables[i].val for j = 1, #key do if t[key[j]] then
+        if j == #key then t[key[j]] = nil else t = t[key[j]] end end end
+      end
+    end
+  end
 end
 
 frm.setPosText = function(indexScene, indexObject, params, localtable)
@@ -311,6 +181,19 @@ frm.setAlphaText = function(indexScene, indexObject, params, localtable)
       if game.vars[i].name == name and game.texts[i] then
         game.texts[i].alpha = value[1] / 100 break
       end
+    end
+  end
+end
+
+frm.setAlignText = function(indexScene, indexObject, params, localtable)
+  local name = params[1][1] and params[1][1][1] or ''
+  local alignX = params[2][1] and params[2][1][1] or ''
+  local alignY = params[3][1] and params[3][1][1] or ''
+
+  for i = 1, #game.vars do
+    if game.vars[i].name == name and game.texts[i] then
+      game.texts[i].anchorX = alignX == 'rightAlign' and 1 or alignX == 'leftAlign' and 0 or 0.5
+      game.texts[i].anchorY = alignY == 'bottomAlign' and 1 or alignY == 'topAlign' and 0 or 0.5 break
     end
   end
 end

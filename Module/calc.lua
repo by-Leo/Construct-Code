@@ -31,11 +31,11 @@ calc = function(indexScene, indexObject, params, localtable)
       elseif sym == '<=' then
         return {tostring(tonumber(value1) <= tonumber(value2)), 'log'}
       elseif sym == '~=' then
-        return {tostring(tonumber(value1) ~= tonumber(value2)), 'log'}
+        return {tostring(value1 ~= value2), 'log'}
       elseif sym == 'and' then
-        return {tostring(value1 and value2), 'log'}
+        return {tostring(value1 == 'true' and value2 == 'true'), 'log'}
       elseif sym == 'or' then
-        return {tostring(value1 or value2), 'log'}
+        return {tostring(value1 == 'true' or value2 == 'true'), 'log'}
       elseif sym == 'not' then
         return {tostring(value1 ~= 'true'), 'log'}
       end
@@ -66,6 +66,44 @@ calc = function(indexScene, indexObject, params, localtable)
         params[i] = {tostring(math.pi), 'num'}
       elseif params[i][1] == 'unix_time' and params[i][2] == 'fun' then
         params[i] = {tostring(os.time()), 'num'}
+      elseif params[i][1] == 'width_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(game.aW), 'num'}
+      elseif params[i][1] == 'height_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(game.aH), 'num'}
+      elseif params[i][1] == 'top_point_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(game.aY), 'num'}
+      elseif params[i][1] == 'bottom_point_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(-game.aY), 'num'}
+      elseif params[i][1] == 'rigth_point_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(game.aX), 'num'}
+      elseif params[i][1] == 'left_point_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(-game.aX), 'num'}
+      elseif params[i][1] == 'finger_touching_screen' and params[i][2] == 'device' then
+        params[i] = {tostring(game.clicks > 0), 'log'}
+      elseif params[i][1] == 'finger_touching_screen_x' and params[i][2] == 'device' then
+        params[i] = {tostring(game.touch_x - game.x), 'num'}
+      elseif params[i][1] == 'finger_touching_screen_y' and params[i][2] == 'device' then
+        params[i] = {tostring(game.y - game.touch_y), 'num'}
+      elseif params[i][1] == 'count_touch' and params[i][2] == 'device' then
+        params[i] = {tostring(game.clicks), 'num'}
+      elseif params[i][1] == 'gravity_x' and params[i][2] == 'device' then
+        params[i] = {tostring(game.gravity_x), 'num'}
+      elseif params[i][1] == 'gravity_y' and params[i][2] == 'device' then
+        params[i] = {tostring(game.gravity_y), 'num'}
+      elseif params[i][1] == 'gravity_z' and params[i][2] == 'device' then
+        params[i] = {tostring(game.gravity_z), 'num'}
+      elseif params[i][1] == 'instant_x' and params[i][2] == 'device' then
+        params[i] = {tostring(game.instant_x), 'num'}
+      elseif params[i][1] == 'instant_y' and params[i][2] == 'device' then
+        params[i] = {tostring(game.instant_y), 'num'}
+      elseif params[i][1] == 'instant_z' and params[i][2] == 'device' then
+        params[i] = {tostring(game.instant_z), 'num'}
+      elseif params[i][1] == 'raw_x' and params[i][2] == 'device' then
+        params[i] = {tostring(game.raw_x), 'num'}
+      elseif params[i][1] == 'raw_y' and params[i][2] == 'device' then
+        params[i] = {tostring(game.raw_y), 'num'}
+      elseif params[i][1] == 'raw_z' and params[i][2] == 'device' then
+        params[i] = {tostring(game.raw_z), 'num'}
       elseif params[i][1] == 'local' and params[i][2] == 'local' and localtable and localtable[1] then
         params[i] = {json.prettify(localtable[1]), 'table'}
       end
@@ -75,7 +113,19 @@ calc = function(indexScene, indexObject, params, localtable)
     local plusAndMinus = true
     local orAndNot = true
     local solveExp = function(exp, i)
-      if exp[i - 1] and exp[i + 1]
+      if exp[i][2] == 'sym' and exp[i][1] == '-' and exp[i - 1] and exp[i - 1][2] == 'log' and exp[i + 1] and exp[i + 1][2] == 'num' then
+        local minusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
+        table.insert(exp, i, {'-' .. minusNum, 'num'})
+      elseif i == 1 and exp[i][2] == 'sym' and exp[i][1] == '-' and exp[i + 1] and exp[i + 1][2] == 'num' then
+        local minusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
+        table.insert(exp, i, {'-' .. minusNum, 'num'})
+      elseif exp[i][2] == 'sym' and exp[i][1] == '+' and exp[i - 1] and exp[i - 1][2] == 'log' and exp[i + 1] and exp[i + 1][2] == 'num' then
+        local plusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
+        table.insert(exp, i, {plusNum, 'num'})
+      elseif i == 1 and exp[i][2] == 'sym' and exp[i][1] == '+' and exp[i + 1] and exp[i + 1][2] == 'num' then
+        local plusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
+        table.insert(exp, i, {plusNum, 'num'})
+      elseif exp[i - 1] and exp[i + 1]
       and (exp[i - 1][2] == 'num' or exp[i - 1][2] == 'text' or (exp[i - 1][2] == 'log' and exp[i - 1][1] ~= 'not'))
       and (exp[i + 1][2] == 'num' or exp[i + 1][2] == 'text' or (exp[i - 1][2] == 'log' and exp[i - 1][1] ~= 'not')) then
         local solution = solve({
@@ -100,12 +150,10 @@ calc = function(indexScene, indexObject, params, localtable)
       local t = json.decode(exp[1][1]) if #exp > 3 then
         table.remove(exp, 1) table.remove(exp, 1) table.remove(exp, #exp)
         solution = {} parseExp(exp) exp = solution
-        if exp[2] == 'num' or exp[2] == 'text' then
-          if t[exp[1]] then
-            if not t[exp[1]][2] and not t[exp[1]][1] then
-              return {json.prettify(t[exp[1]]), 'table'}
-            else return {t[exp[1]][1], t[exp[1]][2]} end
-          else return {'false', 'log'} end
+        if (exp[2] == 'num' or exp[2] == 'text') and t[exp[1]] then
+          if not t[exp[1]][2] and not t[exp[1]][1] then
+            return {json.prettify(t[exp[1]]), 'table'}
+          else return {t[exp[1]][1], t[exp[1]][2]} end
         else return {'false', 'log'} end
       else return {exp[1][1], 'table'} end
     end
@@ -114,9 +162,8 @@ calc = function(indexScene, indexObject, params, localtable)
       if #exp > 1 then
         if exp[1][2] == 'fun' then solution = cfun[exp[1][1]](exp, indexScene, indexObject)
         elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]](exp, indexScene, indexObject)
+        elseif exp[1][2] == 'device' then solution = cdevice[exp[1][1]](exp, indexScene, indexObject)
         elseif exp[1][2] == 'table' then solution = ctable(exp, indexScene, indexObject)
-        elseif exp[1][2] == 'sym' and exp[1][1] == '-' and exp[2][2] == 'num' then solution = {exp[1][1] .. exp[2][1], 'num'}
-        elseif exp[1][2] == 'sym' and exp[1][1] == '+' and exp[2][2] == 'num' then solution = {exp[2][1], 'num'}
         else
           for i = 1, #exp do
             if exp[i][2] == 'sym' and (exp[i][1] == '*' or exp[i][1] == '/') then
@@ -137,6 +184,7 @@ calc = function(indexScene, indexObject, params, localtable)
         end
       elseif exp[1][2] == 'fun' then solution = cfun[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
       elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
+      elseif exp[1][2] == 'device' then solution = cdevice[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
       elseif exp[1][2] == 'table' then solution = ctable(exp, indexScene, indexObject, table.copy(localtable))
       else solution = exp[1] end
     end
@@ -146,16 +194,16 @@ calc = function(indexScene, indexObject, params, localtable)
       local indexSecondBracket = 0
       for i = 1, #exp do
         if exp[i][2] == 'sym' and exp[i][1] == '(' then
-          if exp[i - 1] and (exp[i - 1][2] == 'fun' or exp[i - 1][2] == 'prop' or exp[i - 1][2] == 'table') then indexFirstBracket = i - 1
+          if exp[i - 1] and (exp[i - 1][2] == 'fun' or exp[i - 1][2] == 'prop' or exp[i - 1][2] == 'device' or exp[i - 1][2] == 'table') then indexFirstBracket = i - 1
           else indexFirstBracket = i + 1 end
         elseif exp[i][2] == 'sym' and exp[i][1] == ')' and indexFirstBracket > 0 then
-          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'table') then indexSecondBracket = i
+          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'device' or exp[indexFirstBracket][2] == 'table') then indexSecondBracket = i
           else indexSecondBracket = i - 1 end
           local _exp = {} solution = {}
           for j = indexFirstBracket, indexSecondBracket do
             _exp[#_exp + 1] = {exp[j][1], exp[j][2]}
           end parseExp(_exp)
-          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'table') then
+          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'device' or exp[indexFirstBracket][2] == 'table') then
             for j = indexFirstBracket, indexSecondBracket do table.remove(exp, indexFirstBracket) end
             table.insert(exp, indexFirstBracket, solution)
           else

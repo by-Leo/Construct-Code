@@ -13,7 +13,7 @@ activity.updateTextLanguage = function(i)
   activity.blocks.title.text = strings.blocksTitle
   activity.editor.title.text = strings.editorTitle
 
-  if activity.programs['nil'] then
+  if activity.programs['nil'] then pcall(function()
     for p = 1, #activity.programs['nil'].block do
       pName = activity.programs['nil'].block[p].text.text
       if activity.scenes[pName] then
@@ -60,7 +60,7 @@ activity.updateTextLanguage = function(i)
         end
       end
     end
-  end
+  end) end
 
   activity.editor.buttons[1].text.text = strings.editorInputText
   activity.editor.buttons[2].text.text = strings.editorInputLocal

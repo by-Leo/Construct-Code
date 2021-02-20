@@ -43,8 +43,9 @@ activity.onClickButton.blocks.list = function(e)
 
           local name = activity.blocks[activity.objects.name].block[i].data.name
 
-          if name ~= 'ifEnd' and name ~= 'ifElseEnd' and name ~= 'useTagEnd' 
-          and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'else' then
+          if name ~= 'ifEnd' and name ~= 'ifElseEnd' and name ~= 'useTagEnd' and name ~= 'whileEnd'
+          and name ~= 'useCopyEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd'
+          and name ~= 'else' and name ~= 'timerEnd' and name ~= 'forIEnd' and name ~= 'forTEnd' then
             activity.blocks[activity.objects.name].block[i].checkbox.isVisible = true
           end
         end
@@ -88,9 +89,14 @@ end
 activity.onClickButton.blocks.block = function(e)
   if activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'ifEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'ifElseEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'whileEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forIEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forTEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'enterFrameEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'timerEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'useTagEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'useCopyEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'else'
   and not activity.blocks[activity.objects.name].alertActive then
     blockList(e.target.num)
@@ -123,8 +129,10 @@ activity.onClickButton.blocks[3] = function(inList)
   for i = 1, #group.block do
     if group.block[i].checkbox.isOn then
       if (group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse'
-      or group.block[i].data.name == 'for' or group.block[i].data.type == 'event'
-      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag')
+      or group.block[i].data.name == 'for' or group.block[i].data.name == 'while' or group.block[i].data.type == 'event'
+      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag'
+      or group.block[i].data.name == 'forI' or group.block[i].data.name == 'forT'
+       or group.block[i].data.name == 'useCopy' or group.block[i].data.name == 'timer')
       and count == 0 then j = i count = count + 1
       elseif count > 0 then count = count + 1
       else j = i count = 1 break end

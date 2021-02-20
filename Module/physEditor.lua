@@ -24,18 +24,19 @@ activity.physedit.view = function()
   activity.physedit.group = display.newGroup()
   display.setDefault('magTextureFilter', activity.physedit.table.import)
 
-  local rect = display.newImage(activity.physedit.table.path, system.DocumentsDirectory, _x, _y + _aY - 620)
+  local max_size = _aY * 2 - 830 if max_size > 640 then max_size = 640 end
+  local rect = display.newImage(activity.physedit.table.path, system.DocumentsDirectory, _x, _y + 140)
 
   if rect then
     local rect_width = rect.width
     local rect_height = rect.height
 
-    local size_formula = rect.width / 600
-    rect.width = 600
+    local size_formula = rect.width / max_size
+    rect.width = max_size
     rect.height = rect.height / size_formula
-    if rect.height > 600 then
-      size_formula = rect.height / 600
-      rect.height = 600
+    if rect.height > max_size then
+      size_formula = rect.height / max_size
+      rect.height = max_size
       rect.width = rect.width / size_formula
     end
 
@@ -69,7 +70,7 @@ activity.physedit.view = function()
 
     for i = 1, 4 do
       local x, y = points_reposition(i)
-      points[1][i] = display.newCircle(x, y, 15)
+      points[1][i] = display.newCircle(x, y, 18)
       points[1][i].i, points[1][i].j = i, 1
       points[1][i]:setFillColor(0, 0.8, 0.5)
 
@@ -93,20 +94,26 @@ activity.physedit.view = function()
     if utf8.len(activity.physedit.table.box) > 0 then
       pcall(function() local box = json.decode(activity.physedit.table.box)
         for j = 1, #box do
-          if j > 1 then
-            points_active, points_table_active = 4, #points + 1
-
+          if j == 1 then for i = 5, #box[j]/2 do points_active = i
+            points[1][i] = display.newCircle(_x, rect.y, 18)
+            points[1][i]:setFillColor(0, 0.3, 1)
+            points[1][i-1]:setFillColor(0, 0.8, 0.5)
+            points[1][i].i, points[1][i].j = i, 1
+            points[1][i]:addEventListener('touch', function(e)
+              points_active, points_table_active = e.target.i, e.target.j
+              if e.phase == 'began' then display.getCurrentStage():setFocus(e.target)
+              elseif e.phase == 'moved' then e.target.x, e.target.y = e.x, e.y
+              elseif e.phase == 'ended' or e.phase == 'cancelled' then display.getCurrentStage():setFocus(nil)
+              end return true
+            end) activity.physedit.group:insert(points[1][i])
+            lines[1][i] = display.newRect(0,0,0,0)
+            activity.physedit.group:insert(lines[1][i]) end
+          elseif j > 1 then points[#points][#points[#points]]:setFillColor(0, 0.8, 0.5)
+            points_active, points_table_active = #box[j]/2, #points + 1
             points[#points+1] = {} lines[#points] = {}
-            points[#points][1] = display.newCircle(_x - rect.width/2, rect.y - rect.height/2, 15)
-            points[#points][1]:setFillColor(0, 0.8, 0.5)
-            points[#points][2] = display.newCircle(_x + rect.width/2, rect.y - rect.height/2, 15)
-            points[#points][2]:setFillColor(0, 0.8, 0.5)
-            points[#points][3] = display.newCircle(_x + rect.width/2, rect.y + rect.height/2, 15)
-            points[#points][3]:setFillColor(0, 0.8, 0.5)
-            points[#points][4] = display.newCircle(_x - rect.width/2, rect.y + rect.height/2, 15)
-            points[#points][4]:setFillColor(0, 0.3, 1)
-
-            for i = 1, 4 do
+            for i = 1, #box[j]/2 do
+              points[#points][i] = display.newCircle(_x, rect.y, 18)
+              points[#points][i]:setFillColor(0, 0.8, 0.5)
               points[#points][i].i, points[#points][i].j = i, #points
               points[#points][i]:addEventListener('touch', function(e)
                 points_active, points_table_active = e.target.i, e.target.j
@@ -115,15 +122,10 @@ activity.physedit.view = function()
                 elseif e.phase == 'ended' or e.phase == 'cancelled' then display.getCurrentStage():setFocus(nil)
                 end return true
               end) activity.physedit.group:insert(points[#points][i])
-            end
-
-            for i = 1, 4 do
               lines[#points][i] = display.newRect(0,0,0,0)
               activity.physedit.group:insert(lines[#points][i])
-            end
-          end
-          for i = 1, #box[j] do
-            if i + (i - 1) > #box[j] then break end
+            end points[#points][#box[j]/2]:setFillColor(0, 0.3, 1)
+          end for i = 1, #box[j]/2 do
             points[j][i].x = box[j][i + (i - 1)] * shape_width + _x
             points[j][i].y = box[j][i + i] * shape_height + rect.y
           end
@@ -165,10 +167,10 @@ activity.physedit.view = function()
           for i = 1, #points[j] do
             if not (points_table_active == j and points_active == i) then
               if but6.text.text == strings.offMagnetX
-              and math.abs(points[j][i].x - points[points_table_active][points_active].x) <= 5 then
+              and math.abs(points[j][i].x - points[points_table_active][points_active].x) <= 10 then
                 points[points_table_active][points_active].x = points[j][i].x
               end if but7.text.text == strings.offMagnetY
-              and math.abs(points[j][i].y - points[points_table_active][points_active].y) <= 5 then
+              and math.abs(points[j][i].y - points[points_table_active][points_active].y) <= 10 then
                 points[points_table_active][points_active].y = points[j][i].y
               end
             end
@@ -187,7 +189,7 @@ activity.physedit.view = function()
       if e.phase == 'began' then
         if cBool and but3.text.text == strings.hideLines and #points[points_table_active] < 8 then points_active_last = points_active + 1
           if points_active_last > #points[points_table_active] then points_active_last = 1 end
-          table.insert(points[points_table_active], points_active+1, display.newCircle((points[points_table_active][points_active].x + points[points_table_active][points_active_last].x) / 2, (points[points_table_active][points_active].y + points[points_table_active][points_active_last].y) / 2, 15))
+          table.insert(points[points_table_active], points_active+1, display.newCircle((points[points_table_active][points_active].x + points[points_table_active][points_active_last].x) / 2, (points[points_table_active][points_active].y + points[points_table_active][points_active_last].y) / 2, 18))
           activity.physedit.group:insert(points[points_table_active][points_active+1])
           for i = points_active+2, #points[points_table_active] do points[points_table_active][i].i = points[points_table_active][i].i + 1 end
           points[points_table_active][points_active+1]:setFillColor(0, 0.8, 0.5)
@@ -228,13 +230,13 @@ activity.physedit.view = function()
         points_active, points_table_active = 4, #points + 1
 
         points[#points+1] = {} lines[#points] = {}
-        points[#points][1] = display.newCircle(_x - rect.width/2, rect.y - rect.height/2, 15)
+        points[#points][1] = display.newCircle(_x - rect.width/2, rect.y - rect.height/2, 18)
         points[#points][1]:setFillColor(0, 0.8, 0.5)
-        points[#points][2] = display.newCircle(_x + rect.width/2, rect.y - rect.height/2, 15)
+        points[#points][2] = display.newCircle(_x + rect.width/2, rect.y - rect.height/2, 18)
         points[#points][2]:setFillColor(0, 0.8, 0.5)
-        points[#points][3] = display.newCircle(_x + rect.width/2, rect.y + rect.height/2, 15)
+        points[#points][3] = display.newCircle(_x + rect.width/2, rect.y + rect.height/2, 18)
         points[#points][3]:setFillColor(0, 0.8, 0.5)
-        points[#points][4] = display.newCircle(_x - rect.width/2, rect.y + rect.height/2, 15)
+        points[#points][4] = display.newCircle(_x - rect.width/2, rect.y + rect.height/2, 18)
         points[#points][4]:setFillColor(0, 0.3, 1)
 
         for i = 1, 4 do
@@ -329,7 +331,7 @@ activity.physedit.view = function()
     but:addEventListener('touch', function(e)
       if e.phase == 'began' then
         if cBool and but3.text.text == strings.hideLines then physics.removeBody(rect)
-          rect.x, rect.y, rect.rotation = _x, _y + _aY - 620, 0
+          rect.x, rect.y, rect.rotation = _x, _y + 140, 0
           local shape, _shape = {}, {}
           for j = 1, #points do shape[j] = {}
             for i = 1, #points[j] do
@@ -346,7 +348,7 @@ activity.physedit.view = function()
     but2:addEventListener('touch', function(e)
       if e.phase == 'began' then
         if cBool and but3.text.text == strings.hideLines then physics.removeBody(rect)
-          rect.x, rect.y, rect.rotation = _x, _y + _aY - 620, 0
+          rect.x, rect.y, rect.rotation = _x, _y + 140, 0
           local shape, _shape = {}, {}
           for j = 1, #points do shape[j] = {}
             for i = 1, #points[j] do
@@ -354,7 +356,7 @@ activity.physedit.view = function()
               shape[j][#shape[j]+1] = points[j][i].y - rect.y
             end _shape[j] = {friction=-1, shape=shape[j]}
           end physics.addBody(rect, 'dynamic', unpack(_shape))
-          timer.performWithDelay(1, function() rect.x, rect.y, rect.rotation = _x, _y + _aY - 620, 0 end)
+          timer.performWithDelay(1, function() rect.x, rect.y, rect.rotation = _x, _y + 140, 0 end)
         end
       end
     end)
@@ -370,13 +372,15 @@ activity.physedit.view = function()
     end)
 
     but4:addEventListener('touch', function(e)
-      if e.phase == 'began' and cBool and but3.text.text == strings.hideLines then
-        alert(strings.indexBox, strings.index .. points_table_active, {strings.buttonInput}, function(e) end)
+      if e.phase == 'began' and cBool and but3.text.text == strings.hideLines then physics.setDrawMode('normal')
+        alert(strings.indexBox, strings.index .. points_table_active, {strings.buttonInput}, function(e)
+        if but.text.text == strings.hideHitbox then physics.setDrawMode('hybrid') end end)
       end
     end)
 
     but5:addEventListener('touch', function(e)
       if e.phase == 'began' and cBool then
+        rect.x, rect.y, rect.rotation = _x, _y + 140, 0
         local shape = {}
         local shape_width = rect_width / rect.width
         local shape_height = rect_height / rect.height

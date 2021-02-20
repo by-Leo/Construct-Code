@@ -78,9 +78,9 @@ for i = 1, #typeblocks do
 
   activity.newblocks[typeblocks[i]].scroll = widget.newScrollView({
     x = _x,
-    y = 490,
+    y = 490 + 43,
     width = _pW,
-    height = _aH - 300,
+    height = _aH - 300 + 80,
     hideBackground = true,
     hideScrollBar = true,
     horizontalScrollDisabled = true,
@@ -181,8 +181,10 @@ for i = 1, #typeblocks do
             }
             activity.genBlock(i)
 
-            if e.target.name == 'if' or e.target.name == 'ifElse' or e.target.name == 'for'
-            or e.target.name == 'enterFrame' or e.target.name == 'useTag' then
+            if e.target.name == 'if' or e.target.name == 'ifElse'
+            or e.target.name == 'for' or e.target.name == 'while' or e.target.name == 'useCopy'
+            or e.target.name == 'enterFrame' or e.target.name == 'useTag'
+            or e.target.name == 'timer' or e.target.name == 'forI' or e.target.name == 'forT' then
               local c = 1 if e.target.name == 'ifElse' then
                 group.data[i + 1] = {
                   name = 'else',

@@ -10,6 +10,8 @@ activity.onClickButton.programs.add = function(e)
 
         if e.input then
           e.text = activity.onInputEvent({phase='ok', text=e.text}, activity.programs['nil'].data, 'programs')
+          e.filter = 'group bg act title add play list okay onClick hide view getVarFunTable create name scene '
+          if utf8.find(e.filter, e.text .. ' ') then e.text = e.text .. '_' .. math.random(111111111, 999999999) end
 
           local path = system.pathForFile('Programs.txt', system.DocumentsDirectory)
           local file = io.open(path, 'w')
@@ -51,6 +53,94 @@ activity.onClickButton.programs.add = function(e)
 end
 
 activity.onClickButton.programs.import = function(e)
+  activity.programs['nil'].scroll:setIsLocked(true, 'vertical')
+
+  local basedir, name, _name = system.pathForFile('', system.DocumentsDirectory), '', ''
+  local filter = 'group bg act title add play list okay onClick hide view getVarFunTable create name scene '
+  local completeImportCCode = function(ev)
+    if ev.done and ev.done == 'ok' then
+      local rectDownloadApp = display.newRect(_x, _y - 5, 600, 210)
+      rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
+
+      local rectDownloadAppShadow = display.newRect(_x, _y, _aW, _aH)
+      rectDownloadAppShadow:setFillColor(0, 0.005)
+
+      local rectDownloadAppText = display.newText({
+        text = strings.importCCode,
+        font = 'ubuntu_!bold.ttf', fontSize = 40, width = 560, x = _x - 280, y = _y - 80
+      })
+
+      rectDownloadApp.height = rectDownloadAppText.height + 20
+      rectDownloadAppText.anchorX, rectDownloadAppText.anchorY = 0, 0
+      rectDownloadAppText.y = _y - rectDownloadApp.height / 2 + 5
+
+      rectDownloadAppShadow:addEventListener('touch', function(e)
+        if e.phase == 'began' then display.getCurrentStage():setFocus(e.target)
+        elseif e.phase == 'ended' then display.getCurrentStage():setFocus(nil)
+        end return true
+      end) alertActive = true
+
+      local exportStop = function()
+        alertActive = false
+        rectDownloadApp:removeSelf()
+        rectDownloadAppText:removeSelf()
+        activity.programs['nil'].scroll:setIsLocked(false, 'vertical')
+        timer.performWithDelay(1, function() rectDownloadAppShadow:removeSelf() end)
+      end
+
+      zip.uncompress {
+        zipFile = 'import.ccode',
+        zipBaseDir = system.DocumentsDirectory,
+        dstBaseDir = system.DocumentsDirectory,
+        files = {'list'}, listener = function(event)
+          if not event.isError then pcall(function()
+            local file, data = io.open(basedir .. '/list', 'r')
+            if file then data = json.decode(file:read('*a')) io.close(file) end
+            if type(data) == 'table' then for i = 1, #data do
+              if utf8.sub(data[i], utf8.len(data[i])-2, utf8.len(data[i])) == '.cc'
+              and not utf8.find(utf8.sub(data[i], 1, utf8.len(data[i])-3), '%.') then
+              name = utf8.sub(data[i], 1, utf8.len(data[i])-3) end end
+              zip.uncompress {
+                zipFile = 'import.ccode',
+                zipBaseDir = system.DocumentsDirectory,
+                dstBaseDir = system.DocumentsDirectory,
+                files = data, listener = function(event) pcall(function()
+                  local file, _hash = io.open(basedir .. '/hash', 'r'), ''
+                  if file then _hash = file:read('*a') io.close(file) end
+                  local file, code = io.open(basedir .. '/' .. name .. '.cc', 'r'), ''
+                  if file then code = file:read('*a') io.close(file) end
+                  local file = io.open(basedir .. '/save.json', 'r')
+                  if file then code = code .. file:read('*a') io.close(file) end
+                  local hash = crypto.hmac(crypto.md4, crypto.hmac(crypto.md4, code, 'ccpassword'), 'ccpassword')
+                  if hash == _hash then if utf8.find(filter, name .. ' ') then _name = name name = utf8.sub(name, 1, utf8.len(name) > 20 and 20
+                  or utf8.len(name)) .. '_' .. math.random(111111111, 999999999) os.execute(string.format('mv "%s" "%s"',
+                  basedir .. '/' .. _name .. '.cc', basedir .. '/' .. name .. '.cc')) end for i = 1, #activity.programs['nil'].data do
+                    if activity.programs['nil'].data[i] == name then _name = name
+                      name = utf8.sub(name, 1, utf8.len(name) > 20 and 20
+                      or utf8.len(name)) .. '_' .. math.random(111111111, 999999999)
+                      os.execute(string.format('mv "%s" "%s"', basedir .. '/' .. _name .. '.cc', basedir .. '/' .. name .. '.cc'))
+                    end end lfs.mkdir(basedir .. '/' .. name) for i = 1, #data do
+                      if utf8.sub(data[i], utf8.len(data[i])-2, utf8.len(data[i])) == '.cc' and
+                      not utf8.find(utf8.sub(data[i], 1, utf8.len(data[i])-3), '%.') then data[i] = name .. '.cc' end
+                      os.execute('rm "' .. basedir .. '/' .. name .. '/' .. data[i] .. '"')
+                      os.execute(string.format('mv "%s" "%s"', basedir .. '/' .. data[i], basedir .. '/' .. name .. '/' .. data[i]))
+                      os.execute('rm "' .. basedir .. '/' .. data[i] .. '"')
+                    end local path = system.pathForFile('Programs.txt', system.DocumentsDirectory)
+                    local file, newData = io.open(path, 'r'), name if file then for line in file:lines() do
+                    if line ~= name then newData = newData .. '\n' .. line end end io.close(file) end
+                    local file = io.open(path, 'w') if file then file:write(newData) io.close(file) end
+                    activity.programs['nil'].data[#activity.programs['nil'].data + 1] = name
+                    activity.newBlock({i = #activity.programs['nil'].data,
+                    group = activity.programs['nil'], type = 'programs', name = 'nil'})
+                  end os.execute('rm "' .. basedir .. '/import.ccode"')
+                  os.execute('rm "' .. basedir .. '/list"') os.execute('rm "' .. basedir .. '/' .. name .. '/hash"')
+                end) exportStop()
+              end}
+            end
+          end) else exportStop() end
+      end}
+    end
+  end library.pickFile(basedir, completeImportCCode, 'import.ccode', '', '*/*', nil, nil, nil)
 end
 
 activity.onClickButton.programs.list = function(e)
@@ -229,6 +319,12 @@ activity.onClickButton.programs[1] = function()
 
       table.remove(activity.programs['nil'].data, i)
 
+      for i = 1, #activity.downloadApp do
+        if activity.downloadApp[i] == name then
+          table.remove(activity.downloadApp, i)
+        end
+      end
+
       activity.programs['nil'].scrollHeight = activity.programs['nil'].scrollHeight - 153
       activity.programs['nil'].scroll:remove(activity.programs['nil'].block[i])
       activity.programs['nil'].scroll:setScrollHeight(activity.programs['nil'].scrollHeight)
@@ -274,6 +370,82 @@ activity.onClickButton.programs[1] = function()
 end
 
 activity.onClickButton.programs[2] = function()
+  for i = 1, #activity.programs['nil'].block do
+    if activity.programs['nil'].block[i].checkbox.isOn then
+      activity.programs['nil'].scroll:setIsLocked(true, 'vertical')
+
+      native.showPopup('requestAppPermission', {
+        appPermission = 'Storage', urgency = 'Critical',
+        listener = function(event) end
+      })
+
+      local rectDownloadApp = display.newRect(_x, _y - 5, 600, 210)
+      rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
+
+      local rectDownloadAppShadow = display.newRect(_x, _y, _aW, _aH)
+      rectDownloadAppShadow:setFillColor(0, 0.005)
+
+      local rectDownloadAppText = display.newText({
+        text = strings.exportCCode,
+        font = 'ubuntu_!bold.ttf', fontSize = 40, width = 560, x = _x - 280, y = _y - 80
+      })
+
+      rectDownloadApp.height = rectDownloadAppText.height + 20
+      rectDownloadAppText.anchorX, rectDownloadAppText.anchorY = 0, 0
+      rectDownloadAppText.y = _y - rectDownloadApp.height / 2 + 5
+
+      rectDownloadAppShadow:addEventListener('touch', function(e)
+        if e.phase == 'began' then display.getCurrentStage():setFocus(e.target)
+        elseif e.phase == 'ended' then display.getCurrentStage():setFocus(nil)
+        end return true
+      end) alertActive = true
+
+      local exportStop = function()
+        alertActive = false
+        rectDownloadApp:removeSelf()
+        rectDownloadAppText:removeSelf()
+        activity.programs['nil'].scroll:setIsLocked(false, 'vertical')
+        timer.performWithDelay(1, function() rectDownloadAppShadow:removeSelf() end)
+      end
+
+      timer.performWithDelay(1, function()
+        local basedir = system.pathForFile('', system.DocumentsDirectory)
+        local name, data = activity.programs['nil'].block[i].text.text, ''
+        local list, _list = {name .. '/hash'}, {'hash'}
+
+        for file in lfs.dir(system.pathForFile('', system.DocumentsDirectory) .. '/' .. name) do
+          local theFile = name .. '/' .. file if file ~= '..' and file ~= '.'
+          then list[#list + 1], _list[#_list + 1] = theFile, file end
+        end
+
+        local path = basedir .. '/' .. name .. '/' .. name .. '.cc'
+        local file = io.open(path, 'r') if file then data = file:read('*a') io.close(file) end
+        local path = basedir .. '/' .. name .. '/save.json'
+        local file = io.open(path, 'r') if file then data = data .. file:read('*a') io.close(file) end
+        local hash = crypto.hmac(crypto.md4, crypto.hmac(crypto.md4, code, 'ccpassword'), 'ccpassword')
+        local path = basedir .. '/' .. name .. '/hash'
+        local file = io.open(path, 'w') if file then file:write(hash) io.close(file) end
+        local path = basedir .. '/' .. name .. '/list'
+        local file = io.open(path, 'w') if file then file:write(json.encode(_list)) io.close(file) end
+
+        timer.performWithDelay(1, function()
+          list[#list + 1] = name .. '/list' zip.compress {
+            zipFile = name .. '.ccode',
+            zipBaseDir = system.DocumentsDirectory,
+            srcBaseDir = system.DocumentsDirectory,
+            srcFiles = list, listener = function(event) pcall(function() exportStop()
+              os.execute('rm -f "' .. basedir .. '/' .. name .. '/hash"')
+              os.execute('rm -f "' .. basedir .. '/' .. name .. '/list"')
+              lfs.mkdir('/sdcard/ExportCC') timer.performWithDelay(1, function()
+              os.execute(string.format('mv "%s" "%s"',
+              basedir .. '/' .. name .. '.ccode', '/sdcard/ExportCC/' .. name .. '.ccode'))
+              os.execute('rm -f "' .. basedir .. '/' .. name .. '.ccode"')
+            end) end)
+          end}
+        end)
+      end)
+    end
+  end
 end
 
 activity.onClickButton.programs[3] = function()
@@ -282,13 +454,15 @@ end
 activity.onClickButton.programs[4] = function()
   for i = 1, #activity.programs['nil'].block do
     if activity.programs['nil'].block[i].checkbox.isOn then
-      activity.programs['nil'].scroll:setIsLocked(true, "vertical")
+      activity.programs['nil'].scroll:setIsLocked(true, 'vertical')
 
       input(strings.enterTitle, strings.enterNewTitleProgramText, function(event) activity.onInputEvent(event, activity.programs['nil'].data, 'programs') end, function(event)
-        activity.programs['nil'].scroll:setIsLocked(false, "vertical")
+        activity.programs['nil'].scroll:setIsLocked(false, 'vertical')
 
         if event.input then
           event.text = activity.onInputEvent({phase='ok', text=event.text}, activity.programs['nil'].data, 'programs')
+          event.filter = 'group bg act title add play list okay onClick hide view getVarFunTable create name scene '
+          if utf8.find(event.filter, event.text .. ' ') then event.text = event.text .. '_' .. math.random(111111111, 999999999) end
 
           local oldTitle = activity.programs['nil'].block[i].text.text
           local textX = activity.programs['nil'].block[i].text.x

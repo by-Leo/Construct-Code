@@ -138,8 +138,10 @@ blockList = function(num)
               end
             end
           end
-        elseif group.block[num].data.name == 'if' or group.block[num].data.name == 'ifElse' or group.block[num].data.name == 'for'
-        or group.block[num].data.name == 'enterFrame' or group.block[num].data.name == 'useTag' then
+        elseif group.block[num].data.name == 'if' or group.block[num].data.name == 'ifElse'
+        or group.block[num].data.name == 'for' or group.block[num].data.name == 'while' or group.block[num].data.name == 'useCopy'
+        or group.block[num].data.name == 'enterFrame' or group.block[num].data.name == 'useTag'
+        or group.block[num].data.name == 'timer' or group.block[num].data.name == 'forT' or group.block[num].data.name == 'forI' then
           local nestedFactor = 1
           local nameEnd = group.block[num].data.name .. 'End'
 

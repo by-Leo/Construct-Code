@@ -12,7 +12,7 @@ list = function(buttons, config, listener)
 
   if config.activeButVar then
     for i = 1, #buttons do
-      if buttons[i] == config.activeButVar then
+      if buttons[i] == config.activeButVar and i > 1 then
         table.remove(buttons, i)
         table.insert(buttons, 2, config.activeButVar)
         break
@@ -26,8 +26,7 @@ list = function(buttons, config, listener)
       listGroup:removeSelf()
       Runtime:removeEventListener('key', onKeyEventList)
       listener({num = 0})
-    end
-    return true
+    end return true
   end
   Runtime:addEventListener('key', onKeyEventList)
 

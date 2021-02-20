@@ -5,6 +5,9 @@ activity.editor.funcButtons = function(id)
   if id == '0' or id == '1' or id == '2' or id == '3' or id == '4' or id == '5' or id == '6' or id == '7' or id == '8' or id == '9' then type = 'num'
   elseif id == '+' or id == '-' or id == '*' or id == '/' or id == ',' or id == '.' or id == '(' or id == ')' then type = 'sym' end
 
+  if not activity.editor.cursorIndex then activity.editor.cursorIndex = {'|', '|'}
+  elseif #activity.editor.cursorIndex == 0 then activity.editor.cursorIndex = {'|', '|'} end
+
   if id == '<-' then
     if activity.editor.cursorIndex[1] > 2 and activity.editor.cursorIndex[2] == '|' then
       if cursor[activity.editor.cursorIndex[1] - 1] and cursor[activity.editor.cursorIndex[1] - 1][2] == 'text' then
@@ -14,37 +17,37 @@ activity.editor.funcButtons = function(id)
         table.remove(cursor, activity.editor.cursorIndex[1] + 1)
         activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] - 1
         activity.editor.cursorIndex[2] = '|'
-      end
+      end activity.editor.genText()
     elseif activity.editor.cursorIndex[2] == 'text' then
       table.insert(cursor, activity.editor.cursorIndex[1] - 1, {'|', '|'})
       table.remove(cursor, activity.editor.cursorIndex[1] + 1)
       activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] - 1
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     end
   elseif id == '->' then
     if activity.editor.cursorIndex[1] < #cursor and activity.editor.cursorIndex[2] == '|' then
       table.insert(cursor, activity.editor.cursorIndex[1] + 2, {'|', '|'})
       table.remove(cursor, activity.editor.cursorIndex[1])
       activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] + 1
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     elseif activity.editor.cursorIndex[2] == 'text' then
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     end
   elseif id == 'C' then
     if activity.editor.cursorIndex[1] > 2 and activity.editor.cursorIndex[2] == '|' then
       table.remove(cursor, activity.editor.cursorIndex[1] - 1)
       activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] - 1
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     elseif activity.editor.cursorIndex[2] == 'text' then
       table.remove(cursor, activity.editor.cursorIndex[1] - 1)
       activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] - 1
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     end
   elseif id == 'local' then
     if activity.editor.cursorIndex[2] == '|' then
       table.insert(cursor, activity.editor.cursorIndex[1], {id, id})
       activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] + 1
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     end
   elseif id == 'text' then
     local oldText = activity.editor.cursorIndex[2] == 'text'
@@ -100,29 +103,26 @@ activity.editor.funcButtons = function(id)
     activity.returnModule('editor')
     activity.blocks.view()
     activity.blocksFileUpdate()
-  else
-    if activity.editor.cursorIndex[2] == '|' then
+  else if activity.editor.cursorIndex[2] == '|' then
       table.insert(cursor, activity.editor.cursorIndex[1], {id, type})
       activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] + 1
-      activity.editor.cursorIndex[2] = '|'
+      activity.editor.cursorIndex[2] = '|' activity.editor.genText()
     end
   end
-
-  if id ~= 'ok' then activity.editor.genText() end
 end
 
 activity.editor.funcList = function(id, ID)
   local cursor = activity.editor.cursor
 
   table.insert(cursor, activity.editor.cursorIndex[1], {id, ID})
-  if not (id == 'pi' or id == 'unix_time' or ID == 'log' or ID == 'table' or ID == 'var' or ID == 'obj') then
+  if not (id == 'pi' or id == 'unix_time' or ID == 'log' or ID == 'table' or ID == 'var' or ID == 'obj' or ID == 'device') then
     table.insert(cursor, activity.editor.cursorIndex[1] + 1, {'(', 'sym'})
     table.insert(cursor, activity.editor.cursorIndex[1] + 2, {')', 'sym'})
     table.insert(cursor, activity.editor.cursorIndex[1] + 2, {'|', '|'})
     table.remove(cursor, activity.editor.cursorIndex[1] + 4)
     activity.editor.cursorIndex[1] = activity.editor.cursorIndex[1] + 2
     activity.editor.cursorIndex[2] = '|'
-    if id == 'value_by_key' or id == 'random' or id == 'round' or id == '%' then
+    if id == 'random' or id == 'round' or id == '%' or id == 'sub' or id == 'power' then
       table.insert(cursor, activity.editor.cursorIndex[1] + 1, {',', 'sym'})
     end
   else

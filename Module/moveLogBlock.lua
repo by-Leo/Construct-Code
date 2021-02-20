@@ -4,8 +4,11 @@ activity.blocksOnTimer = function(target, group)
     display.getCurrentStage():setFocus(nil)
     target.press = false
     if #group.block > 1 then
-      if target.data.name ~= 'ifEnd' and target.data.name ~= 'ifElseEnd' and target.data.name ~= 'useTagEnd'
-      and target.data.name ~= 'enterFrameEnd' and target.data.name ~= 'else' and target.data.name ~= 'forEnd' then
+      if target.data.name ~= 'ifEnd' and target.data.name ~= 'ifElseEnd'
+      and target.data.name ~= 'useTagEnd' and target.data.name ~= 'timerEnd'
+      and target.data.name ~= 'enterFrameEnd' and target.data.name ~= 'else'
+      and target.data.name ~= 'forEnd' and target.data.name ~= 'whileEnd' and target.data.name ~= 'useCopyEnd'
+      and target.data.name ~= 'forIEnd' and target.data.name ~= 'forTEnd' then
         if target.data.type == 'event' then
           local events = 0
           for i = 1, #group.block do if group.block[i].data.type == 'event' then events = events + 1 end end
@@ -231,8 +234,9 @@ activity.blocksMove = function(target, mode, group)
     end
   end
 
-  if data.name == 'if' or data.name == 'ifElse' or data.name == 'for'
-  or data.name == 'enterFrame' or data.name == 'useTag' then
+  if data.name == 'if' or data.name == 'ifElse' or data.name == 'for' or data.name == 'while'
+  or data.name == 'useCopy' or data.name == 'enterFrame' or data.name == 'useTag'
+  or data.name == 'timer' or data.name == 'forI' or data.name == 'forT' then
     local nestedFactor = 1 relatedEvent = false
 
     for i = target.num + 1, #group.block do
@@ -258,8 +262,10 @@ activity.blocksMove = function(target, mode, group)
     local i = 0
     while i < #group.block do
       i = i + 1
-      if group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse' or group.block[i].data.name == 'for'
-      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag' then
+      if group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse'
+      or group.block[i].data.name == 'for' or group.block[i].data.name == 'while' or group.block[i].data.name == 'useCopy'
+      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag'
+      or group.block[i].data.name == 'timer' or group.block[i].data.name == 'forI' or group.block[i].data.name == 'forT' then
         local nestedFactor = 1
         local nameEnd = group.block[i].data.name .. 'End'
 

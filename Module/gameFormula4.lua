@@ -71,6 +71,12 @@ frm.removeBody = function(indexScene, indexObject, params, localtable)
   physics.removeBody(game.objects[indexScene][indexObject])
 end
 
+frm.updHitbox = function(indexScene, indexObject, params, localtable)
+  if game.objects[indexScene][indexObject].data.physics.body ~= '' then
+    frm.createBody(indexScene, indexObject)
+  end
+end
+
 frm.setNewBody = function(indexScene, indexObject, params, localtable)
   local body = params[1][1] and params[1][1][1] or ''
 

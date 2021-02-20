@@ -9,7 +9,7 @@ local myprogrambut, myprogramtext
 local donatebut, donatetext
 local settingsbut, settingstext
 local buildtext
---[[ Номер билда ]] buildVersion = 945
+--[[ Номер билда ]] buildVersion = 968
 
 function visibleMenu(visible)
   bg.isVisible = visible
@@ -32,6 +32,12 @@ function visibleMenu(visible)
   if testtext.height > 100 then donatetext.anchorY = 0.54 elseif testtext.height > 50 then donatetext.anchorY = 0.36 else donatetext.anchorY = 0.18 end
   if donatetext.text == '' then donatetext.text = strings.continueText end
   testtext:removeSelf()
+end
+
+function openHiddenTesting()
+  title.text = 'Construct Code\n   Hidden Test'
+  title.y = _y - _aY + 222
+  buildtext.text = 'Build: Test'
 end
 
 function scene:create( event )

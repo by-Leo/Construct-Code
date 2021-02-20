@@ -19,6 +19,12 @@ setting.bg:addEventListener('touch', function(e)
 end)
 
 setting.title = display.newText(setting.lib, strings.settingsTitle, _x, _y - _aY + 90, 'ubuntu_!bold.ttf', 58)
+-- setting.count = 0
+--
+-- setting.title:addEventListener('touch', function(event)
+--   setting.count = setting.count + 1 if setting.count == 5
+--   then openHiddenTesting() end return true
+-- end)
 
 -- setting.stdImportText = display.newText(strings.settingsStdImport, 30, _y - _aY + 200, 'ubuntu_!bold.ttf', 36)
 -- setting.stdImportText.anchorX = 0
