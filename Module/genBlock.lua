@@ -1,5 +1,5 @@
 activity.genType = function(i, group)
-  local types = {'data', 'object', 'control', 'controlother', 'physics', 'network'}
+  local types = {'data', 'object', 'control', 'controlother', 'physics', 'network', 'shape', 'tag', 'physicsshape'}
 
   if group.data[i].comment == 'false' and group.data[i].type == 'event' then return 'event'
   elseif group.data[i].comment == 'true' and group.data[i].type == 'event' then return 'ecomment'
@@ -126,9 +126,17 @@ getTextureInList = function(i, group)
   end
 end
 
+getResInList = function(i, group, restype)
+  local data, res = activity.resources[activity.programs.name].block, {}
+  local restype = utf8.sub(restype, 4, utf8.len(restype)) for r = 1, #data do
+    local currentrestype = utf8.match(data[r].text.text, '%.(.*)')
+    if currentrestype == restype then res[#res + 1] = data[r].text.text end
+  end return res
+end
+
 getScenesInList = function(i, group)
   local data, scenes = ccodeToJson(activity.programs.name), {}
-  for s = 1, #data.scenes do scenes[#scenes + 1] = data.scenes[s].name end return scenes
+  for s = 1, #data.scenes do scenes[s] = data.scenes[s].name end return scenes
 end
 
 getObjectInList = function(i, group)
@@ -155,14 +163,12 @@ activity.putBlockParams = function(i, group)
 
     local textGetHeight = display.newText({
       text = strings.blocks[group.block[i].data.name][2][j], align = 'left',
-      x = 0, y = 0, font = 'ubuntu.ttf', fontSize = 22, width = 161
-    })
-
-    if textGetHeight.height > 53 then textGetHeight.height = 53 end
+      x = 0, y = 0, font = 'ubuntu.ttf', fontSize = 22, width = 152
+    }) if textGetHeight.height > 53 then textGetHeight.height = 53 end
 
     group.block[i].params[j].name = display.newText({
       text = strings.blocks[group.block[i].data.name][2][j], align = 'left', height = textGetHeight.height,
-      x = select(j, getXParams('text', i, group)), y = select(j, getYParams('text', i, group)), font = 'ubuntu.ttf', fontSize = 22, width = 150
+      x = select(j, getXParams('text', i, group)), y = select(j, getYParams('text', i, group)), font = 'ubuntu.ttf', fontSize = 22, width = 152
     })
     group.block[i].params[j].name.additionX = select(j, getXParams('text', i, group)) - _pW / 2
     group.block[i].params[j].name.additionY = select(j, getYParams('text', i, group)) - group.blockY
@@ -250,7 +256,7 @@ activity.putBlockParams = function(i, group)
                     end)
                   elseif typeParams == 'font' or typeParams == 'body' or typeParams == 'sensor' or typeParams == 'powerphys' or typeParams == 'alignY'
                   or typeParams == 'phyrotation' or typeParams == 'basedir' or typeParams == 'copy' or typeParams == 'alignX' or typeParams == 'angle'
-                  or typeParams == 'bgfield' or typeParams == 'typefield' or typeParams == 'editfield' or typeParams == 'shapephys' then
+                  or typeParams == 'bgfield' or typeParams == 'typefield' or typeParams == 'editfield' or typeParams == 'shapephys' or typeParams == 'emitter' then
                     local yScroll = select(2, group.scroll:getContentPosition())
                     local activeBut
                     local tableParams = {strings.staticBody, strings.dynamicBody}
@@ -265,9 +271,14 @@ activity.putBlockParams = function(i, group)
                     elseif typeParams == 'editfield' then tableParams = {strings.editfieldtrue, strings.editfieldfalse}
                     elseif typeParams == 'shapephys' then tableParams = {strings.shapephyscircle, strings.shapephysbox, strings.shapephysmesh}
                     elseif typeParams == 'basedir' then tableParams = {'External', 'Documents', 'Temporary'}
-                    elseif typeParams == 'powerphys' then tableParams = {'1', '2', '3'}
+                    elseif typeParams == 'powerphys' then tableParams = {'1', '2', '3', '4', '5'}
                     elseif typeParams == 'angle' then tableParams = {'1', '2', '3', '4'}
-                    elseif typeParams == 'font' then
+                    elseif typeParams == 'emitter' then tableParams = {
+                      'air_stars', 'aurora_3b', 'big_orange_flame', 'blood', 'blue_galaxy',
+                      'blue_vortex_field', 'bp_firefly_final', 'comet', 'crazy_blue', 'electrons',
+                      'fireplace_flame', 'giving', 'heart04', 'hongshizi', 'im_seeing_stars', 'lava_flow',
+                      'my_galaxy', 'smoke', 'trippy', 'water_fountain', 'waterfall', 'wdemitter'
+                    } elseif typeParams == 'font' then
                       tableParams = {'ubuntu.ttf', 'sans.ttf', 'system.ttf'}
                       for u = 1, #activity.resources[activity.programs.name].block do
                         local nameRes = activity.resources[activity.programs.name].block[u].text.text
@@ -304,7 +315,7 @@ activity.putBlockParams = function(i, group)
                             'typefielddefault', 'typefieldnumber', 'typefielddecimal',
                             'typefieldphone', 'typefieldurl', 'typefieldemail', 'typefieldnoemoji',
                           } for u = 1, #table do if event.text == strings[table[u]] then type = table[u] end end
-                          if typeParams == 'font' or typeParams == 'basedir' or typeParams == 'powerphys' or typeParams == 'angle'
+                          if typeParams == 'font' or typeParams == 'basedir' or typeParams == 'powerphys' or typeParams == 'angle' or typeParams == 'emitter'
                           then type = event.text end addVariableInRect(k, n, type, typeParams, i, group)
                         end
                       end)
@@ -332,6 +343,19 @@ activity.putBlockParams = function(i, group)
 
                     group.scroll:setIsLocked(true, 'vertical')
                     list(getScenesInList(i, group), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
+                      group.scroll:setIsLocked(false, 'vertical')
+                      if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
+                    end)
+                  elseif typeParams == 'resimage' or typeParams == 'resvideo' or typeParams == 'ressound' then
+                    local yScroll = select(2, group.scroll:getContentPosition())
+                    local activeBut
+
+                    if group.block[k].data.params[n][1] and group.block[k].data.params[n][1][1] then
+                      activeBut = group.block[k].data.params[n][1][1]
+                    end
+
+                    group.scroll:setIsLocked(true, 'vertical')
+                    list(getResInList(i, group, typeParams), {x = e.target.x, y = e.target.y + yScroll + (_y - _aY + (_y - 35 - (_aH - 400) / 2)) - _y + _aY, targetHeight = e.target.height, activeBut = activeBut}, function(event)
                       group.scroll:setIsLocked(false, 'vertical')
                       if event.text then addVariableInRect(k, n, event.text, typeParams, i, group) end
                     end)
@@ -485,7 +509,7 @@ activity.putBlockParams = function(i, group)
 
               if name ~= 'ifEnd' and name ~= 'ifElseEnd'
               and name ~= 'useCopyEnd' and name ~= 'enterFrameEnd'
-              and name ~= 'useTagEnd' and name ~= 'forEnd'
+              and name ~= 'useTagEnd' and name ~= 'forEnd' and name ~= 'fileLineEnd'
               and name ~= 'else' and name ~= 'while' and name ~= 'timerEnd'
               and name ~= 'forIEnd' and name ~= 'forTEnd' then
                 group.block[j].checkbox.isVisible = true
@@ -497,7 +521,7 @@ activity.putBlockParams = function(i, group)
         else
           if name == 'if' or name == 'ifElse' or name == 'for' or name == 'while'
           or name == 'useCopy' or name == 'enterFrame' or name == 'useTag'
-          or name == 'timer' or name == 'forI' or name == 'forT' then
+          or name == 'timer' or name == 'forI' or name == 'forT' or name == 'fileLine' then
             local nestedFactor = 1
             local nameEnd = name .. 'End'
 
@@ -537,7 +561,7 @@ activity.putBlockParams = function(i, group)
           and name ~= 'useTagEnd' and name ~= 'useCopyEnd'
           and name ~= 'enterFrameEnd' and name ~= 'forEnd'
           and name ~= 'else' and name ~= 'timerEnd' and name ~= 'whileEnd'
-          and name ~= 'forIEnd' and name ~= 'forTEnd' then
+          and name ~= 'forIEnd' and name ~= 'forTEnd' and name ~= 'fileLineEnd' then
             group.block[j].checkbox.isVisible = not group.block[i].checkbox.isOn
           end
 
@@ -548,7 +572,7 @@ activity.putBlockParams = function(i, group)
     else
       if name == 'if' or name == 'ifElse' or name == 'for' or name == 'while'
       or name == 'useCopy' or name == 'enterFrame' or name == 'useTag'
-      or name == 'timer' or name == 'forI' or name == 'forT' then
+      or name == 'timer' or name == 'forI' or name == 'forT' or name == 'fileLine' then
         local nestedFactor = 1
         local nameEnd = group.block[i].data.name .. 'End'
 

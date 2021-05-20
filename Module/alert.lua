@@ -7,7 +7,7 @@ alert = function(title, text, buttons, listener, checkboxText)
   alertActive = true
 
   local function onKeyEventAlert( event )
-    if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' then
+    if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' and alertActive then
       alertActive = false
       alertGroup:removeSelf()
       Runtime:removeEventListener('key', onKeyEventAlert)
@@ -23,6 +23,7 @@ alert = function(title, text, buttons, listener, checkboxText)
   })
 
   local alertHeight = 240 + alertHeightText.height
+  if #buttons > 3 then alertHeight = alertHeight + 120 end
   local alertDetermineY = (360 - alertHeight) / 2
   alertHeightText:removeSelf()
 
@@ -68,6 +69,10 @@ alert = function(title, text, buttons, listener, checkboxText)
 
   local alertButton2
   local alertText2
+  local alertButton3
+  local alertText3
+  local alertButton4
+  local alertText4
   local alertCheckboxText
   local alertCheckbox
 
@@ -97,11 +102,11 @@ alert = function(title, text, buttons, listener, checkboxText)
   end
 
   if #buttons > 1 then
-    alertButton2 = display.newImage(alertGroup, 'Image/listbut.png')
-      alertButton2.x = _x + 128
-      alertButton2.y = type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY
-      alertButton2.width = 248
-      alertButton2.height = 101.6
+    -- alertButton2 = display.newImage(alertGroup, 'Image/listbut.png')
+    --   alertButton2.x = _x + 128
+    --   alertButton2.y = type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY
+    --   alertButton2.width = 248
+    --   alertButton2.height = 101.6
 
     alertButton2 = display.newRect(alertGroup, _x + 128, type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY, 248, 101.6)
       alertButton2:setFillColor(0.2, 0.2, 0.22)
@@ -125,9 +130,77 @@ alert = function(title, text, buttons, listener, checkboxText)
         Runtime:removeEventListener('key', onKeyEventAlert)
         if checkboxText then listener({num = 2, isOn = alertCheckbox.isOn})
         else listener({num = 2, isOn = false}) end
-      end
-      return true
+      end return true
     end)
+
+    if #buttons > 3 then
+      alertButton1.y = alertButton1.y - 120
+      alertText1.y = alertText1.y - 120
+      alertButton2.y = alertButton2.y - 120
+      alertText2.y = alertText2.y - 120
+
+      -- alertButton3 = display.newImage(alertGroup, 'Image/listbut.png')
+      --   alertButton3.x = _x - 128
+      --   alertButton3.y = type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY
+      --   alertButton3.width = 248
+      --   alertButton3.height = 101.6
+
+      alertButton3 = display.newRect(alertGroup, _x - 128, type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY, 248, 101.6)
+        alertButton3:setFillColor(0.2, 0.2, 0.22)
+
+      alertText3 = display.newText({
+        parent = alertGroup, font = 'sans_bold.ttf',
+        width = 220, height = 80, text = buttons[3],
+        x = _x - 128, y = type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY, fontSize = 20, align = 'center'
+      })
+
+      alertButton3:addEventListener('touch', function(e)
+        if e.phase == 'began' then
+          display.getCurrentStage():setFocus(e.target)
+          e.target:setFillColor(0.22, 0.22, 0.24)
+        elseif e.phase == 'ended' or e.phase == 'cancelled' then
+          display.getCurrentStage():setFocus(nil)
+          e.target:setFillColor(0.2, 0.2, 0.22)
+
+          alertActive = false
+          alertGroup:removeSelf()
+          Runtime:removeEventListener('key', onKeyEventAlert)
+          if checkboxText then listener({num = 3, isOn = alertCheckbox.isOn})
+          else listener({num = 3, isOn = false}) end
+        end return true
+      end)
+
+      -- alertButton4 = display.newImage(alertGroup, 'Image/listbut.png')
+      --   alertButton4.x = _x + 128
+      --   alertButton4.y = type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY
+      --   alertButton4.width = 248
+      --   alertButton4.height = 101.6
+
+      alertButton4 = display.newRect(alertGroup, _x + 128, type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY, 248, 101.6)
+        alertButton4:setFillColor(0.2, 0.2, 0.22)
+
+      alertText4 = display.newText({
+        parent = alertGroup, font = 'sans_bold.ttf',
+        width = 220, height = 80, text = buttons[4],
+        x = _x + 128, y = type(checkboxText) == 'nil' and _y + 94 - alertDetermineY or _y + 174 - alertDetermineY, fontSize = 20, align = 'center'
+      })
+
+      alertButton4:addEventListener('touch', function(e)
+        if e.phase == 'began' then
+          display.getCurrentStage():setFocus(e.target)
+          e.target:setFillColor(0.22, 0.22, 0.24)
+        elseif e.phase == 'ended' or e.phase == 'cancelled' then
+          display.getCurrentStage():setFocus(nil)
+          e.target:setFillColor(0.2, 0.2, 0.22)
+
+          alertActive = false
+          alertGroup:removeSelf()
+          Runtime:removeEventListener('key', onKeyEventAlert)
+          if checkboxText then listener({num = 4, isOn = alertCheckbox.isOn})
+          else listener({num = 4, isOn = false}) end
+        end return true
+      end)
+    end
   end
 
   if checkboxText then

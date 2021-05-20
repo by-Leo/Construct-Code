@@ -1,218 +1,107 @@
 calc = function(indexScene, indexObject, params, localtable)
-  local result = {'false', 'log'}
+  local exp, func, calcresult = '', '', {'false', 'log'}
+
+  for i = 1, #params do pcall(function()
+    if params[i][2] == 'var' then
+      if game.vars[params[i][1]] then
+        params[i] = table.copy(game.vars[params[i][1]])
+      else params[i] = {'false', 'log'} end
+    elseif params[i][2] == 'table' then
+      params[i] = {json.prettify(game.tables[params[i][1]]), 'table'}
+    elseif params[i][2] == 'fun' then
+      func = func .. cfun[params[i][1]]()
+    elseif params[i][2] == 'prop' then
+      func = func .. cprop[params[i][1]]()
+    elseif params[i][1] == 'pi' and params[i][2] == 'fun' then
+      params[i] = {tostring(math.pi), 'num'}
+    elseif params[i][1] == 'unix_time' and params[i][2] == 'fun' then
+      params[i] = {tostring(os.time()), 'num'}
+    elseif params[i][1] == 'fps' and params[i][2] == 'device' then
+      params[i] = {tostring(game.fps), 'num'}
+    elseif params[i][1] == 'width_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(game.aW), 'num'}
+    elseif params[i][1] == 'height_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(game.aH), 'num'}
+    elseif params[i][1] == 'top_point_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(game.aY), 'num'}
+    elseif params[i][1] == 'bottom_point_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(-game.aY), 'num'}
+    elseif params[i][1] == 'rigth_point_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(game.aX), 'num'}
+    elseif params[i][1] == 'left_point_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(-game.aX), 'num'}
+    elseif params[i][1] == 'height_top' and params[i][2] == 'device' then
+      params[i] = {tostring(game.tH), 'num'}
+    elseif params[i][1] == 'height_bottom' and params[i][2] == 'device' then
+      params[i] = {tostring(game.bH), 'num'}
+    elseif params[i][1] == 'finger_touching_screen' and params[i][2] == 'device' then
+      params[i] = {tostring(game.clicks > 0), 'log'}
+    elseif params[i][1] == 'count_touch' and params[i][2] == 'device' then
+      params[i] = {tostring(game.clicks), 'num'}
+    elseif params[i][1] == 'count_tap' and params[i][2] == 'device' then
+      params[i] = {tostring(game.count_taps), 'num'}
+    elseif params[i][1] == 'gravity_x' and params[i][2] == 'device' then
+      params[i] = {tostring(game.gravity_x), 'num'}
+    elseif params[i][1] == 'gravity_y' and params[i][2] == 'device' then
+      params[i] = {tostring(game.gravity_y), 'num'}
+    elseif params[i][1] == 'gravity_z' and params[i][2] == 'device' then
+      params[i] = {tostring(game.gravity_z), 'num'}
+    elseif params[i][1] == 'instant_x' and params[i][2] == 'device' then
+      params[i] = {tostring(game.instant_x), 'num'}
+    elseif params[i][1] == 'instant_y' and params[i][2] == 'device' then
+      params[i] = {tostring(game.instant_y), 'num'}
+    elseif params[i][1] == 'instant_z' and params[i][2] == 'device' then
+      params[i] = {tostring(game.instant_z), 'num'}
+    elseif params[i][1] == 'raw_x' and params[i][2] == 'device' then
+      params[i] = {tostring(game.raw_x), 'num'}
+    elseif params[i][1] == 'raw_y' and params[i][2] == 'device' then
+      params[i] = {tostring(game.raw_y), 'num'}
+    elseif params[i][1] == 'raw_z' and params[i][2] == 'device' then
+      params[i] = {tostring(game.raw_z), 'num'}
+    elseif params[i][1] == 'local' and params[i][2] == 'local' and localtable and localtable[1] then
+      params[i] = {json.prettify(localtable[1]), 'table'}
+    end
+  end) end
+
+  for i = 1, #params do pcall(function()
+    if params[i][2] == 'num' or params[i][2] == 'fun' or params[i][2] == 'prop' then
+      exp = exp .. params[i][1] .. ' '
+    elseif params[i][2] == 'obj' then
+      if utf8.find(params[i][1], '"', 1, true) then
+        local j = 0 while j < utf8.len(params[i][1]) do j = j + 1
+          if utf8.sub(params[i][1], j, j) == '"' then j = j + 2
+            params[i][1] = utf8.sub(params[i][1], 1, j-3) .. '\\' .. utf8.sub(params[i][1], j-2, utf8.len(params[i][1]))
+          end
+        end
+      end exp = exp .. '{"' .. params[i][1] .. '"} '
+    elseif params[i][2] == 'log' then
+      if params[i][1] == '=' then exp = exp .. '== '
+      else exp = exp .. params[i][1] .. ' ' end
+    elseif params[i][2] == 'text' or params[i][2] == 'obj' then
+      if utf8.find(params[i][1], '"', 1, true) then
+        local j = 0 while j < utf8.len(params[i][1]) do j = j + 1
+          if utf8.sub(params[i][1], j, j) == '"' then j = j + 2
+            params[i][1] = utf8.sub(params[i][1], 1, j-3) .. '\\' .. utf8.sub(params[i][1], j-2, utf8.len(params[i][1]))
+          end
+        end
+      end exp = exp .. '"' .. params[i][1] .. '" '
+    elseif params[i][2] == 'sym' then
+      if params[i][1] == '+' and params[i-1] and params[i+1] and (params[i-1][2] == 'text' or params[i+1][2] == 'text')
+      then exp = exp .. '.. ' else exp = exp .. params[i][1] .. ' ' end
+    end
+  end) end
+
+  -- print('2:', 'local indexScene, indexObject = ' .. indexScene
+  -- .. ',' .. indexObject .. ' ' .. func .. 'local a = ' .. exp .. 'return a')
+
   pcall(function()
-    local solve = function(exp)
-      local sym = exp[2][1]
-      local value1, type1 = exp[1][1], exp[1][2]
-      local value2, type2 = exp[3][1], exp[3][2]
+    local result, types = loadstring('local indexScene, indexObject = ' .. indexScene
+    .. ',' .. indexObject .. ' ' .. func .. 'local a = ' .. exp .. 'return a')(), ''
+    if type(result) == 'number' then types = 'num'
+    elseif type(result) == 'string' then types = 'text'
+    elseif type(result) == 'boolean' then types = 'log' end
 
-      if sym == '-' then
-        if type1 == 'num' and type2 == 'num' then return {tostring(value1 - value2), 'num'}
-        else return {'false', 'log'} end
-      elseif sym == '+' then
-        if type1 == 'num' and type2 == 'num' then return {tostring(value1 + value2), 'num'}
-        elseif type1 == 'text' or type2 == 'text' then return {value1 .. value2, 'text'}
-        else return {'false', 'log'} end
-      elseif sym == '/' then
-        if type1 == 'num' and type2 == 'num' then return {tostring(value1 / value2), 'num'}
-        else return {'false', 'log'} end
-      elseif sym == '*' then
-        if type1 == 'num' and type2 == 'num' then return {tostring(value1 * value2), 'num'}
-        elseif type1 == 'text' and type2 == 'num' then return {string.rep(value1, value2), 'text'}
-        else return {'false', 'log'} end
-      elseif sym == '=' then
-        return {tostring(value1 == value2), 'log'}
-      elseif sym == '>' then
-        return {tostring(tonumber(value1) > tonumber(value2)), 'log'}
-      elseif sym == '<' then
-        return {tostring(tonumber(value1) < tonumber(value2)), 'log'}
-      elseif sym == '>=' then
-        return {tostring(tonumber(value1) >= tonumber(value2)), 'log'}
-      elseif sym == '<=' then
-        return {tostring(tonumber(value1) <= tonumber(value2)), 'log'}
-      elseif sym == '~=' then
-        return {tostring(value1 ~= value2), 'log'}
-      elseif sym == 'and' then
-        return {tostring(value1 == 'true' and value2 == 'true'), 'log'}
-      elseif sym == 'or' then
-        return {tostring(value1 == 'true' or value2 == 'true'), 'log'}
-      elseif sym == 'not' then
-        return {tostring(value1 ~= 'true'), 'log'}
-      end
-    end
-
-    for i = 1, #params do
-      if params[i][2] == 'var' then
-        for j = 1, #game.vars do
-          if game.vars[j].name == params[i][1] then
-            params[i] = table.copy(game.vars[j].value) break
-          end
-        end
-      end
-    end
-
-    for i = 1, #params do
-      if params[i][2] == 'table' then
-        for j = 1, #game.tables do
-          if game.tables[j].name == params[i][1] then
-            params[i] = {json.prettify(game.tables[j].val), 'table'} break
-          end
-        end
-      end
-    end
-
-    for i = 1, #params do
-      if params[i][1] == 'pi' and params[i][2] == 'fun' then
-        params[i] = {tostring(math.pi), 'num'}
-      elseif params[i][1] == 'unix_time' and params[i][2] == 'fun' then
-        params[i] = {tostring(os.time()), 'num'}
-      elseif params[i][1] == 'width_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(game.aW), 'num'}
-      elseif params[i][1] == 'height_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(game.aH), 'num'}
-      elseif params[i][1] == 'top_point_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(game.aY), 'num'}
-      elseif params[i][1] == 'bottom_point_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(-game.aY), 'num'}
-      elseif params[i][1] == 'rigth_point_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(game.aX), 'num'}
-      elseif params[i][1] == 'left_point_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(-game.aX), 'num'}
-      elseif params[i][1] == 'finger_touching_screen' and params[i][2] == 'device' then
-        params[i] = {tostring(game.clicks > 0), 'log'}
-      elseif params[i][1] == 'finger_touching_screen_x' and params[i][2] == 'device' then
-        params[i] = {tostring(game.touch_x - game.x), 'num'}
-      elseif params[i][1] == 'finger_touching_screen_y' and params[i][2] == 'device' then
-        params[i] = {tostring(game.y - game.touch_y), 'num'}
-      elseif params[i][1] == 'count_touch' and params[i][2] == 'device' then
-        params[i] = {tostring(game.clicks), 'num'}
-      elseif params[i][1] == 'gravity_x' and params[i][2] == 'device' then
-        params[i] = {tostring(game.gravity_x), 'num'}
-      elseif params[i][1] == 'gravity_y' and params[i][2] == 'device' then
-        params[i] = {tostring(game.gravity_y), 'num'}
-      elseif params[i][1] == 'gravity_z' and params[i][2] == 'device' then
-        params[i] = {tostring(game.gravity_z), 'num'}
-      elseif params[i][1] == 'instant_x' and params[i][2] == 'device' then
-        params[i] = {tostring(game.instant_x), 'num'}
-      elseif params[i][1] == 'instant_y' and params[i][2] == 'device' then
-        params[i] = {tostring(game.instant_y), 'num'}
-      elseif params[i][1] == 'instant_z' and params[i][2] == 'device' then
-        params[i] = {tostring(game.instant_z), 'num'}
-      elseif params[i][1] == 'raw_x' and params[i][2] == 'device' then
-        params[i] = {tostring(game.raw_x), 'num'}
-      elseif params[i][1] == 'raw_y' and params[i][2] == 'device' then
-        params[i] = {tostring(game.raw_y), 'num'}
-      elseif params[i][1] == 'raw_z' and params[i][2] == 'device' then
-        params[i] = {tostring(game.raw_z), 'num'}
-      elseif params[i][1] == 'local' and params[i][2] == 'local' and localtable and localtable[1] then
-        params[i] = {json.prettify(localtable[1]), 'table'}
-      end
-    end
-
-    local multiAndDiv = true
-    local plusAndMinus = true
-    local orAndNot = true
-    local solveExp = function(exp, i)
-      if exp[i][2] == 'sym' and exp[i][1] == '-' and exp[i - 1] and exp[i - 1][2] == 'log' and exp[i + 1] and exp[i + 1][2] == 'num' then
-        local minusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
-        table.insert(exp, i, {'-' .. minusNum, 'num'})
-      elseif i == 1 and exp[i][2] == 'sym' and exp[i][1] == '-' and exp[i + 1] and exp[i + 1][2] == 'num' then
-        local minusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
-        table.insert(exp, i, {'-' .. minusNum, 'num'})
-      elseif exp[i][2] == 'sym' and exp[i][1] == '+' and exp[i - 1] and exp[i - 1][2] == 'log' and exp[i + 1] and exp[i + 1][2] == 'num' then
-        local plusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
-        table.insert(exp, i, {plusNum, 'num'})
-      elseif i == 1 and exp[i][2] == 'sym' and exp[i][1] == '+' and exp[i + 1] and exp[i + 1][2] == 'num' then
-        local plusNum = exp[i + 1][1] for j = 1, 2 do table.remove(exp, i) end
-        table.insert(exp, i, {plusNum, 'num'})
-      elseif exp[i - 1] and exp[i + 1]
-      and (exp[i - 1][2] == 'num' or exp[i - 1][2] == 'text' or (exp[i - 1][2] == 'log' and exp[i - 1][1] ~= 'not'))
-      and (exp[i + 1][2] == 'num' or exp[i + 1][2] == 'text' or (exp[i - 1][2] == 'log' and exp[i - 1][1] ~= 'not')) then
-        local solution = solve({
-          {exp[i - 1][1], exp[i - 1][2]},
-          {exp[i][1], exp[i][2]},
-          {exp[i + 1][1], exp[i + 1][2]}
-        })
-        for j = 1, 3 do table.remove(exp, i - 1) end
-        table.insert(exp, i - 1, solution)
-      elseif exp[i + 1] and exp[i + 1][2] == 'log' and (exp[i + 1][1] == 'true' or exp[i + 1][1] == 'false') and exp[i][2] == 'log' and exp[i][1] == 'not' then
-        local solution = solve({
-          {exp[i + 1][1], exp[i + 1][2]},
-          {exp[i][1], exp[i][2]},
-          {exp[i + 1][1], exp[i + 1][2]}
-        })
-        for j = 1, 2 do table.remove(exp, i) end
-        table.insert(exp, i, solution)
-      end parseExp(exp)
-    end
-
-    ctable = function(exp, indexScene, indexObject)
-      local t = json.decode(exp[1][1]) if #exp > 3 then
-        table.remove(exp, 1) table.remove(exp, 1) table.remove(exp, #exp)
-        solution = {} parseExp(exp) exp = solution
-        if (exp[2] == 'num' or exp[2] == 'text') and t[exp[1]] then
-          if not t[exp[1]][2] and not t[exp[1]][1] then
-            return {json.prettify(t[exp[1]]), 'table'}
-          else return {t[exp[1]][1], t[exp[1]][2]} end
-        else return {'false', 'log'} end
-      else return {exp[1][1], 'table'} end
-    end
-
-    parseExp = function(exp)
-      if #exp > 1 then
-        if exp[1][2] == 'fun' then solution = cfun[exp[1][1]](exp, indexScene, indexObject)
-        elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]](exp, indexScene, indexObject)
-        elseif exp[1][2] == 'device' then solution = cdevice[exp[1][1]](exp, indexScene, indexObject)
-        elseif exp[1][2] == 'table' then solution = ctable(exp, indexScene, indexObject)
-        else
-          for i = 1, #exp do
-            if exp[i][2] == 'sym' and (exp[i][1] == '*' or exp[i][1] == '/') then
-              solveExp(exp, i) break
-            elseif not multiAndDiv and exp[i][2] == 'sym' and (exp[i][1] == '+' or exp[i][1] == '-') then
-              solveExp(exp, i) break
-            elseif not plusAndMinus and exp[i][2] == 'log' and exp[i][1] ~= 'true' and exp[i][1] ~= 'false' and exp[i][1] ~= 'and' and exp[i][1] ~= 'or' and exp[i][1] ~= 'not' then
-              solveExp(exp, i) break
-            elseif not orAndNot and exp[i][2] == 'log' and exp[i][1] ~= 'true' and exp[i][1] ~= 'false' then
-              solveExp(exp, i) break
-            elseif i == #exp then
-              if multiAndDiv then multiAndDiv = false
-              elseif plusAndMinus then plusAndMinus = false
-              elseif orAndNot then orAndNot = false
-              end parseExp(exp)
-            end
-          end
-        end
-      elseif exp[1][2] == 'fun' then solution = cfun[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
-      elseif exp[1][2] == 'prop' then solution = cprop[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
-      elseif exp[1][2] == 'device' then solution = cdevice[exp[1][1]]({}, indexScene, indexObject, table.copy(localtable))
-      elseif exp[1][2] == 'table' then solution = ctable(exp, indexScene, indexObject, table.copy(localtable))
-      else solution = exp[1] end
-    end
-
-    parseBrackets = function(exp)
-      local indexFirstBracket = 0
-      local indexSecondBracket = 0
-      for i = 1, #exp do
-        if exp[i][2] == 'sym' and exp[i][1] == '(' then
-          if exp[i - 1] and (exp[i - 1][2] == 'fun' or exp[i - 1][2] == 'prop' or exp[i - 1][2] == 'device' or exp[i - 1][2] == 'table') then indexFirstBracket = i - 1
-          else indexFirstBracket = i + 1 end
-        elseif exp[i][2] == 'sym' and exp[i][1] == ')' and indexFirstBracket > 0 then
-          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'device' or exp[indexFirstBracket][2] == 'table') then indexSecondBracket = i
-          else indexSecondBracket = i - 1 end
-          local _exp = {} solution = {}
-          for j = indexFirstBracket, indexSecondBracket do
-            _exp[#_exp + 1] = {exp[j][1], exp[j][2]}
-          end parseExp(_exp)
-          if exp[indexFirstBracket] and (exp[indexFirstBracket][2] == 'fun' or exp[indexFirstBracket][2] == 'prop' or exp[indexFirstBracket][2] == 'device' or exp[indexFirstBracket][2] == 'table') then
-            for j = indexFirstBracket, indexSecondBracket do table.remove(exp, indexFirstBracket) end
-            table.insert(exp, indexFirstBracket, solution)
-          else
-            for j = indexFirstBracket - 1, indexSecondBracket + 1 do table.remove(exp, indexFirstBracket - 1) end
-            table.insert(exp, indexFirstBracket - 1, solution)
-          end
-          parseBrackets(exp) break
-        elseif i == #exp then solution = {} parseExp(exp) result = solution end
-      end
-    end parseBrackets(params)
-  end) return result
+    print('result:', tostring(result), tostring(types))
+    calcresult = {tostring(result), tostring(types)}
+  end) return calcresult
 end

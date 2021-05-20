@@ -26,43 +26,43 @@ setting.title = display.newText(setting.lib, strings.settingsTitle, _x, _y - _aY
 --   then openHiddenTesting() end return true
 -- end)
 
--- setting.stdImportText = display.newText(strings.settingsStdImport, 30, _y - _aY + 200, 'ubuntu_!bold.ttf', 36)
--- setting.stdImportText.anchorX = 0
---
--- setting.stdImportCheckbox = widget.newSwitch({
---   x = 640, y = _y - _aY + 200, style = 'checkbox', width = 75, height = 75,
---   onPress = function(event)
---     settings.stdImport = event.target.isOn
---     settingsSave()
---
---     setting.pictureViewText.isVisible = true
---     setting.pictureViewCheckbox.isVisible = true
---     setting.languageText.y = _y - _aY + 400
---     setting.languageButton.y = _y - _aY + 400
---     setting.selfLanguageText.y = _y - _aY + 400
---     setting.scroll.y = _y - _aY + 400 + 70 * #stringsLanguage.langs / 2 - 30
---
---     if settings.stdImport then
---       setting.pictureViewText.isVisible = false
---       setting.pictureViewCheckbox.isVisible = false
---       setting.languageText.y = _y - _aY + 300
---       setting.languageButton.y = _y - _aY + 300
---       setting.selfLanguageText.y = _y - _aY + 300
---       setting.scroll.y = _y - _aY + 300 + 70 * #stringsLanguage.langs / 2 - 30
---     end
---   end
--- })
---
--- setting.pictureViewText = display.newText(strings.settingsPictureView, 30, _y - _aY + 300, 'ubuntu_!bold.ttf', 36)
--- setting.pictureViewText.anchorX = 0
---
--- setting.pictureViewCheckbox = widget.newSwitch({
---   x = 640, y = _y - _aY + 300, style = 'checkbox', width = 75, height = 75,
---   onPress = function(event)
---     settings.pictureView = event.target.isOn
---     settingsSave()
---   end
--- })
+setting.stdImportText = display.newText(strings.settingsStdImport, 30, _y - _aY + 400, 'ubuntu_!bold.ttf', 36)
+setting.stdImportText.anchorX = 0
+
+setting.stdImportCheckbox = widget.newSwitch({
+  x = 640, y = _y - _aY + 400, style = 'checkbox', width = 75, height = 75,
+  onPress = function(event)
+    settings.stdImport = event.target.isOn
+    settingsSave()
+
+    setting.pictureViewText.isVisible = true
+    setting.pictureViewCheckbox.isVisible = true
+    setting.languageText.y = _y - _aY + 600
+    setting.languageButton.y = _y - _aY + 600
+    setting.selfLanguageText.y = _y - _aY + 600
+    setting.scroll.y = _y - _aY + 600 + 70 * #stringsLanguage.langs / 2 - 30
+
+    if settings.stdImport then
+      setting.pictureViewText.isVisible = false
+      setting.pictureViewCheckbox.isVisible = false
+      setting.languageText.y = _y - _aY + 500
+      setting.languageButton.y = _y - _aY + 500
+      setting.selfLanguageText.y = _y - _aY + 500
+      setting.scroll.y = _y - _aY + 500 + 70 * #stringsLanguage.langs / 2 - 30
+    end
+  end
+})
+
+setting.pictureViewText = display.newText(strings.settingsPictureView, 30, _y - _aY + 500, 'ubuntu_!bold.ttf', 36)
+setting.pictureViewText.anchorX = 0
+
+setting.pictureViewCheckbox = widget.newSwitch({
+  x = 640, y = _y - _aY + 500, style = 'checkbox', width = 75, height = 75,
+  onPress = function(event)
+    settings.pictureView = event.target.isOn
+    settingsSave()
+  end
+})
 
 setting.languageButton = display.newRect(_x + 175, _y - _aY + 400, 225, 60)
 setting.languageButton:setFillColor(0, 0, 0, 0.005)
@@ -79,14 +79,39 @@ setting.languageButton:addEventListener('touch', function(e)
   return true
 end)
 
-setting.languageText = display.newText(strings.settingsLanguage, 30, _y - _aY + 200, 'ubuntu_!bold.ttf', 36)
+setting.borderText = display.newText(strings.settingsBorder, 30, _y - _aY + 200, 'ubuntu_!bold.ttf', 36)
+setting.borderText.anchorX = 0
+
+setting.borderCheckbox = widget.newSwitch({
+  x = 640, y = _y - _aY + 200, style = 'checkbox', width = 75, height = 75,
+  onPress = function(event)
+    settings.border = event.target.isOn
+    settingsSave()
+  end
+})
+
+setting.statusBarText = display.newText(strings.settingsStatusBar, 30, _y - _aY + 300, 'ubuntu_!bold.ttf', 36)
+setting.statusBarText.anchorX = 0
+
+setting.statusBarCheckbox = widget.newSwitch({
+  x = 640, y = _y - _aY + 300, style = 'checkbox', width = 75, height = 75,
+  onPress = function(event)
+    settings.statusBar = event.target.isOn
+    settingsSave()
+
+    if settings.statusBar then display.setStatusBar(display.TranslucentStatusBar)
+    else display.setStatusBar(display.HiddenStatusBar) end
+  end
+})
+
+setting.languageText = display.newText(strings.settingsLanguage, 30, _y - _aY + 400, 'ubuntu_!bold.ttf', 36)
 setting.languageText.anchorX = 0
 
-setting.selfLanguageText = display.newText(settings.language, _x + 175, _y - _aY + 200, 'ubuntu_!bold.ttf', 36)
+setting.selfLanguageText = display.newText(settings.language, _x + 175, _y - _aY + 400, 'ubuntu_!bold.ttf', 36)
 
 setting.scroll = widget.newScrollView({
   x = _x + 175,
-  y = _y - _aY + 200 + 70 * #stringsLanguage.langs / 2 - 30,
+  y = _y - _aY + 400 + 70 * #stringsLanguage.langs / 2 - 30,
   width = 225,
   height = 70 * #stringsLanguage.langs,
   hideBackground = true,
@@ -144,10 +169,14 @@ end
 setting.scroll:setScrollHeight(70 * #stringsLanguage.langs)
 setting.scroll.isVisible = false
 
--- setting.lib:insert(setting.stdImportText)
--- setting.lib:insert(setting.stdImportCheckbox)
--- setting.lib:insert(setting.pictureViewText)
--- setting.lib:insert(setting.pictureViewCheckbox)
+setting.lib:insert(setting.stdImportText)
+setting.lib:insert(setting.stdImportCheckbox)
+setting.lib:insert(setting.pictureViewText)
+setting.lib:insert(setting.pictureViewCheckbox)
+setting.lib:insert(setting.borderText)
+setting.lib:insert(setting.borderCheckbox)
+setting.lib:insert(setting.statusBarText)
+setting.lib:insert(setting.statusBarCheckbox)
 setting.lib:insert(setting.languageText)
 setting.lib:insert(setting.languageButton)
 setting.lib:insert(setting.selfLanguageText)
@@ -155,24 +184,26 @@ setting.lib:insert(setting.scroll)
 
 setting.show = function()
   setting.lib.isVisible = true
-  -- setting.stdImportCheckbox:setState({isOn=settings.stdImport})
-  -- setting.pictureViewCheckbox:setState({isOn=settings.pictureView})
+  setting.stdImportCheckbox:setState({isOn=settings.stdImport})
+  setting.pictureViewCheckbox:setState({isOn=settings.pictureView})
+  setting.borderCheckbox:setState({isOn=settings.border})
+  setting.statusBarCheckbox:setState({isOn=settings.statusBar})
 
-  -- setting.pictureViewText.isVisible = true
-  -- setting.pictureViewCheckbox.isVisible = true
-  setting.languageText.y = _y - _aY + 200
-  setting.languageButton.y = _y - _aY + 200
-  setting.selfLanguageText.y = _y - _aY + 200
-  setting.scroll.y = _y - _aY + 200 + 70 * #stringsLanguage.langs / 2 - 30
+  setting.pictureViewText.isVisible = true
+  setting.pictureViewCheckbox.isVisible = true
+  setting.languageText.y = _y - _aY + 600
+  setting.languageButton.y = _y - _aY + 600
+  setting.selfLanguageText.y = _y - _aY + 600
+  setting.scroll.y = _y - _aY + 600 + 70 * #stringsLanguage.langs / 2 - 30
 
-  -- if settings.stdImport then
-  --   setting.pictureViewText.isVisible = false
-  --   setting.pictureViewCheckbox.isVisible = false
-  --   setting.languageText.y = _y - _aY + 300
-  --   setting.languageButton.y = _y - _aY + 300
-  --   setting.selfLanguageText.y = _y - _aY + 300
-  --   setting.scroll.y = _y - _aY + 300 + 70 * #stringsLanguage.langs / 2 - 30
-  -- end
+  if settings.stdImport then
+    setting.pictureViewText.isVisible = false
+    setting.pictureViewCheckbox.isVisible = false
+    setting.languageText.y = _y - _aY + 500
+    setting.languageButton.y = _y - _aY + 500
+    setting.selfLanguageText.y = _y - _aY + 500
+    setting.scroll.y = _y - _aY + 500 + 70 * #stringsLanguage.langs / 2 - 30
+  end
 end
 
 local function onKeyEventSettings( event )

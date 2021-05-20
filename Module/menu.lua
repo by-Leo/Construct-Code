@@ -2,19 +2,19 @@ local composer = require 'composer'
 
 local scene = composer.newScene()
 
-local bg
-local title
-local vktg
+local bg, vktg
+local title, testers
 local myprogrambut, myprogramtext
 local donatebut, donatetext
 local settingsbut, settingstext
 local buildtext
---[[ Номер билда ]] buildVersion = 968
+--[[ Номер билда ]] buildVersion = 994
 
 function visibleMenu(visible)
   bg.isVisible = visible
   -- snowflakes.isVisible = visible
   title.isVisible = visible
+  testers.isVisible = visible
   vktg.isVisible = visible
   myprogrambut.isVisible = visible
   myprogramtext.isVisible = visible
@@ -35,7 +35,7 @@ function visibleMenu(visible)
 end
 
 function openHiddenTesting()
-  title.text = 'Construct Code\n   Hidden Test'
+  title.text = 'Construct Code'
   title.y = _y - _aY + 222
   buildtext.text = 'Build: Test'
 end
@@ -54,7 +54,9 @@ function scene:create( event )
     --   snowflakes.y = _y
     --   snowflakes.alpha = 0.5
 
-    title = display.newText(sceneGroup, 'Construct Code', _x, _y - _aY + 182, 'ubuntu_!bold.ttf', 60)
+    title = display.newText(sceneGroup, 'CCode', _x, _y - _aY + 182, 'ubuntu_!bold.ttf', 70)
+    testers = display.newText(sceneGroup, '', _x, title.y + 75, 'ubuntu_!bold.ttf', 30)
+    testers.text = testersList[system.getInfo('deviceID')] or ''
 
     vktg = display.newImage(sceneGroup, 'Image/vk.png')
       vktg.x = _x - _aX + 95 - 48
@@ -77,7 +79,7 @@ function scene:create( event )
       donatebut.alpha = 0.9
       donatebut.width = 396
       donatebut.height = 138
-      donatetext = display.newText({parent = sceneGroup, text = settings.lastApp, font = 'ubuntu_!bold.ttf', fontSize = 40, x = _x, y = _y - 200, width = 380, height = 136, align = 'center'})
+      donatetext = display.newText({parent = sceneGroup, text = settings.lastApp, font = 'ubuntu_!bold.ttf', fontSize = 40, x = _x, y = _y - 200, width = 380, height = 138, align = 'center'})
       testtext = display.newText({text = settings.lastApp, font = 'ubuntu_!bold.ttf', fontSize = 40, x = _x, y = _y - 200, align = 'center', width = 380})
       if testtext.height > 100 then donatetext.anchorY = 0.54 elseif testtext.height > 50 then donatetext.anchorY = 0.36 else donatetext.anchorY = 0.18 end
       if donatetext.text == '' then donatetext.text = strings.continueText end
@@ -94,7 +96,7 @@ function scene:create( event )
       settingsbut.height = 138
       settingstext = display.newText(sceneGroup, strings.settingsText, _x, _y + 200, 'ubuntu_!bold.ttf', 42)
 
-    buildtext = display.newText(sceneGroup, 'Build: ' .. buildVersion, _x + _aX - 120, _y + _aH / 2 - 65, 'sans_light.ttf', 27)
+    buildtext = display.newText(sceneGroup, 'Build: ' .. buildVersion .. ' (Beta 0.9)', _x + _aX - 120 - 25, _y + _aH / 2 - 65, 'sans_light.ttf', 27)
 
     myprogrambut:addEventListener('touch', function(e)
       if not alertActive then
@@ -170,6 +172,14 @@ function scene:create( event )
     activity.downloadApp = {}
     activity.programs.create()
     activity.programs.hide()
+
+    if settings.firstMessage then
+      alert('Приветствую', 'Это программа CCode -> В ней ты сможешь разрабатывать свои игры, она была протестирована маленьким кругом тестеров, но я уверен, что баги есть, поэтому, я делаю Открытый Бета Тест, если ты нашёл баг, то скинь мне его в беседу или в комментариях к посту, без скриншота не принимаю, а если скинешь видео, то вообще умничка. Не надо при нахождении проблем с оптимизацией или нахождением бага сразу писать, что я ебучее чмо. \nЯ исправлю любой каприз, который вредит моей программе менее, чем за неделю, в порядке очереди. \nЯ каждый день работаю над программой и делаю её удобнее и функциональнее. \nЕщё прошу запомнить, что если вы что-то не так поняли или не увидели, что данная функция есть, то тоже не стоит сразу писать, что то, что вы сделали через жопу - баг или писать про то, что нет какой-то функции, когда она на деле существует, караться будет баном, ведь это ненормально. \nТакже мне было бы приятно, если бы вы сняли видео на тему CCode на ютуб и расширяли комьюнити данного приложения, записывая ролики. \nСам я тоже постараюсь помогать тем, кто что-то не понимает. \nУдачного тестирования :D', {'Понятненько'}, function(e) end)
+      settings.firstMessage = false settingsSave()
+    end
+
+    -- visibleMenu(false)
+    -- activity.onClickButton.programs.block({target={text={text=settings.lastApp}}})
 end
 
 scene:addEventListener('create', scene)

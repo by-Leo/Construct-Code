@@ -147,6 +147,11 @@ activity.onClickButton.scenes[2] = function()
             activity.textures[objectsTexture].scroll:removeSelf()
             activity.textures[objectsTexture] = nil
           end
+
+          if activity.blocks[objectsTexture] then
+            activity.blocks[objectsTexture].scroll:removeSelf()
+            activity.blocks[objectsTexture] = nil
+          end
         end
 
         activity.objects[scenesName].scroll:removeSelf()
@@ -166,6 +171,7 @@ activity.onClickButton.scenes[3] = function()
 end
 
 activity.onClickButton.scenes[4] = function()
+  alert('В разработке', 'Я не супермен и работаю один, поэтому, пока редактор уровней/групп/сцен не работает, в ближайшие 3 месяца он будет добавлен со всеми задуманными функциями', {strings.notexportok}, function(e) end)
 end
 
 activity.onClickButton.scenes[5] = function()
@@ -213,6 +219,11 @@ activity.onClickButton.scenes[5] = function()
               if activity.textures[objectsTexture] then
                 activity.textures[objectsTexture].scroll:removeSelf()
                 activity.textures[objectsTexture] = nil
+              end
+
+              if activity.blocks[objectsTexture] then
+                activity.blocks[objectsTexture].scroll:removeSelf()
+                activity.blocks[objectsTexture] = nil
               end
             end
 

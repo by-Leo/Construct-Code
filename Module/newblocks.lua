@@ -39,29 +39,29 @@ local colorblocks = function(typeblock)
   if typeblock == 'event' then return {9/255, 155/255, 163/255}
   elseif typeblock == 'data' then return {200/255, 151/255, 77/255}
   elseif typeblock == 'object' then return {104/255, 172/255, 76/255}
-  -- elseif typeblock == 'copy' then return {160/255, 179/255, 86/255}
   elseif typeblock == 'control' then return {158/255, 138/255, 109/255}
   elseif typeblock == 'controlother' then return {158/255, 136/255, 160/255}
   elseif typeblock == 'physics' then return {200/255, 74/255, 76/255}
-  -- elseif typeblock == 'physicscopy' then return {161/255, 90/255, 183/255}
   elseif typeblock == 'network' then return {36/255, 102/255, 201/255}
-  elseif typeblock == 'not' then return {152/255, 152/255, 154/255} end
+  elseif typeblock == 'shape' then return {48/255, 130/255, 75/255}
+  elseif typeblock == 'tag' then return {92/255, 120/255, 130/255}
+  elseif typeblock == 'physicsshape' then return {159/255, 55/255, 124/255}
+  elseif typeblock == 'not' then return {99/255, 49/255, 77/255} end
 end
 
-local typeblocks = {'event', 'data', 'object', 'controlother', 'control', 'network', 'physics', 'not'}
-
+local typeblocks = {'event', 'data', 'object', 'controlother', 'shape', 'control', 'network', 'physics', 'tag', 'physicsshape'}
 local lastTypeY = _y + _aY - 236 + 85
-local lastTypeX = 98
+local lastTypeX = 80
 
 for i = 1, #typeblocks do
-  activity.newblocks[typeblocks[i]] = display.newRoundedRect(activity.newblocks.group, lastTypeX, lastTypeY, 140, 62, 11)
+  activity.newblocks[typeblocks[i]] = display.newRoundedRect(activity.newblocks.group, lastTypeX, lastTypeY, 120, 62, 11)
   activity.newblocks[typeblocks[i]].blocks = {}
   activity.newblocks[typeblocks[i]]:setFillColor(unpack(colorblocks(typeblocks[i])))
   activity.newblocks[typeblocks[i]]:addEventListener('touch', function(e) openScrollBlocksByType(e, typeblocks[i]) end)
 
   local text = display.newText({
     text = strings['type' .. typeblocks[i]],
-    x = 0, y = 0, width = 138, font = 'sans.ttf', fontSize = 20
+    x = 0, y = 0, width = 118, font = 'sans.ttf', fontSize = 19
   })
 
   local textheight = text.height > 55 and 55 or text.height
@@ -69,12 +69,12 @@ for i = 1, #typeblocks do
 
   activity.newblocks[typeblocks[i]].text = display.newText({
     text = strings['type' .. typeblocks[i]], parent = activity.newblocks.group,
-    x = lastTypeX, y = lastTypeY, width = 138, height = textheight,
-    font = 'sans.ttf', fontSize = 20, align = 'center'
+    x = lastTypeX, y = lastTypeY, width = 118, height = textheight,
+    font = 'sans.ttf', fontSize = 19, align = 'center'
   })
 
-  if i % 4 == 0 then lastTypeY, lastTypeX = lastTypeY + 85, 98
-  else lastTypeX = lastTypeX + 175 end
+  if i % 5 == 0 then lastTypeY, lastTypeX = lastTypeY + 85, 80
+  else lastTypeX = lastTypeX + 140 end
 
   activity.newblocks[typeblocks[i]].scroll = widget.newScrollView({
     x = _x,
@@ -181,7 +181,7 @@ for i = 1, #typeblocks do
             }
             activity.genBlock(i)
 
-            if e.target.name == 'if' or e.target.name == 'ifElse'
+            if e.target.name == 'if' or e.target.name == 'ifElse' or e.target.name == 'fileLine'
             or e.target.name == 'for' or e.target.name == 'while' or e.target.name == 'useCopy'
             or e.target.name == 'enterFrame' or e.target.name == 'useTag'
             or e.target.name == 'timer' or e.target.name == 'forI' or e.target.name == 'forT' then

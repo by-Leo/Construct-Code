@@ -58,6 +58,7 @@ activity.onClickButton.objects.add = function(e)
               local fileName = string.format('%s.%s.%s', activity.scenes.scene, e.text, e.text)
               library.pickFile(path, completeImportPicture, fileName, '', 'image/*', nil, nil, nil)
             else
+              alertActive = true
               activity.objects.hide()
               activity.objects[activity.scenes.name].importActive = true
               fsd({
@@ -69,7 +70,7 @@ activity.onClickButton.objects.add = function(e)
                   if import then
                     completeImportPicture({done='ok'})
                   end
-                  timer.performWithDelay(1, function() activity.objects[activity.scenes.name].importActive = false end)
+                  timer.performWithDelay(1, function() alertActive = false activity.objects[activity.scenes.name].importActive = false end)
                 end
               })
             end
@@ -255,6 +256,11 @@ activity.onClickButton.objects[5] = function()
           if activity.textures[objectsTexture] then
             activity.textures[objectsTexture].scroll:removeSelf()
             activity.textures[objectsTexture] = nil
+          end
+
+          if activity.blocks[objectsTexture] then
+            activity.blocks[objectsTexture].scroll:removeSelf()
+            activity.blocks[objectsTexture] = nil
           end
 
           activity.objects[activity.scenes.name].block[i].container:removeSelf()

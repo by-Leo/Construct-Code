@@ -8,7 +8,7 @@ activity.blocksOnTimer = function(target, group)
       and target.data.name ~= 'useTagEnd' and target.data.name ~= 'timerEnd'
       and target.data.name ~= 'enterFrameEnd' and target.data.name ~= 'else'
       and target.data.name ~= 'forEnd' and target.data.name ~= 'whileEnd' and target.data.name ~= 'useCopyEnd'
-      and target.data.name ~= 'forIEnd' and target.data.name ~= 'forTEnd' then
+      and target.data.name ~= 'forIEnd' and target.data.name ~= 'forTEnd' and target.data.name ~= 'fileLineEnd' then
         if target.data.type == 'event' then
           local events = 0
           for i = 1, #group.block do if group.block[i].data.type == 'event' then events = events + 1 end end
@@ -171,10 +171,7 @@ activity.blocksSetBlock = function(i, data, mode, group, relatedBlocks, relatedE
 
   activity.scrollHeightUpdate(group)
   group.scroll:setScrollHeight(group.scrollHeight)
-
-  if data.type == 'event' then
-    group.scroll:scrollToPosition {y = _aH - 100 - relatedHeight - group.block[num].y > 0 and 0 or _aH - 100 - relatedHeight - group.block[num].y, time = 10}
-  end
+  if data.type == 'event' then group.scroll:scrollToPosition {y = _y - group.block[num].y < 0 and _y - group.block[num].y or 0, time = 10} end
 end
 
 -- Найти позицию блока для установки блока в скролл
@@ -207,7 +204,7 @@ activity.blocksDeleteBlock = function(target, num, group)
 end
 
 -- Создать перемещаемый блок
-activity.blocksMove = function(target, mode, group)
+activity.blocksMove = function(target, mode, group) pcall(function()
   local scrollX, scrollY = group.scroll:getContentPosition()
   local y = mode == 'create' and _y or _y - _aY + target.y + scrollY + 165
   local data = target.data
@@ -236,7 +233,7 @@ activity.blocksMove = function(target, mode, group)
 
   if data.name == 'if' or data.name == 'ifElse' or data.name == 'for' or data.name == 'while'
   or data.name == 'useCopy' or data.name == 'enterFrame' or data.name == 'useTag'
-  or data.name == 'timer' or data.name == 'forI' or data.name == 'forT' then
+  or data.name == 'timer' or data.name == 'forI' or data.name == 'forT' or data.name == 'fileLine' then
     local nestedFactor = 1 relatedEvent = false
 
     for i = target.num + 1, #group.block do
@@ -264,7 +261,7 @@ activity.blocksMove = function(target, mode, group)
       i = i + 1
       if group.block[i].data.name == 'if' or group.block[i].data.name == 'ifElse'
       or group.block[i].data.name == 'for' or group.block[i].data.name == 'while' or group.block[i].data.name == 'useCopy'
-      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag'
+      or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag' or group.block[i].data.name == 'fileLine'
       or group.block[i].data.name == 'timer' or group.block[i].data.name == 'forI' or group.block[i].data.name == 'forT' then
         local nestedFactor = 1
         local nameEnd = group.block[i].data.name .. 'End'
@@ -358,20 +355,20 @@ activity.blocksMove = function(target, mode, group)
         elseif e.y > 925 and group.block[#group.block].y + scrollY > 600 then
           group.scroll:scrollToPosition({y = scrollY - 15, time = 0})
         end
-        e.target.x = e.x
+        -- e.target.x = e.x
         e.target.y = e.y
-        e.target.text.x = e.x + 10
+        -- e.target.text.x = e.x + 10
         e.target.text.y = e.y + textAdditionY
         if data.type == 'formula' then
-          e.target.corner.x = e.x
+          -- e.target.corner.x = e.x
           e.target.corner.y = e.y
         end
         for i = 1, #e.target.params do
-          e.target.params[i].name.x = e.x + e.target.params[i].name.additionX
+          -- e.target.params[i].name.x = e.x + e.target.params[i].name.additionX
           e.target.params[i].name.y = e.y + e.target.params[i].name.additionY
-          e.target.params[i].line.x = e.x + e.target.params[i].line.additionX
+          -- e.target.params[i].line.x = e.x + e.target.params[i].line.additionX
           e.target.params[i].line.y = e.y + e.target.params[i].line.additionY
-          e.target.params[i].text.x = e.x + e.target.params[i].text.additionX
+          -- e.target.params[i].text.x = e.x + e.target.params[i].text.additionX
           e.target.params[i].text.y = e.y + e.target.params[i].text.additionY
         end
         activity.blocksLocateBlock(e.target.y - 165 - scrollY + (_aH - _h) / 2, group, data.type == 'event' and height + 30 or height)
@@ -387,4 +384,4 @@ activity.blocksMove = function(target, mode, group)
   scrollX, scrollY = group.scroll:getContentPosition()
   activity.blocksReturnBlock(1, group, 0)
   activity.blocksLocateBlock(y - 165 - scrollY + (_aH - _h) / 2, group, data.type == 'event' and height + 30 or height)
-end
+end) end

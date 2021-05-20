@@ -15,10 +15,8 @@ blockList = function(num)
       blockListGroup:removeSelf()
       group.scroll:setIsLocked(false, 'vertical')
       Runtime:removeEventListener('key', onKeyEventBlockList)
-    end
-    return true
-  end
-  Runtime:addEventListener('key', onKeyEventBlockList)
+    end return true
+  end Runtime:addEventListener('key', onKeyEventBlockList)
 
   local blockListBg = display.newRect(blockListGroup, _x, _y, 5000, 5000)
   blockListBg:setFillColor(1, 0.005)
@@ -89,11 +87,18 @@ blockList = function(num)
   y = y + blocksTarget.height / 2 + 43
 
   local getTextButton = function()
-    if group.block[num].data.comment == 'false' then return strings.remove, strings.copy, strings.comment, strings.documentation
-    else return strings.remove, strings.copy, strings.ucomment, strings.documentation end
+    if group.block[num].data.type == 'event' then
+      if group.block[num].data.comment == 'false'
+      then return strings.remove, strings.copy, strings.comment, strings.documentation, strings.repositoryAdd
+      else return strings.remove, strings.copy, strings.ucomment, strings.documentation, strings.repositoryAdd end
+    else
+      if group.block[num].data.comment == 'false'
+      then return strings.remove, strings.copy, strings.comment, strings.documentation
+      else return strings.remove, strings.copy, strings.ucomment, strings.documentation end
+    end
   end
 
-  for j = 1, 4 do
+  for j = 1, group.block[num].data.type == 'event' and 5 or 4 do
     blocksListButtons[j] = display.newRect(blockListGroup, _x, y, 415, 66)
     blocksListButtons[j]:setFillColor(0.2, 0.2, 0.22)
     blocksListButtons[j].click = false
@@ -140,7 +145,7 @@ blockList = function(num)
           end
         elseif group.block[num].data.name == 'if' or group.block[num].data.name == 'ifElse'
         or group.block[num].data.name == 'for' or group.block[num].data.name == 'while' or group.block[num].data.name == 'useCopy'
-        or group.block[num].data.name == 'enterFrame' or group.block[num].data.name == 'useTag'
+        or group.block[num].data.name == 'enterFrame' or group.block[num].data.name == 'useTag' or group.block[num].data.name == 'fileLine'
         or group.block[num].data.name == 'timer' or group.block[num].data.name == 'forT' or group.block[num].data.name == 'forI' then
           local nestedFactor = 1
           local nameEnd = group.block[num].data.name .. 'End'
@@ -156,11 +161,8 @@ blockList = function(num)
             elseif group.block[i].data.name == nameEnd then nestedFactor = nestedFactor - 1 end
             if nestedFactor == 0 then break end
           end
-        end
-
-        activity.onClickButton.blocks[j+1](true)
-      end
-      return true
+        end activity.onClickButton.blocks[j + 1](true)
+      end return true
     end)
 
     y = y + 76

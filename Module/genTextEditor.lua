@@ -39,6 +39,7 @@ activity.editor.newText = function()
 
   activity.editor.cursorIndex = {#activity.editor.cursor, '|'}
   activity.editor.undoredo = {table.copy(activity.editor.cursor)}
+  activity.editor.undoredoi = activity.editor.undoredoi - 1
   activity.editor.genText()
 end
 

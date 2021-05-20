@@ -3,7 +3,7 @@ frm.fun = function(indexScene, indexObject, params, localtable)
 
   for i = 1, #game.funs do
     if game.funs[i].name == name then
-      game.funs[i].call = true
+      game.funs[i].func(game.funs[i])
     end
   end
 end
@@ -15,14 +15,14 @@ frm.funParams = function(indexScene, indexObject, params, localtable)
 
   for i = 1, #game.tables do
     if game.tables[i].name == nameTable then
-      localTable = table.copy(game.tables[i].value)
+      localTable = table.copy({game.tables[i].val})
     end
   end
 
   for i = 1, #game.funs do
     if game.funs[i].name == name then
       game.funs[i].localtable = table.copy(localTable)
-      game.funs[i].call = true
+      game.funs[i].func(game.funs[i])
     end
   end
 end
@@ -44,29 +44,48 @@ frm.group = function(indexScene, indexObject, params, localtable, create)
           game.objects[game.scene][o].isVisible = false
           game.objects[game.scene][o].data.click = false
           if game.objects[game.scene][o].data.physics.body ~= '' then frm.removeBody(game.scene, o) end
-        end) end for f in pairs(game.fields) do pcall(function() game.fields[f].isVisible = false end) end
-        for t in pairs(game.texts) do pcall(function() game.texts[t].isVisible = false end) end game.scene = s
+        end) end for o in pairs(game.shapes) do pcall(function() if game.shapes[o].data.scene == game.scene
+          then game.shapes[o].isVisible, game.shapes[o].data.click = false, false
+          if game.shapes[o].data.physics.body ~= '' then frm.removeBodyShape(o) end end
+        end) end for f in pairs(game.fields) do pcall(function()
+        if game.fields[f].scene == game.scene then game.fields[f].isVisible = false end end)
+        end for t in pairs(game.texts) do pcall(function()
+        if game.texts[t].scene == game.scene then game.texts[t].isVisible = false end end)
+        end for t in pairs(game.videos) do pcall(function()
+        if game.videos[t].scene == game.scene then game.videos[t].isVisible = false end end)
+        end for i = 1, #game.timers do pcall(function()
+        if game.timers[i].scene == game.scene then timer.pause(game.timers[i]) end end)
+        end for t in pairs(game.emitters) do pcall(function()
+        game.emitters[t]:removeSelf() game.emitters[t] = nil end) end game.scene = s
 
         if not game.scenes[tostring(game.scene)] then create = true end
         for o = 1, #game.objects[game.scene] do pcall(function()
           game.objects[game.scene][o].isVisible = game.objects[game.scene][o].data.vis
-          if game.objects[game.scene][o].data.copy and create
-          then pcall(function() game.objects[game.scene][o]:removeSelf()
-          table.remove(game.objects[game.scene], o) for i = 1, #game.objects[game.scene]
-          do game.objects[game.scene][i].data.index = i if not game.objects[game.scene][i].data.copy
-          and #game.objects[game.scene][i].data.copies > 0 then for j = 1, #game.objects[game.scene][i].data.copies
-          do if game.objects[game.scene][i].data.copies[j] > indexScene
-          then game.objects[game.scene][i].data.copies[j] = game.objects[game.scene][i].data.copies[j] - 1
-          end end end end end) else if game.objects[game.scene][o].data.physics.body ~= ''
+          if game.objects[game.scene][o].data.physics.body ~= ''
           then frm.createBody(game.scene, o) end if create then
           game.objects[game.scene][o].width = game.objects[game.scene][o].data.width
           game.objects[game.scene][o].height = game.objects[game.scene][o].data.height
           game.objects[game.scene][o].x, game.objects[game.scene][o].y = game.x, game.y
-          game.objects[game.scene][o].rotation, game.objects[game.scene][o].alpha = 0, 1 end end
-        end) end for f in pairs(game.fields) do pcall(function() game.fields[f].isVisible = game.fields[f].vis end) end
-        for t in pairs(game.texts) do pcall(function() game.texts[t].isVisible = false end) end
-      if create then for i = 1, #game.timers do pcall(function() if game.timers[i].scene == game.scene
-      then timer.cancel(game.timers[i]) end end) end onStart(s) end end break
+          game.objects[game.scene][o].rotation, game.objects[game.scene][o].alpha = 0, 1 end
+        end) end for o in pairs(game.shapes) do pcall(function() if game.shapes[o].data.scene == game.scene
+          then game.shapes[o].isVisible = game.shapes[o].data.vis
+          if game.shapes[o].data.physics.body ~= '' and not create then frm.createBodyShape(o)
+          end if create then game.shapes[o]:removeSelf() end end
+        end) end for f in pairs(game.fields) do pcall(function()
+          if game.fields[f].scene == game.scene and create then game.fields[f]:removeSelf() game.fields[f] = nil
+          elseif game.fields[f].scene == game.scene then game.fields[f].isVisible = game.fields[f].vis
+        end end) end for f in pairs(game.texts) do pcall(function()
+          if game.texts[f].scene == game.scene and create then game.texts[f]:removeSelf() game.texts[f] = nil
+          elseif game.texts[f].scene == game.scene then game.texts[f].isVisible = game.texts[f].vis
+        end end) end for f in pairs(game.videos) do pcall(function()
+          if game.videos[f].scene == game.scene and create then game.videos[f]:removeSelf() game.videos[f] = nil
+          elseif game.videos[f].scene == game.scene then game.videos[f].isVisible = game.videos[f].vis
+        end end) end if create then
+      for i = 1, #game.timers do pcall(function() if game.timers[i].scene == game.scene
+        then timer.cancel(game.timers[i]) end end) end onStart(s)
+      else for i = 1, #game.timers do pcall(function() if game.timers[i].scene == game.scene
+        then timer.resume(game.timers[i]) end end)
+      end end end break
     end
   end
 end
@@ -80,11 +99,12 @@ frm.groupView = function(indexScene, indexObject, params, localtable)
 end
 
 frm.file = function(path, mode, value, path2)
+  if utf8.find(path, '..', 1, true) or utf8.find(path2, '..', 1, true) then return {'false', 'log'} end
   local file, data = io.open(path, mode), {'false', 'log'} if file then if mode == 'r'
   then data = {file:read('*a'), 'text'} io.close(file) elseif mode == 'w' or mode == 'a'
   then file:write(value) io.close(file) elseif mode == 'mv' or mode == 'cp'
   then os.execute('mv -r"' .. path .. '" ' .. '"' .. path2 .. '"') elseif mode == 'rm'
-  then os.execute('rm -rf "' .. path .. '"') end end return {data[1], data[2]}
+  then os.execute('rm -f "' .. path .. '"') end end return {data[1], data[2]}
 end
 
 frm.fileRead = function(indexScene, indexObject, params, localtable)
@@ -98,13 +118,11 @@ frm.fileRead = function(indexScene, indexObject, params, localtable)
         appPermission = 'Storage', urgency = 'Critical', listener = function(event) end
       }) data = frm.file('/sdcard/' .. path[1], 'r')
     elseif catalog == 'Documents' then
-      data = frm.file(system.pathForFile('', system.DocumentsDirectory) .. '/' .. path[1], 'r')
+      lfs.mkdir(system.pathForFile('', system.DocumentsDirectory) .. '/Documents')
+      data = frm.file(system.pathForFile('', system.DocumentsDirectory) .. '/Documents/' .. path[1], 'r')
     elseif catalog == 'Temporary' then
       data = frm.file(system.pathForFile('', system.TemporaryDirectory) .. '/' .. path[1], 'r')
-    end for i = 1, #game.vars + 1 do if game.vars[i] and game.vars[i].name == name
-    then game.vars[i].value = {data[1], data[2]} if game.texts[i]
-    then game.texts[i].text = tostring(game.vars[i].value[1]) end break
-    elseif i == #game.vars + 1 then game.vars[i] = {name = name, value = {data[1], data[2]}} end end
+    end game.vars[name] = {data[1], data[2]}
   end
 end
 
@@ -119,7 +137,8 @@ frm.fileWrite = function(indexScene, indexObject, params, localtable)
         appPermission = 'Storage', urgency = 'Critical', listener = function(event) end
       }) frm.file('/sdcard/' .. path[1], 'w', value[1])
     elseif catalog == 'Documents' then
-      frm.file(system.pathForFile('', system.DocumentsDirectory) .. '/' .. path[1], 'w', value[1])
+      lfs.mkdir(system.pathForFile('', system.DocumentsDirectory) .. '/Documents')
+      frm.file(system.pathForFile('', system.DocumentsDirectory) .. '/Documents/' .. path[1], 'w', value[1])
     elseif catalog == 'Temporary' then
       frm.file(system.pathForFile('', system.TemporaryDirectory) .. '/' .. path[1], 'w', value[1])
     end
@@ -137,7 +156,8 @@ frm.fileUpdate = function(indexScene, indexObject, params, localtable)
         appPermission = 'Storage', urgency = 'Critical', listener = function(event) end
       }) frm.file('/sdcard/' .. path[1], 'a', value[1])
     elseif catalog == 'Documents' then
-      frm.file(system.pathForFile('', system.DocumentsDirectory) .. '/' .. path[1], 'a', value[1])
+      lfs.mkdir(system.pathForFile('', system.DocumentsDirectory) .. '/Documents')
+      frm.file(system.pathForFile('', system.DocumentsDirectory) .. '/Documents/' .. path[1], 'a', value[1])
     elseif catalog == 'Temporary' then
       frm.file(system.pathForFile('', system.TemporaryDirectory) .. '/' .. path[1], 'a', value[1])
     end
@@ -153,10 +173,14 @@ frm.fileOperation = function(indexScene, indexObject, params, localtable, mode)
   if path[2] == 'text' and path2[2] == 'text' then
     if catalog == 'External' or catalog2 == 'External' then native.showPopup('requestAppPermission',
     {appPermission = 'Storage', urgency = 'Critical', listener = function(event) end})
-    end if catalog == 'Documents' then path = system.pathForFile('', system.DocumentsDirectory) .. '/' .. path[1]
+    end if catalog == 'Documents' then
+      lfs.mkdir(system.pathForFile('', system.DocumentsDirectory) .. '/Documents')
+      path = system.pathForFile('', system.DocumentsDirectory) .. '/Documents/' .. path[1]
     elseif catalog == 'Temporary' then path = system.pathForFile('', system.TemporaryDirectory) .. '/' .. path[1]
     elseif catalog == 'External' then path = '/sdcard/' .. path[1] end
-    if catalog2 == 'Documents' then path2 = system.pathForFile('', system.DocumentsDirectory) .. '/' .. path2[1]
+    if catalog2 == 'Documents' then
+      lfs.mkdir(system.pathForFile('', system.DocumentsDirectory) .. '/Documents')
+      path2 = system.pathForFile('', system.DocumentsDirectory) .. '/Documents/' .. path2[1]
     elseif catalog2 == 'Temporary' then path2 = system.pathForFile('', system.TemporaryDirectory) .. '/' .. path2[1]
     elseif catalog2 == 'External' then path2 = '/sdcard/' .. path2[1] end
     frm.file(path, mode, nil, path2)
@@ -176,11 +200,13 @@ frm.fileRemove = function(indexScene, indexObject, params, localtable)
   local catalog, data = params[2][1] and params[2][1][1] or 'Documents', {'false', 'log'}
 
   if path[2] == 'text' then
-    if catalog == 'Documents' then path = system.pathForFile('', system.DocumentsDirectory) .. '/' .. path[1]
+    if catalog == 'Documents' then
+      lfs.mkdir(system.pathForFile('', system.DocumentsDirectory) .. '/Documents')
+      path = system.pathForFile('', system.DocumentsDirectory) .. '/Documents/' .. path[1]
     elseif catalog == 'Temporary' then path = system.pathForFile('', system.TemporaryDirectory) .. '/' .. path[1]
     elseif catalog == 'External' then native.showPopup('requestAppPermission',
     {appPermission = 'Storage', urgency = 'Critical', listener = function(event) end})
-    path = '/sdcard/' .. path[1] end frm.file(path, 'rm')
+    path = '/sdcard/' .. path[1] end frm.file(path, 'rm -f')
   end
 end
 
@@ -237,8 +263,48 @@ end
 frm.setNotifications = function(indexScene, indexObject, params, localtable)
   local value = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))
   local second = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local sound = params[3][1] and params[3][1][1] or ''
-  if second[2] == 'num' then notifications.scheduleNotification(tonumber(second[1]), {alert = value[1]}) end
+  local sound = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
+
+  if sound[2] == 'ressound' then
+    local path = game.baseDir .. '/' .. gameName .. '/res .' .. sound[1]
+    os.execute('cp "' .. path .. '" "' .. system.pathForFile('sound.mp3', system.ResourceDirectory) .. '"')
+  end if second[2] == 'num' then
+    notifications.scheduleNotification(tonumber(second[1]), {alert = value[1], sound = 'sound.mp3'})
+  end
+end
+
+frm.setPortraitOrientation = function(indexScene, indexObject, params, localtable)
+  if game.scene ~= 0 then
+    orientation.lock 'portrait'
+    game.x, game.y = game.x, game.y
+    game.w, game.h = game.w, game.h
+    game.aW, game.aH = game.aW, game.aH
+    game.aX, game.aY = game.aX, game.aY
+    game.touch_x, game.touch_y = game.touch_x, game.touch_y
+    game.debugbackground.x, game.debugbackground.y = game.x, game.y
+    game.debugbackground.width, game.debugbackground.height = _aW, _aH + _tH + _bH
+    game.borderView.x, game.borderView.y = _x, _y
+    game.borderView.width, game.borderView.height = _w-4, _h
+    game.borderY.x, game.borderY.text = _x, _y
+    game.borderX.x, game.borderX.y, game.borderX.text = _x, _w-50, _x
+  end
+end
+
+frm.setLandscapeOrientation = function(indexScene, indexObject, params, localtable)
+  if game.scene ~= 0 then
+    orientation.lock 'landscape'
+    game.x, game.y = game.y, game.x
+    game.w, game.h = game.h, game.w
+    game.aW, game.aH = game.aH, game.aW
+    game.aX, game.aY = game.aY, game.aX
+    game.touch_x, game.touch_y = game.touch_y, game.touch_x
+    game.debugbackground.x, game.debugbackground.y = game.x, game.y
+    game.debugbackground.width, game.debugbackground.height = _aH + _tH + _bH, _aW
+    game.borderView.x, game.borderView.y = _y, _x
+    game.borderView.width, game.borderView.height = _h, _w-4
+    game.borderY.x, game.borderY.text = _y, _x
+    game.borderX.x, game.borderX.y, game.borderX.text = _h-50, _x, _y
+  end
 end
 
 frm.closeApp = function(indexScene, indexObject, params, localtable)
@@ -253,7 +319,7 @@ end
 
 frm._ifElse = function(indexScene, indexObject, nestedParams, localtable, params)
   local value = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))
-  local count, nestedList = 0, 'if ifElse for while forI forT enterFrame useTag useCopy timer '
+  local count, nestedList = 0, 'if ifElse for while forI forT enterFrame useTag useCopy fileLine timer '
   for i = 1, #nestedParams do
     if utf8.find(nestedList, nestedParams[i].name .. ' ') then count = count + 1
     elseif nestedParams[i].name == 'else' then
@@ -283,21 +349,34 @@ frm._forI = function(indexScene, indexObject, nestedParams, localtable, params)
   local value2 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
   local value3 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
 
-  if name ~= '' then
-    for i = 1, #game.vars + 1 do
-      if game.vars[i] and game.vars[i].name == name
-      then value = game.vars[i].value index = i break
-      elseif i == #game.vars + 1 then index = i end
-    end
-
+  if name ~= '' then value = game.vars[name]
+    if value3[2] ~= 'num' then value3 = {'1', 'num'} end
     if value1[2] == 'num' and value2[2] == 'num' and value3[2] == 'num' then
       for i = tonumber(value1[1]), tonumber(value2[1]), tonumber(value3[1]) do
-        game.vars[index] = {name = name, value = {tostring(i), 'num'}}
-        if game.texts[index] then game.texts[index].text = tostring(i) end
+        game.vars[name] = {tostring(i), 'num'}
         onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-      end game.vars[index] = {name = name, value = value}
-      if game.texts[index] then game.texts[index].text = tostring(value[1]) end
+      end game.vars[name] = value
     end
+  end
+end
+
+frm._fileLine = function(indexScene, indexObject, nestedParams, localtable, params)
+  local name, index, value = params[1][1] and params[1][1][1] or '', 0, {'', 'text'}
+  local path = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
+  local catalog = params[3][1] and params[3][1][1] or 'Documents'
+
+  if path[2] == 'text' then
+    if catalog == 'Documents' then path = system.pathForFile('', system.DocumentsDirectory) .. '/' .. path[1]
+    elseif catalog == 'Temporary' then path = system.pathForFile('', system.TemporaryDirectory) .. '/' .. path[1]
+    elseif catalog == 'External' then native.showPopup('requestAppPermission', {appPermission = 'Storage',
+    urgency = 'Critical', listener = function(event) end}) path = '/sdcard/' .. path[1] end
+  end
+
+  if name ~= '' then value = game.vars[name]
+    local file = io.open(path, 'r') if file then for line in file:lines() do
+      game.vars[name] = {tostring(line), 'text'}
+      onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+    end game.vars[name] = value io.close(file) end
   end
 end
 
@@ -306,29 +385,16 @@ frm._forT = function(indexScene, indexObject, nestedParams, localtable, params)
   local name1, name2, create1 = params[2][1] and params[2][1][1] or '', params[3][1] and params[3][1][1] or '', false
 
   if name ~= '' and name1 ~= '' and name2 ~= '' then
-    for i = 1, #game.vars + 1 do
-      if game.vars[i] and game.vars[i].name == name1
-      then value1 = game.vars[i].value index1 = i break
-      elseif i == #game.vars + 1 then create1 = true index1 = i end
-    end
-
-    for i = 1, #game.vars + 1 do
-      if game.vars[i] and game.vars[i].name == name2
-      then value2 = game.vars[i].value index2 = i break
-      elseif i == #game.vars + 1 then index2 = create1 and i + 1 or i end
-    end
+    value1, value2 = game.vars[name1], game.vars[name2]
+    if game.vars[name1] then create1 = true end
+    if game.vars[name2] then create2 = true end
 
     for i = 1, #game.tables do
       if game.tables[i].name == name then for k, v in pairs(json.decode(game.tables[i].val)) do
-        game.vars[index1] = {name = name1, value = {v[1], v[2]}}
-        if game.texts[index1] then game.texts[index1].text = v[1] end
-        game.vars[index2] = {name = name2, value = {k, 'text'}}
-        if game.texts[index2] then game.texts[index2].text = k[1] end
+        game.vars[name1], game.vars[name2] = {v[1], v[2]}, {k, 'text'}
         onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
       end break end
-    end game.vars[index1], game.vars[index2] = {name = name, value = value1}, {name = name, value = value2}
-    if game.texts[index1] then game.texts[index1].text = tostring(value1[1]) end
-    if game.texts[index2] then game.texts[index2].text = tostring(value2[1]) end
+    end game.vars[name1], game.vars[name2] = value1, value2
   end
 end
 
@@ -336,38 +402,6 @@ frm._useTag = function(indexScene, indexObject, nestedParams, localtable, params
   local value = params[1][1] and params[1][1][1] or ''
   for o = 1, #game.objects[indexScene] do if game.objects[indexScene][o].data.tag == value
   then onParseBlock(indexScene, o, table.copy(nestedParams), table.copy(localtable)) end end
-end
-
-frm._useCopy = function(indexScene, indexObject, nestedParams, localtable, params)
-  local value = params[1][1] and params[1][1][1] or ''
-
-  if game.objects[indexScene][indexObject] then
-    if value == 'allCopy' and not game.objects[indexScene][indexObject].data.copy then
-      local countCopy, indexCopy = #game.objects[indexScene][indexObject].data.copies
-      local obj_id, obj_name for i = 1, countCopy do
-      indexCopy = game.objects[indexScene][indexObject].data.copies[i]
-      obj_id = game.objects[indexScene][indexCopy].data.obj_id
-      obj_name = game.objects[indexScene][game.objects[indexScene][indexCopy].data.obj_id].name
-      onParseBlock(indexScene, indexCopy, table.copy(nestedParams), {{
-        ['obj_id'] = {tostring(obj_id), 'num'},
-        ['obj_name'] = {tostring(obj_name), 'text'},
-        ['copy_id'] = {tostring(indexCopy), 'num'},
-        ['copy_name'] = {'.copy' .. indexCopy, 'text'}
-      }}) end
-    elseif (value == 'currentCopy' or value == 'lastCopy')
-      and not game.objects[indexScene][indexObject].data.copy then
-      local countCopy = #game.objects[indexScene][indexObject].data.copies
-      local indexCopy = game.objects[indexScene][indexObject].data.copies[countCopy]
-      local obj_id = game.objects[indexScene][indexCopy].data.obj_id
-      local obj_name = game.objects[indexScene][game.objects[indexScene][indexCopy].data.obj_id].name
-      onParseBlock(indexScene, indexCopy, table.copy(nestedParams), {{
-        ['obj_id'] = {tostring(obj_id), 'num'},
-        ['obj_name'] = {tostring(obj_name), 'text'},
-        ['copy_id'] = {tostring(indexCopy), 'num'},
-        ['copy_name'] = {'.copy' .. indexCopy, 'text'}
-      }})
-    end
-  end
 end
 
 frm._timer = function(indexScene, indexObject, nestedParams, localtable, params)
@@ -385,7 +419,8 @@ frm._setRequest = function(indexScene, indexObject, nestedParams, localtable, pa
   local value2 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
   local value3 = params[3][1] and params[3][1][1] or ''
   local value4 = params[4][1] and params[4][1][1] or ''
-  local headers, body, _params = {}, value2[1], {}
+  local body, _params, headers = value2[1], {}, {['User-Agent']
+  = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'}
 
   for i = 1, #game.tables do
     if game.tables[i].name == value4 then
@@ -397,25 +432,13 @@ frm._setRequest = function(indexScene, indexObject, nestedParams, localtable, pa
 
   if value[2] == 'text' then
     network.request(value[1], req, function(event)
-      if not event.isError and event.phase == 'ended' and value3 ~= '' and event.response then
-        for i = 1, #game.vars + 1 do
-          if game.vars[i] and game.vars[i].name == value3 then
-            game.vars[i].value = {tostring(event.response), 'text'}
-            if game.texts[i] then game.texts[i].text = tostring(game.vars[i].value[1]) end break
-          elseif i == #game.vars + 1 then
-            game.vars[i] = {name = value3, value = {tostring(event.response), 'text'}}
-          end
-        end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-      elseif event.isError and event.phase == 'ended' and value3 then
-        for i = 1, #game.vars + 1 do
-          if game.vars[i] and game.vars[i].name == value3 then
-            game.vars[i].value = {'isError', 'text'} if game.texts[i] then
-            game.texts[i].text = tostring(game.vars[i].value[1]) end break
-          elseif i == #game.vars + 1 then
-            game.vars[i] = {name = value3, value = {'isError', 'text'}}
-          end
-        end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-      elseif value2 == '' and event.phase == 'ended' then
+      if not event.isError and event.phase == 'ended' and value3 ~= '' and event.response and indexScene == game.scene then
+        game.vars[value3] = {tostring(event.response), 'text'}
+        onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+      elseif event.isError and event.phase == 'ended' and value3 and indexScene == game.scene then
+        game.vars[value3] = {'isError', 'text'}
+        onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+      elseif value2 == '' and event.phase == 'ended' and indexScene == game.scene then
         onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
       end
     end, _params)
@@ -425,30 +448,21 @@ end
 frm._setRequest2 = function(indexScene, indexObject, nestedParams, localtable, params, req)
   local value = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))
   local value2 = params[2][1] and params[2][1][1] or ''
+  local _headers = {['User-Agent']
+  = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'}
+
   if value[2] == 'text' then
     network.request(value[1], req, function(event)
-      if not event.isError and event.phase == 'ended' and value2 ~= '' then
-        for i = 1, #game.vars + 1 do
-          if game.vars[i] and game.vars[i].name == value2 then
-            game.vars[i].value = {tostring(event.response), 'text'}
-            if game.texts[i] then game.texts[i].text = tostring(game.vars[i].value[1]) end break
-          elseif i == #game.vars + 1 then
-            game.vars[i] = {name = value2, value = {tostring(event.response), 'text'}}
-          end
-        end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-      elseif event.isError and event.phase == 'ended' and value2 ~= '' then
-        for i = 1, #game.vars + 1 do
-          if game.vars[i] and game.vars[i].name == value2 then
-            game.vars[i].value = {'isError', 'text'} if game.texts[i] then
-            game.texts[i].text = tostring(game.vars[i].value[1]) end break
-          elseif i == #game.vars + 1 then
-            game.vars[i] = {name = value2, value = {'isError', 'text'}}
-          end
-        end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-      elseif value2 == '' and event.phase == 'ended' then
+      if not event.isError and event.phase == 'ended' and value2 ~= '' and indexScene == game.scene then
+        game.vars[value2] = {tostring(event.response), 'text'}
+        onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+      elseif event.isError and event.phase == 'ended' and value2 ~= '' and indexScene == game.scene then
+        game.vars[value2] = {'isError', 'text'}
+        onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+      elseif value2 == '' and event.phase == 'ended' and indexScene == game.scene then
         onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
       end
-    end)
+    end, {headers=_headers})
   end
 end
 
@@ -488,25 +502,13 @@ frm._setRequestFirebase = function(indexScene, indexObject, nestedParams, localt
     if event.response and event.response == 'null' then event.response = '' end
     if event.response and utf8.sub(event.response, 1, 1) == '"'
     then event.response = utf8.sub(event.response, 2, utf8.len(event.response) - 1) end
-    if not event.isError and event.phase == 'ended' and value2 ~= '' and event.response then
-      for i = 1, #game.vars + 1 do
-        if game.vars[i] and game.vars[i].name == value2 then
-          game.vars[i].value = {tostring(event.response), 'text'} if game.texts[i] then
-          game.texts[i].text = tostring(game.vars[i].value[1]) end break
-        elseif i == #game.vars + 1 then
-          game.vars[i] = {name = value2, value = {tostring(event.response), 'text'}}
-        end
-      end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-    elseif event.isError and event.phase == 'ended' and value2 ~= '' then
-      for i = 1, #game.vars + 1 do
-        if game.vars[i] and game.vars[i].name == value2 then
-          game.vars[i].value = {'isError', 'text'} if game.texts[i] then
-          game.texts[i].text = tostring(game.vars[i].value[1]) end break
-        elseif i == #game.vars + 1 then
-          game.vars[i] = {name = value2, value = {'isError', 'text'}}
-        end
-      end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-    elseif value2 == '' and event.phase == 'ended' then
+    if not event.isError and event.phase == 'ended' and value2 ~= '' and event.response and indexScene == game.scene then
+      game.vars[value2] = {tostring(event.response), 'text'}
+      onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+    elseif event.isError and event.phase == 'ended' and value2 ~= '' and indexScene == game.scene then
+      game.vars[value2] = {'isError', 'text'}
+      onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+    elseif value2 == '' and event.phase == 'ended' and indexScene == game.scene then
       onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
     end
   end, {body=value3[1]})
@@ -521,25 +523,13 @@ frm._setRequestFirebase2 = function(indexScene, indexObject, nestedParams, local
     if event.response and event.response == 'null' then event.response = '' end
     if event.response and utf8.sub(event.response, 1, 1) == '"'
     then event.response = utf8.sub(event.response, 2, utf8.len(event.response) - 1) end
-    if not event.isError and event.phase == 'ended' and value2 ~= '' and event.response then
-      for i = 1, #game.vars + 1 do
-        if game.vars[i] and game.vars[i].name == value2 then
-          game.vars[i].value = {tostring(event.response), 'text'} if game.texts[i] then
-          game.texts[i].text = tostring(game.vars[i].value[1]) end break
-        elseif i == #game.vars + 1 then
-          game.vars[i] = {name = value2, value = {tostring(event.response), 'text'}}
-        end
-      end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-    elseif event.isError and event.phase == 'ended' and value2 ~= '' then
-      for i = 1, #game.vars + 1 do
-        if game.vars[i] and game.vars[i].name == value2 then
-          game.vars[i].value = {'isError', 'text'} if game.texts[i] then
-          game.texts[i].text = tostring(game.vars[i].value[1]) end break
-        elseif i == #game.vars + 1 then
-          game.vars[i] = {name = value2, value = {'isError', 'text'}}
-        end
-      end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-    elseif value2 == '' and event.phase == 'ended' then
+    if not event.isError and event.phase == 'ended' and value2 ~= '' and event.response and indexScene == game.scene then
+      game.vars[value2] = {tostring(event.response), 'text'}
+      onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+    elseif event.isError and event.phase == 'ended' and value2 ~= '' and indexScene == game.scene then
+      game.vars[value2] = {'isError', 'text'}
+      onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+    elseif value2 == '' and event.phase == 'ended' and indexScene == game.scene then
       onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
     end
   end)
@@ -563,7 +553,7 @@ end
 
 frm._setLinkTexture = function(indexScene, indexObject, nestedParams, localtable, params)
   local value = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))
-  if value[2] == 'text' then local filename = 'texture' .. indexObject .. math.random(111, 999) .. '.png'
+  if value[2] == 'text' then local filename = 'texture' .. indexObject .. math.random(111111111, 999999999) .. '.png'
     network.download(value[1], 'GET', function(event)
       if indexScene == game.scene and not event.isError and event.phase == 'ended' then
         display.setDefault('magTextureFilter', game.objects[indexScene][indexObject].data.import)
@@ -586,143 +576,36 @@ frm._setLinkTexture = function(indexScene, indexObject, nestedParams, localtable
   end
 end
 
+frm._createLinkVideo = function(indexScene, indexObject, nestedParams, localtable, params)
+  local name = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))[1]
+  local value = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
+  if game.videos[name] then game.videos[name]:removeSelf() game.videos[name] = nil end
+
+  if value[2] == 'text' then local filename = 'video' .. indexObject .. math.random(111111111, 999999999) .. '.mp4'
+    network.download(value[1], 'GET', function(event)
+      if indexScene == game.scene and not event.isError and event.phase == 'ended' then
+        game.videos[name] = native.newVideo(_x, _y, _w, _h)
+        game.videos[name]:load(filename, system.TemporaryDirectory)
+        game.videos[name]:seek(1)
+        timer.performWithDelay(1, function() if game.scene == 0 then game.videos[name]:removeSelf() end end)
+        onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+      elseif indexScene == game.scene and event.isError then
+        onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
+      end
+    end, {progress = true}, filename, system.TemporaryDirectory)
+  end
+end
+
 frm._enterFrame = function(indexScene, indexObject, nestedParams, localtable)
+  onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
   game.timers[#game.timers + 1] = timer.performWithDelay(1, function() if indexScene == game.scene then
   onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable)) end end, 0)
   game.timers[#game.timers].scene = indexScene
 end
 
-frm._createTextField = function(indexScene, indexObject, nestedParams, localtable, params)
-  frm._createText(indexScene, indexObject, nestedParams, localtable, params, 'field')
-end
-
-frm._createTextBox = function(indexScene, indexObject, nestedParams, localtable, params)
-  frm._createText(indexScene, indexObject, nestedParams, localtable, params, 'box')
-end
-
-frm.removeTextField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  if game.fields[value] then game.fields[value]:removeSelf() game.fields[value] = nil end
-end
-
-frm.setPosField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local value3 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  if game.fields[value] then if value2[2] == 'num' then game.fields[value].x = game.x + value2[1] end
-  if value3[2] == 'num' then game.fields[value].y = game.y - value3[1] end end
-end
-
-frm.setSizeField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local value3 = calc(indexScene, indexObject, table.copy(params[3]), table.copy(localtable))
-  if game.fields[value] then if value2[2] == 'num' then game.fields[value].width = value2[1] end
-  if value3[2] == 'num' then game.fields[value].height = value3[1] end end
-end
-
-frm.setTextField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  if game.fields[value] then if value2[1] then game.fields[value].text = value2[1] end end
-end
-
-frm.getTextField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = params[2][1] and params[2][1][1] or ''
-
-  if game.fields[value] then
-    for j = 1, #game.vars do
-      if game.vars[j].name == value2 then
-        game.vars[j].value = {game.fields[value].text, 'text'}
-        if game.texts[j] then game.texts[j].text = tostring(game.vars[j].value[1]) end break
-      end
-    end
-  end
-end
-
-frm.getOldTextField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = params[2][1] and params[2][1][1] or ''
-
-  if game.fields[value] then if not game.fields[value].oldText then game.fields[value].oldText = '' end
-    for j = 1, #game.vars do
-      if game.vars[j].name == value2 then
-        game.vars[j].value = {game.fields[value].oldText, 'text'}
-        if game.texts[j] then game.texts[j].text = tostring(game.vars[j].value[1]) end break
-      end
-    end
-  end
-end
-
-frm.setHideField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  if game.fields[value] then game.fields[value].isVisible, game.fields[value].vis = false, false end
-end
-
-frm.setViewField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  if game.fields[value] then game.fields[value].isVisible, game.fields[value].vis = true, true end
-end
-
-frm.setInputTypeField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = params[2][1] and utf8.sub(params[2][1][1], 10, utf8.len(params[2][1][1])) or ''
-  if value2 == 'noemoji' then value2 = 'no-emoji' end
-  if game.fields[value] then game.fields[value].inputType = value2 end
-end
-
-frm.setEditField = function(indexScene, indexObject, params, localtable)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = params[2][1] and params[2][1][1] or ''
-  if game.fields[value] then game.fields[value].isEditable = value2 ~= 'editfieldfalse' end
-end
-
-frm.closeKeyboard = function(indexScene, indexObject, params, localtable)
-  native.setKeyboardFocus(nil)
-end
-
-frm._inputText = function(indexScene, indexObject, nestedParams, localtable, params)
-  local value = params[2][1] and params[2][1][1] or ''
-  local value2 = calc(indexScene, indexObject, table.copy(params[1]), table.copy(localtable))
-
-  if not alertActive then input('Введите текст', value2[1], function() inputPermission(true) end,
-  function(e) if e.input and e.text then
-    for j = 1, #game.vars do
-      if game.vars[j].name == value then
-        game.vars[j].value = {e.text, 'text'}
-        if game.texts[j] then game.texts[j].text = tostring(game.vars[j].value[1]) end break
-      end
-    end end onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-  end) end
-end
-
-frm._createText = function(indexScene, indexObject, nestedParams, localtable, params, fieldORbox)
-  local value = params[1][1] and params[1][1][1] or ''
-  local value2 = calc(indexScene, indexObject, table.copy(params[2]), table.copy(localtable))
-  local value3 = params[3][1] and json.decode(params[3][1][1]) or {255,255,255}
-  local value4 = calc(indexScene, indexObject, table.copy(params[4]), table.copy(localtable))
-  local value5 = params[5][1] and params[5][1][1] or ''
-  local value6 = params[6][1] and params[6][1][1] or ''
-  if value2[2] == 'log' then value2 = {'', 'text'} end
-
-  if game.fields[value] then game.fields[value]:removeSelf() end
-  if fieldORbox == 'box' then game.fields[value] = native.newTextBox(game.x, game.y + 10000, 500, 100)
-  else game.fields[value] = native.newTextField(game.x, game.y + 10000, 500, 50) end
-  timer.performWithDelay(1, function() if game.scene == indexScene then
-    game.fields[value].y, game.fields[value].oldText = game.y, ''
-    game.fields[value].vis, game.fields[value].placeholder = true, value2[1]
-    game.fields[value].hasBackground, game.fields[value].isEditable = value5 ~= 'bgfieldfalse', true
-    game.fields[value].font = native.newFont(value6, value4[2] == 'num' and value4[1] or 30)
-    game.fields[value]:setTextColor(value3[1]/255, value3[2]/255, value3[3]/255)
-    game.fields[value]:addEventListener('userInput', function(event) event.target.oldText = event.oldText
-    end) onParseBlock(indexScene, indexObject, table.copy(nestedParams), table.copy(localtable))
-  end end)
-end
-
 frm.nested = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, nestedType)
   local nestedIndex, nestedEndIndex = 1, nestedStartIndex + 1
-  local nestedNames = 'if ifElse for while forI forT enterFrame useTag useCopy timer '
+  local nestedNames = 'if ifElse for while forI forT enterFrame useTag useCopy fileLine timer '
   for i = nestedStartIndex + 1, #nestedParams do nestedEndIndex = i
   if utf8.find(nestedNames, nestedParams[i].name .. ' ') then nestedIndex = nestedIndex + 1
   elseif utf8.sub(nestedParams[i].name, utf8.len(nestedParams[i].name)-2, utf8.len(nestedParams[i].name)) == 'End'
@@ -773,6 +656,14 @@ end
 
 frm['useCopy'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
   frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'useCopy')
+end
+
+frm['fileLine'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'fileLine')
+end
+
+frm['createLinkVideo'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'createLinkVideo')
 end
 
 frm['setLinkTexture'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
@@ -827,6 +718,58 @@ frm['setTransitionPosAngle'] = function(indexScene, indexObject, params, localta
   frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosAngle')
 end
 
+frm['setTransitionPosShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosShape')
+end
+
+frm['setTransitionPosXShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosXShape')
+end
+
+frm['setTransitionPosYShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosYShape')
+end
+
+frm['setTransitionWidthShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionWidthShape')
+end
+
+frm['setTransitionHeightShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionHeightShape')
+end
+
+frm['setTransitionSizeShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionSizeShape')
+end
+
+frm['setTransitionRotationShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionRotationShape')
+end
+
+frm['setTransitionAlphaShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionAlphaShape')
+end
+
+frm['setTransitionPosAngleShape'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosAngleShape')
+end
+
+frm['setTransitionPosTag'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosTag')
+end
+
+frm['setTransitionPosXTag'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosXTag')
+end
+
+frm['setTransitionPosYTag'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionPosYTag')
+end
+
+frm['setTransitionAlphaTag'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
+  frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setTransitionAlphaTag')
+end
+
 frm['setGet'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
   frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'setGet')
 end
@@ -862,3 +805,6 @@ end
 frm['deleteFirebase'] = function(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex)
   frm.nested(indexScene, indexObject, params, localtable, nestedParams, nestedStartIndex, 'deleteFirebase')
 end
+
+frm.closeKeyboard = function(indexScene, indexObject, params, localtable) native.setKeyboardFocus(nil) end
+frm.stopSound = function(indexScene, indexObject, params, localtable) audio.stop() end

@@ -14,12 +14,13 @@ activity.onClickButton.blocks.list = function(e)
   if #activity.blocks[activity.objects.name].block > 0 then
     activity.blocks[activity.objects.name].scroll:setIsLocked(true, 'vertical')
 
-    list({activity.objects.object, strings.remove, strings.copy, strings.comment}, {x = e.target.x, y = e.target.y, targetHeight = e.target.height, activeBut = activity.objects.object}, function(event)
+    list({activity.objects.object, strings.remove, strings.copy, strings.comment, strings.repository}, {x = e.target.x, y = e.target.y, targetHeight = e.target.height, activeBut = activity.objects.object}, function(event)
       activity.blocks[activity.objects.name].scroll:setIsLocked(false, 'vertical')
 
-      activity.blocks[activity.objects.name].alertActive = event.num > 1
+      activity.blocks[activity.objects.name].alertActive = event.num > 1 and event.num ~= 5
       activity.blocks[activity.objects.name].listMany = event.num ~= 3
-      if event.num > 1 then
+      if event.num == 5 then repository()
+      elseif event.num > 1 then
         activity.blocks.add.isVisible = false
         activity.blocks.play.isVisible = false
         activity.blocks.okay.isVisible = true
@@ -44,7 +45,7 @@ activity.onClickButton.blocks.list = function(e)
           local name = activity.blocks[activity.objects.name].block[i].data.name
 
           if name ~= 'ifEnd' and name ~= 'ifElseEnd' and name ~= 'useTagEnd' and name ~= 'whileEnd'
-          and name ~= 'useCopyEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd'
+          and name ~= 'useCopyEnd' and name ~= 'enterFrameEnd' and name ~= 'forEnd' and name ~= 'fileLineEnd'
           and name ~= 'else' and name ~= 'timerEnd' and name ~= 'forIEnd' and name ~= 'forTEnd' then
             activity.blocks[activity.objects.name].block[i].checkbox.isVisible = true
           end
@@ -93,6 +94,7 @@ activity.onClickButton.blocks.block = function(e)
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forIEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'forTEnd'
+  and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'fileLineEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'enterFrameEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'timerEnd'
   and activity.blocks[activity.objects.name].block[e.target.num].data.name ~= 'useTagEnd'
@@ -132,6 +134,7 @@ activity.onClickButton.blocks[3] = function(inList)
       or group.block[i].data.name == 'for' or group.block[i].data.name == 'while' or group.block[i].data.type == 'event'
       or group.block[i].data.name == 'enterFrame' or group.block[i].data.name == 'useTag'
       or group.block[i].data.name == 'forI' or group.block[i].data.name == 'forT'
+      or group.block[i].data.name == 'fileLine'
        or group.block[i].data.name == 'useCopy' or group.block[i].data.name == 'timer')
       and count == 0 then j = i count = count + 1
       elseif count > 0 then count = count + 1
@@ -228,5 +231,31 @@ activity.onClickButton.blocks[4] = function(inList)
 end
 
 activity.onClickButton.blocks[5] = function()
+  -- alert('Информация о блоке', doc.ru.onStart, {'Закрыть'}, function() end)
   alert('Раздел недоступен', 'Данный раздел будет доступен лишь в самом конце, так как писать документацию к блокам - это 2-3 полноценных дня работы', {'Закрыть'}, function() end)
+  local group = activity.blocks[activity.objects.name] for i = #group.block, 1, -1 do
+  if group.block[i].checkbox.isOn then group.block[i].checkbox:setState({isOn=false}) end end
+end
+
+activity.onClickButton.blocks[6] = function()
+  local group, isOn, tRep = activity.blocks[activity.objects.name], false, {}
+  for i = 1, #group.block do if group.block[i].checkbox.isOn
+    and group.block[i].data.type == 'event' then
+      isOn, tRep = true, {
+        formulas = {},
+        name = group.block[i].data.name,
+        comment = group.block[i].data.comment,
+        params = table.copy(group.block[i].data.params)
+    } elseif isOn and group.block[i].data.type == 'formula' then
+      tRep.formulas[#tRep.formulas + 1] = {
+        name = group.block[i].data.name,
+        comment = group.block[i].data.comment,
+        params = table.copy(group.block[i].data.params)
+    } elseif isOn and group.block[i].data.type == 'event' then break end
+  end group.scroll:setIsLocked(true, 'vertical')
+  input(strings.enterTitle, strings.enterTitleRepositoryText, function() inputPermission(true) end, function(e)
+    group.scroll:setIsLocked(false, 'vertical') if e.input
+    then settings.repository[e.text] = tRep settingsSave() end
+  end) for i = #group.block, 1, -1 do if group.block[i].checkbox.isOn
+  then group.block[i].checkbox:setState({isOn=false}) end end
 end

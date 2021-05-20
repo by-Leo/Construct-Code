@@ -1,5 +1,6 @@
 -- Глобальные библиотеки и модули
 composer = require 'composer'
+particles = require 'Emitter.particleDesigner'
 library = require 'plugin.cnkFileManager'
 utf8 = require 'plugin.utf8'
 widget = require 'widget'
@@ -64,13 +65,17 @@ if settingsFile then
   settings = json.decode(settingsFile:read('*a'))
   io.close(settingsFile)
 else
-  local language = 'ru'--system.getPreference('locale', 'language')
+  local language = system.getPreference('locale', 'language')
 
   settings = {
     stdImport = true,
     language = language,
     pictureView = false,
-    lastApp = ''
+    lastApp = '',
+    border = false,
+    statusBar = false,
+    firstMessage = true,
+    repository = {}
   }
 
   settingsSave()
@@ -91,6 +96,7 @@ orientation.init()
 widget.setTheme('widget_theme_android_holo_dark')
 display.setDefault('background', 0.15, 0.15, 0.17)
 display.setStatusBar(display.HiddenStatusBar)
+if settings.statusBar then display.setStatusBar(display.TranslucentStatusBar) end
 
 -- display.setDefault('background', 0, 0, 0, 0)
 -- print(display.colorSample( _x, _y, function(e) print(json.encode(e)) end ))
@@ -102,11 +108,10 @@ local function onKeyEvent(event)
 end
 Runtime:addEventListener("key", onKeyEvent)
 
--- function errorHandler(event)
---   print(event.errorMessage)
---   return true
--- end
--- Runtime:addEventListener("unhandledError", errorHandler)
+function errorHandler(event)
+  alert('Runtime Error', 'Ты получил ошибку, сделай скриншот и скинь мне его, пожалуйста: \n\n' .. event.errorMessage,
+  {'Ок'}, function(e) end) return true
+end Runtime:addEventListener("unhandledError", errorHandler)
 
 encoder = function(stroke, types, key)
   local stroke_encoder = ''
@@ -128,7 +133,8 @@ end
 -- print(encoder('', '', '?.cc_ode' ))
 
 jsonToCCode = function(data)
-  return json.prettify(data)
+  if system.getInfo 'environment' ~= 'simulator' then return json.encode(data)
+  else return json.prettify(data) end
 end
 
 ccodeToJson = function(name)
@@ -432,7 +438,26 @@ activity.scrollSettings = {
 -- local path = system.pathForFile('build.sh', system.DocumentsDirectory)
 -- local file = io.open(path, 'w')
 -- local text = display.newText('text', _x, _y, nil, 30)
+
+-- os.execute('CCODE=/data/data/com.ccode.test983/files/coronaResources & ls CCODE > "/sdcard/log.txt"')
+
+-- local file = io.open('/sdcard/log.txt', 'w')
+-- if file then
+--   io.close(data)
+--   file:write(data)
+--   io.close(file)
+-- end
+
+-- os.execute('cp /data/data/com.ccode.test983/files/coronaResources/keytool /data/user/0/com.ccode.test983/app_data/keytool')
 --
+-- file:write([[#!/system/bin/sh
+-- cd "/data/user/0/com.ccode.test983/app_data/"
+-- KEYTOOL="/data/user/0/com.ccode.test983/app_data/keytool"
+-- chmod 777 $KEYTOOL
+-- $KEYTOOL > "/sdcard/log.txt"
+-- $KEYTOOL 2> "/sdcard/error.txt"
+-- ]])
+
 -- file:write([[#!/system/bin/sh
 -- JAVA="]] .. system.pathForFile('java', system.ResourcesDirectory) .. [["
 -- XML2AXML="]] .. system.pathForFile('xml2axml.jar', system.ResourcesDirectory) .. [["
@@ -449,8 +474,7 @@ activity.scrollSettings = {
 -- ]])
 
 -- print([[#!/system/bin/sh
--- HOME=]] .. system.pathForFile('', system.DocumentsDirectory) .. [[
--- cd "${HOME}"
+-- ls /data/data/com.ccode.test983/files/coronaResources > "/sdcard/log.txt"
 -- ]])
 
 -- io.close(file)
@@ -459,11 +483,88 @@ activity.scrollSettings = {
 --   os.execute('/system/bin/sh "' .. path .. '"')
 -- end
 
+-- local f = 0
+-- local a = false
+-- local x, y = _x, _y
+-- local t = {}
+-- local s = display.newText('0', _x, _y - 400, 'ubuntu', 50)
+-- local p = display.newText('fps: ', _x, _y - 500, 'ubuntu', 50)
+-- local l, r = false, false
+--
+-- local snapshot = display.newSnapshot(10000, 10000)
+-- snapshot:translate(_x, _y)
+--
+-- p:addEventListener('touch', function(e)
+--   if e.phase == 'began' then l = true
+--   elseif e.phase == 'ended' then l = false
+--   end return true
+-- end)
+--
+-- s:addEventListener('touch', function(e)
+--   if e.phase == 'began' then r = true
+--   elseif e.phase == 'ended' then r = false
+--   end return true
+-- end)
+--
+-- local a = display.newText('0', _x, _y, nil, 50)
+-- timer.performWithDelay(1000, function() p.text, f = 'fps: ' .. f, 0 end, 0)
+-- timer.performWithDelay(16.7, function() f = f + 1
+--   for i = 1, 100000, 1 do
+--     a.text = math.random(111111111, 999999999)
+--   end
+-- end, 0)
+--
+-- Runtime:addEventListener('enterFrame', function()
+--   if r then
+--     snapshot.x = snapshot.x + 5
+--     snapshot:translate(_x, _y)
+--   elseif l then
+--     snapshot.x = snapshot.x - 5
+--   end if a then for i = 1, 10 do
+--     t[#t+1] = display.newCircle(x, y, 25)
+--     snapshot.canvas:insert(t[#t])
+--     -- snapshot.canvas:insert(t[#t])
+--     snapshot:invalidate('canvas')
+--     s.text = tostring(#t)
+--   end end
+-- end)
+--
+-- Runtime:addEventListener('touch', function(e)
+--   x, y = e.x - snapshot.x, e.y - snapshot.y
+--   if e.phase == 'began' then a = true
+--   elseif e.phase == 'ended' then a = false
+--   end return true
+-- end)
+
+-- input('Ваш deviceID', 'deviceID', function(e)
+-- end, function(event)
+-- end, system.getInfo('deviceID'))
+
+-- local _box_ = native.newTextBox(_x, _y, _w - 20, 120)
+-- _box_.text = system.getInfo('deviceID')
+-- _box_.font = native.newFont('ubuntu', 50)
+-- _box_.isEditable = true
+-- _box_:addEventListener('userInput', function(e) if e.phase == 'editing' then e.target.text = e.oldText end end)
+
+--[[
+  gravityy
+  gravityx
+  speed
+  angle
+  startColor(Reg/Green/Blue/Alpha)
+  finishColor(Reg/Green/Blue/Alpha)
+]]
+
+-- local emitter = particles.newEmitter('Emitter/giving.json', system.ResourceDirectory, 'Emitter/')
+-- emitter.x, emitter.y = _x, _y
+
 require 'Module.alert'
+require 'Module.doc'
 require 'Module.input'
 require 'Module.list'
 require 'Module.fsd'
 require 'Module.blockList'
+require 'Module.alertLocal'
 
 require 'Module.paramsColorInBlocks'
 require 'Module.updateTextLanguage'
@@ -492,6 +593,7 @@ require 'Module.objects'
 require 'Module.textures'
 require 'Module.blocks'
 require 'Module.newblocks'
+require 'Module.repository'
 require 'Module.physEditor'
 require 'Module.formulasEditor'
 
@@ -504,6 +606,7 @@ require 'Module.gameFormula1'
 require 'Module.gameFormula2'
 require 'Module.gameFormula3'
 require 'Module.gameFormula4'
+require 'Module.gameFormula5'
 
 -- Предварительная подгрузка виджета
 alert('', '', {''}, function() end)
@@ -517,5 +620,26 @@ activity.blocks.group.isVisible = false
 activity.newblocks.group.isVisible = false
 activity.editor.group.isVisible = false
 
+-- display.setDefault('background', .1, .2, .3)
+--
+-- display.newSnapshot(2000, 2000):translate(_x, _y)
+--
+-- timer.performWithDelay(1000, function()
+--   display.setDefault('background', .3, .2, .3)
+-- end)
+
 -- Запуск
-composer.gotoScene 'Module.menu'
+testersList = {
+  ['dbfaf215e5f04d19'] = 'Версия Тестеров:  Лёня Ганин',
+  ['3899216020f2cf4c'] = 'Версия Тестеров:  Danil Nik',
+  ['eb27b7765273fd1a'] = 'Версия Тестеров:  Danil Nik',
+  ['908e1f611a8c2b0a'] = 'Версия Тестеров:  Дмитрий Морозов',
+  ['18b7ab196f5ecd23'] = 'Версия Тестеров:  Макс Кишкель',
+  ['037a865ed3eb2266'] = 'Версия Тестеров:  Дмитрий Котов',
+  ['637c8abb8ce1c7dd'] = 'Версия Тестеров:  Арен Елчинян',
+  ['e42132d66d98f2f7'] = 'Версия Тестеров:  Максим Корпусов',
+  ['fb2dd6b3c620ec2b'] = 'Версия Тестеров:  Алексей Полежаров',
+  ['a9cbcc60541683c1'] = 'Версия Тестеров:  Алексей Полежаров',
+  ['b69ae3492f4df904'] = 'Версия Тестеров:  Александр Вайлюк-Каурцев',
+  ['651df389613d7eed8462832d8624a41d'] = 'Версия Тестеров:  Лёня Ганин'
+} composer.gotoScene 'Module.menu'

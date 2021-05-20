@@ -250,12 +250,12 @@ activity.move = function(target, mode, types, names, isNewBlock)
         elseif e.y > _y + _aY - 355 and activity[types][names].block[#activity[types][names].block].y + scrollY > 600 then
           activity[types][names].scroll:scrollToPosition({y = scrollY - 15, time = 0})
         end
-        e.target.x = e.x
+        -- e.target.x = e.x
         e.target.y = e.y
-        e.target.text.x = e.x - (_aX - textX)
+        -- e.target.text.x = e.x - (_aX - textX)
         e.target.text.y = e.y
         if types == 'objects' or types == 'textures' then
-          e.target.container.x = e.x - (_aX - 200)
+          -- e.target.container.x = e.x - (_aX - 200)
           e.target.container.y = e.y
         end
         activity.locateBlock(e.target.y - 165 - scrollY + (_aH - _h) / 2, types, names)

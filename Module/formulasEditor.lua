@@ -50,19 +50,99 @@ require 'Module.genTextEditor'
 require 'Module.genBlockEditor'
 
 -- Название активити
-activity.editor.title = display.newText(strings.editorTitle, _x - _aW/2 + 16, _y - _aH/2 + 32, 'ubuntu_!bold.ttf', 40)
+activity.editor.title = display.newText(strings.editorTitle, _x - _aW/2 + 16, _y - _aH/2 + 32, 'ubuntu_!bold.ttf', 36)
 activity.editor.title.anchorX = 0
+
+-- Кнопка для выпадающего списка
+activity.editor.listCopy = {}
+activity.editor.list = display.newRoundedRect(_x + _aW/2 - 50, _y - _aH/2 + 37, 80, 60, 10)
+activity.editor.list:setFillColor(0.15, 0.15, 0.17)
+activity.editor.list.text = display.newText('⋮', _x + _aW/2 - 48, _y - _aH/2 + 32, 'ubuntu_!bold.ttf', 62)
+
+activity.editor.list:addEventListener('touch', function(e)
+  if e.phase == 'began' then
+    display.getCurrentStage():setFocus(e.target)
+    if not alertActive then
+      e.target:setFillColor(0.18, 0.18, 0.2)
+      e.target.click = true
+    end
+  elseif e.phase == 'moved' then
+    if math.abs(e.y - e.yStart) > 30 or math.abs(e.x - e.xStart) > 60 then
+      e.target:setFillColor(0.15, 0.15, 0.17)
+      e.target.click = false
+    end
+  elseif e.phase == 'ended' then
+    display.getCurrentStage():setFocus(nil)
+    e.target:setFillColor(0.15, 0.15, 0.17)
+    if e.target.click then
+      e.target.click = false list({strings.paste, strings.copy, strings.removeAll, strings.hideAll, strings.docums},
+      {x = e.target.x, y = e.target.y, targetHeight = e.target.height, activeBut = strings.paste}, function(event)
+        if event.num == 4 then activity.editor.listScroll:scrollToPosition({y=0,time=0,onComplete=function()end})
+          for i = 1, 7 do
+            local id = select(2, editorGetListTitle(i))
+            activity.editor.listTitle[i].click = false
+            activity.editor.listTitle[i].isOpen = false
+            activity.editor.listTitle[i].isOpenPolygon.rotation = 0
+            if activity.editor.listItem[id] then
+              for j = i + 1, 7 do
+                activity.editor.listTitle[j].y = isOpen == true
+                and activity.editor.listTitle[j].y + 70 * #strings.editorList[id]
+                or activity.editor.listTitle[j].y - 70 * #strings.editorList[id]
+                activity.editor.listTitle[j].text.y = activity.editor.listTitle[j].y
+                activity.editor.listTitle[j].isOpenPolygon.y = activity.editor.listTitle[j].y
+                if activity.editor.listItem[activity.editor.listTitle[j].text.id] and activity.editor.listTitle[j].text.id ~= id then
+                  for i = 1, #activity.editor.listItem[activity.editor.listTitle[j].text.id] do
+                    activity.editor.listItem[activity.editor.listTitle[j].text.id][i].y = isOpen == true
+                    and activity.editor.listItem[activity.editor.listTitle[j].text.id][i].y + 70 * #strings.editorList[id]
+                    or activity.editor.listItem[activity.editor.listTitle[j].text.id][i].y - 70 * #strings.editorList[id]
+                    activity.editor.listItem[activity.editor.listTitle[j].text.id][i].text.y = activity.editor.listItem[activity.editor.listTitle[j].text.id][i].y
+                  end
+                end
+              end
+              activity.editor.listScrollHeight = activity.editor.listScrollHeight - #activity.editor.listItem[id] * 70
+              for j = 1, #activity.editor.listItem[id] do
+                activity.editor.listItem[id][j].text:removeSelf()
+                activity.editor.listItem[id][j]:removeSelf()
+              end
+              activity.editor.listItem[id] = nil
+              activity.editor.listScroll:setScrollHeight(activity.editor.listScrollHeight)
+            end
+          end
+        elseif event.num == 3 then
+          activity.editor.cursor = {table.copy(activity.editor.cursor[1]), {'|', '|'}}
+          activity.editor.cursorIndex[1] = 2
+          activity.editor.cursorIndex[2] = '|'
+          activity.editor.genText()
+        elseif event.num == 2 then
+          activity.editor.listCopy.cursor = {}
+          activity.editor.listCopy.cursorIndex = {
+            activity.editor.cursorIndex[1],
+            activity.editor.cursorIndex[2]
+          } for i = 2, #activity.editor.cursor do activity.editor.listCopy.cursor[i-1] = table.copy(activity.editor.cursor[i]) end
+        elseif event.num == 1 and activity.editor.listCopy.cursor then
+          local cursorFirstIndex = table.copy(activity.editor.cursor[1])
+          activity.editor.cursor = table.copy(activity.editor.listCopy.cursor)
+          activity.editor.cursorIndex = table.copy(activity.editor.listCopy.cursorIndex)
+          table.insert(activity.editor.cursor, 1, table.copy(cursorFirstIndex))
+          activity.editor.genText()
+        elseif event.num == 5 then
+          alert('В разработке', 'Я не супермен и работаю один, на мне висит допиливание ресурсов, подключение всех модулей для сборки в апк, редактор уровней, документация ко всем блоками и только потом буду писать документацию к редактору выражения', {strings.notexportok}, function(e) end)
+        end
+      end)
+    end
+  end return true
+end)
 
 -- Кнопки undo и redo
 activity.editor.undoredo = {}
 activity.editor.undoredoi = 1
 activity.editor.undoredocursor = {}
-activity.editor.undo = display.newRoundedRect(_x + _aW/2 - 150, _y - _aH/2 + 37, 80, 60, 10)
+activity.editor.undo = display.newRoundedRect(_x + _aW/2 - 250, _y - _aH/2 + 37, 80, 60, 10)
 activity.editor.undo:setFillColor(0.15, 0.15, 0.17)
-activity.editor.redo = display.newRoundedRect(_x + _aW/2 - 50, _y - _aH/2 + 37, 80, 60, 10)
+activity.editor.redo = display.newRoundedRect(_x + _aW/2 - 150, _y - _aH/2 + 37, 80, 60, 10)
 activity.editor.redo:setFillColor(0.15, 0.15, 0.17)
-activity.editor.undo.text = display.newText('⤺', _x + _aW/2 - 150, _y - _aH/2 + 22, 'ubuntu_!bold.ttf', 100)
-activity.editor.redo.text = display.newText('⤺', _x + _aW/2 - 50, _y - _aH/2 + 22, 'ubuntu_!bold.ttf', 100)
+activity.editor.undo.text = display.newText('⤺', _x + _aW/2 - 250, _y - _aH/2 + 22, 'ubuntu_!bold.ttf', 100)
+activity.editor.redo.text = display.newText('⤺', _x + _aW/2 - 150, _y - _aH/2 + 22, 'ubuntu_!bold.ttf', 100)
 activity.editor.redo.text.xScale = -1
 
 local undoredo = function(e, type)
@@ -98,8 +178,7 @@ local undoredo = function(e, type)
         end
       end
     end
-  end
-  return true
+  end return true
 end
 
 activity.editor.undo:addEventListener('touch', function(e) undoredo(e, 'undo') return true end)
@@ -109,8 +188,10 @@ activity.editor.redo:addEventListener('touch', function(e) undoredo(e, 'redo') r
 activity.editor.group:insert(activity.editor.bg)
 activity.editor.group:insert(activity.editor.scroll)
 activity.editor.group:insert(activity.editor.title)
+activity.editor.group:insert(activity.editor.list)
 activity.editor.group:insert(activity.editor.undo)
 activity.editor.group:insert(activity.editor.redo)
+activity.editor.group:insert(activity.editor.list.text)
 activity.editor.group:insert(activity.editor.undo.text)
 activity.editor.group:insert(activity.editor.redo.text)
 
@@ -144,7 +225,7 @@ local editorGetText = function(i)
   if i == 16 then return '*' end
   if i == 17 then return '.' end
   if i == 18 then return 0 end
-  if i == 19 then return ',' end
+  if i == 19 then return '=' end
   if i == 20 then return '/' end
   if i == 21 then return 'C' end
   if i == 22 then return '<-' end
@@ -172,7 +253,7 @@ for i = 1, 24 do
         e.target:setFillColor(0.18, 0.18, 0.2)
         e.target.click = true
         if e.target.text.id == '<-' then
-          e.target.timer = timer.performWithDelay(1000, function()
+          e.target.timer = timer.performWithDelay(700, function()
             if e.target.click then
               activity.editor.cursorIndex[2] = '|'
               timer.performWithDelay(50, function(event)
@@ -189,7 +270,7 @@ for i = 1, 24 do
             end
           end)
         elseif e.target.text.id == '->' then
-          e.target.timer = timer.performWithDelay(1000, function()
+          e.target.timer = timer.performWithDelay(700, function()
             if e.target.click then
               activity.editor.cursorIndex[2] = '|'
               activity.editor.genText()
@@ -207,7 +288,7 @@ for i = 1, 24 do
             end
           end)
         elseif e.target.text.id == 'C' then
-          e.target.timer = timer.performWithDelay(1000, function()
+          e.target.timer = timer.performWithDelay(700, function()
             if e.target.click then
               timer.performWithDelay(50, function(event)
                 if e.target.click then
@@ -238,8 +319,7 @@ for i = 1, 24 do
         activity.editor.funcButtons(e.target.text.id)
         pcall(function() timer.cancel(e.target.timer) end)
       end
-    end
-    return true
+    end return true
   end)
 end
 

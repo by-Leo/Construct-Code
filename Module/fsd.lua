@@ -4,29 +4,19 @@ local fsdCreate
 local fsdFile
 
 local fsdOnKeyEvent = function(event)
-  if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' and fsdScroll then
-    pcall(function() fsdScroll:removeSelf() end)
-
-    for file in lfs.dir(system.pathForFile('', system.TemporaryDirectory)) do
-      pcall(function()
-        local theFile = system.pathForFile('', system.TemporaryDirectory) .. '/' .. file
-
-        if lfs.attributes(theFile, 'mode') ~= 'directory' then
-          os.execute('rm "' .. theFile .. '"')
-        end
-      end)
-    end
-
-    timer.performWithDelay(1, function()
-      fsdConfig.listener(false)
-    end)
-  end
-  return true
-end
-Runtime:addEventListener('key', fsdOnKeyEvent)
+  if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' and fsdScroll and alertActive then
+    pcall(function() fsdScroll:removeSelf() fsdScroll = nil end)
+    timer.performWithDelay(1, function() fsdConfig.listener(false) end)
+  end return true
+end Runtime:addEventListener('key', fsdOnKeyEvent)
 
 fsd = function(config)
   fsdConfig = config
+
+  native.showPopup('requestAppPermission', {
+    appPermission = 'Storage', urgency = 'Critical',
+    listener = function(event) end
+  })
 
   local checkStorageBool = true
   local checkStorage = pcall(function()
@@ -130,6 +120,7 @@ fsd = function(config)
           local picture = display.newImage(path, system.ResourceDirectory, 80, lastPositionY)
 
           if settings.pictureView and isPicture then
+            pcall(function() picture:removeSelf() end)
             picture = display.newImage(path, system.TemporaryDirectory, 80, lastPositionY)
           end
 
@@ -185,7 +176,7 @@ fsd = function(config)
               newTarget(file, theFile)
             else
               for i = 1, #config.toPath do
-                if config.toPath[i] == utf8.reverse(utf8.sub(utf8.reverse(file), 1, utf8.find(utf8.reverse(file), '%.'))) then
+                if config.toPath[i] == utf8.reverse(utf8.sub(utf8.reverse(file), 1, utf8.find(utf8.reverse(file), '%.'))) or config.toPath[i] == '.' then
                   newTarget(file, theFile)
                   break
                 end

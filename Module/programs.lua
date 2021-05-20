@@ -104,12 +104,11 @@ activity.programs.create = function()
 
     activity.programs['nil'].onKeyEvent = function(event)
       if (event.keyName == "back" or event.keyName == "escape") and not alertActive and not activity.programs['nil'].alertActive and event.phase == 'up' and activity.programs['nil'].scroll.isVisible then
-        timer.performWithDelay(1, function()
+        timer.performWithDelay(1, function() if not alertActive then
           activity.returnModule('programs', 'nil')
           activity.programs.hide()
           visibleMenu(true)
-        end)
-        display.getCurrentStage():setFocus(nil)
+        end end) display.getCurrentStage():setFocus(nil)
       elseif (event.keyName == "back" or event.keyName == "escape") and not alertActive and activity.programs['nil'].alertActive and event.phase == 'up' and activity.programs['nil'].scroll.isVisible then
         activity.programs['nil'].alertActive = false
         activity.programs['nil'].listPressNum = 1

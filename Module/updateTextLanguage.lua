@@ -1,7 +1,9 @@
 activity.updateTextLanguage = function(i)
   setting.title.text = strings.settingsTitle
-  -- setting.stdImportText.text = strings.settingsStdImport
-  -- setting.pictureViewText.text = strings.settingsPictureView
+  setting.stdImportText.text = strings.settingsStdImport
+  setting.pictureViewText.text = strings.settingsPictureView
+  setting.borderText.text = strings.settingsBorder
+  setting.statusBarText.text = strings.settingsStatusBar
   setting.languageText.text = strings.settingsLanguage
   setting.selfLanguageText.text = stringsLanguage.langs[i][2]
 
@@ -36,14 +38,14 @@ activity.updateTextLanguage = function(i)
 
                     local textGetHeight = display.newText({
                       text = strings.blocks[activity.blocks[oName].block[i].data.name][2][j], align = 'left',
-                      x = 0, y = 0, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 161
+                      x = 0, y = 0, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 152
                     })
 
                     if textGetHeight.height > 53 then textGetHeight.height = 53 end
 
                     activity.blocks[oName].block[i].params[j].name = display.newText({
                       text = strings.blocks[activity.blocks[oName].block[i].data.name][2][j], align = 'left', height = textGetHeight.height,
-                      x = oldX, y = oldY, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 150
+                      x = oldX, y = oldY, font = 'ubuntu_!bold.ttf', fontSize = 22, width = 152
                     })
                     activity.blocks[oName].block[i].params[j].name.additionX = oldAdditionX
                     activity.blocks[oName].block[i].params[j].name.additionY = oldAdditionY
@@ -70,7 +72,7 @@ activity.updateTextLanguage = function(i)
     activity.editor.listTitle[i].text.text = select(1, editorGetListTitle(i))
   end
 
-  local typeblocks = {'event', 'data', 'object', 'controlother', 'control', 'network', 'physics', 'not'}
+  local typeblocks = {'event', 'data', 'object', 'controlother', 'shape', 'control', 'network', 'physics', 'tag', 'physicsshape'}
   for i = 1, #typeblocks do
     activity.newblocks[typeblocks[i]].text.text = strings['type' .. typeblocks[i]]
     if utf8.sub(typeblocks[i], 1, 3) ~= 'not' then

@@ -5,7 +5,7 @@ input = function(title, text, textListener, listener, oldText)
   alertActive = true
 
   local function onKeyEventInput( event )
-    if (event.keyName == "back" or event.keyName == "escape") and event.phase == 'up' then
+    if (event.keyName == "back" or event.keyName == "escape") and event.phase == 'up' and alertActive then
       native.setKeyboardFocus(nil)
       alertActive = false
       inputGroup:removeSelf()
@@ -17,7 +17,7 @@ input = function(title, text, textListener, listener, oldText)
   Runtime:addEventListener( "key", onKeyEventInput )
 
   local defaultBox = native.newTextBox( 5000, _y - 190, 510, 85 )
-  timer.performWithDelay(1, function()
+  timer.performWithDelay(1, function() if alertActive then
     defaultBox.x = _x
     defaultBox.isEditable = true
     defaultBox.hasBackground = false
@@ -81,7 +81,7 @@ input = function(title, text, textListener, listener, oldText)
     end)
 
     -- native.setKeyboardFocus(defaultBox)
-  end)
+  end end)
 end
 
 inputPermission = function(permission)

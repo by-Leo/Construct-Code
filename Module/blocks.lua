@@ -141,12 +141,12 @@ activity.blocks.create = function(data)
           local group = activity.blocks[name] if group then
             if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not group.alertActive and not group.targetActive and event.phase == 'up' and group.scroll.isVisible then
               group.scroll.isVisible = false
-              timer.performWithDelay(1, function()
+              timer.performWithDelay(1, function() if not alertActive then
                 activity.returnModule('blocks', name)
                 activity.blocks.hide()
                 activity.objects.view()
-              end)
-              display.getCurrentStage():setFocus(nil)
+              else group.scroll.isVisible = true
+              end end) display.getCurrentStage():setFocus(nil)
             elseif (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and group.alertActive and not group.targetActive and event.phase == 'up' and group.scroll.isVisible then
               group.alertActive = false
               group.listPressNum = 0
@@ -189,7 +189,7 @@ activity.blocks.create = function(data)
           activity.genBlock(i + (r - 1) * 300, group)
           countGenBlocks = countGenBlocks + 1
           if create then progressView:setProgress(countGenBlocks / countBlocks) end
-        end end if a == b and d ~= 0 then
+        end end if a == b and d ~= 0 and c ~= 0 then
           timer.performWithDelay(1, function()
             local r = p and u or 0 for i = 1, d do
               activity.genBlock(r + i, group)
@@ -202,6 +202,6 @@ activity.blocks.create = function(data)
           end)
         end
       end)
-    end, b) if c == 0 then newKeyEvent() end if not create and c == 0 then activity.blocks.view() end
+    end, b) if create and c == 0 then newKeyEvent() elseif c == 0 then newKeyEvent() activity.blocks.view() end
   end
 end

@@ -187,12 +187,12 @@ activity.scenes.create = function(data)
         if activity.scenes[activity.programs.name] then
           if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not activity.scenes[activity.programs.name].targetActive and not activity.scenes[activity.programs.name].alertActive and event.phase == 'up' and activity.scenes[activity.programs.name].scroll.isVisible then
             activity.scenes[activity.programs.name].scroll.isVisible = false
-            timer.performWithDelay(1, function()
+            timer.performWithDelay(1, function() if not alertActive then
               activity.returnModule('scenes', activity.programs.name)
               activity.scenes.hide()
               activity.programs.view()
-            end)
-            display.getCurrentStage():setFocus(nil)
+            else activity.scenes[activity.programs.name].scroll.isVisible = true
+            end end) display.getCurrentStage():setFocus(nil)
           elseif (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not activity.scenes[activity.programs.name].targetActive and activity.scenes[activity.programs.name].alertActive and event.phase == 'up' and activity.scenes[activity.programs.name].scroll.isVisible then
             activity.scenes[activity.programs.name].alertActive = false
             activity.scenes[activity.programs.name].listPressNum = 1

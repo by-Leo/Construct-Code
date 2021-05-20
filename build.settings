@@ -5,27 +5,37 @@ settings = {
 	},
 
 	android = {
+		minSdkVersion = '16',
 		usesPermissions = {
 			'android.permission.INTERNET',
 			'android.permission.READ_EXTERNAL_STORAGE',
-			'android.permission.WRITE_EXTERNAL_STORAGE'
-		},
+			'android.permission.WRITE_EXTERNAL_STORAGE',
+			'android.permission.MANAGE_EXTERNAL_STORAGE',
+			'android.permission.RECEIVE_BOOT_COMPLETED',
+			'android.permission.VIBRATE'
+		}
 	},
 
+	splashScreen = {
+    enable = false
+  },
+
 	window = {
-		defaultMode = 'minimized',
-		resizable = true
+		defaultViewWidth = 450,
+		defaultViewHeight = 800,
+		defaultMode = 'fullscreen'
 	},
 
 	plugins = {
 		['plugin.cnkFileManager'] = {publisherId = 'es.cnksoft'},
 		['plugin.utf8'] = {publisherId = 'com.coronalabs'},
 		['plugin.zip'] = {publisherId = 'com.coronalabs'},
-		['plugin.orientation'] = {publisherId = 'tech.scotth'},
+		['plugin.notifications.v2'] = {publisherId = 'com.coronalabs'},
+		['plugin.orientation'] = {publisherId = 'tech.scotth'}
 	},
 
 	excludeFiles = {
-		all = { 'Icon.png', 'Icon-*dpi.png', 'Images.xcassets', },
-		android = { 'LaunchScreen.storyboardc', }
+		all = {'Icon.png', 'Icon-*dpi.png', 'Images.xcassets'},
+		android = {'LaunchScreen.storyboardc'}
 	}
 }

@@ -107,10 +107,10 @@ activity.inputColor = function(rgb, listener)
     elseif e.phase == 'ended' or e.phase == 'cancelled' then
       display.getCurrentStage():setFocus(nil)
       e.target:setFillColor(0.18, 0.18, 0.2)
-      colorActive = true
-      input(strings.inputHexTitle, strings.inputHexText, function(event)
-        if event.phase == 'began' then inputPermission(true) end
-      end, function(e)
+      if not colorActive then colorActive = true
+        input(strings.inputHexTitle, strings.inputHexText, function(event)
+          if event.phase == 'began' then inputPermission(true) end
+        end, function(e)
           colorActive, alertActive = false, true
           if e.input then e.text = trim(e.text)
             if utf8.sub(e.text, 1, 1) == '#' then e.text = utf8.sub(e.text, 2, 7) end
@@ -128,7 +128,8 @@ activity.inputColor = function(rgb, listener)
             blueSlider:setValue(math.round(rgb[3] / 2.55))
             block:setFillColor(rgb[1]/255, rgb[2]/255, rgb[3]/255)
           end
-      end)
+        end)
+      end
     end
     return true
   end)

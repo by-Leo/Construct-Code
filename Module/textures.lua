@@ -120,12 +120,12 @@ activity.textures.create = function(data)
         if activity.textures[activity.objects.texture] then
           if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not activity.textures[activity.objects.texture].alertActive and not activity.textures[activity.objects.texture].importActive and not activity.textures[activity.objects.texture].targetActive and event.phase == 'up' and activity.textures[activity.objects.texture].scroll.isVisible then
             activity.textures[activity.objects.texture].scroll.isVisible = false
-            timer.performWithDelay(1, function()
+            timer.performWithDelay(1, function() if not alertActive then
               activity.returnModule('textures', activity.objects.texture)
               activity.textures.hide()
               activity.objects.view()
-            end)
-            display.getCurrentStage():setFocus(nil)
+            else activity.textures[activity.objects.texture].scroll.isVisible = true
+            end end) display.getCurrentStage():setFocus(nil)
           elseif (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and activity.textures[activity.objects.texture].alertActive and not activity.textures[activity.objects.texture].importActive and not activity.textures[activity.objects.texture].targetActive and event.phase == 'up' and activity.textures[activity.objects.texture].scroll.isVisible then
             activity.textures[activity.objects.texture].alertActive = false
             activity.textures[activity.objects.texture].listPressNum = 1

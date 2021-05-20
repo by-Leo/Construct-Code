@@ -9,7 +9,7 @@ activity.onFile.scenes = function(name, index)
   elseif name == 'rename' then
     data.scenes[index].name = activity.scenes[activity.programs.name].block[index].text.text
   elseif name == 'move' or name == 'copy' then
-    local t, newdata, copy, copyI = {}, {program = data.program, scenes = {}}, false, 1
+    local t, newdata, copy, copyI = {}, {build = data.build, program = data.program, scenes = {}}, false, 1
     for i = 1, #data.scenes do t[data.scenes[i].name] = data.scenes[i] end
     for i = 1, #group.block do
       if name == 'copy' and group.block[i].text.text == group.block[index].copy then
@@ -51,7 +51,7 @@ activity.onFile.objects = function(name, index)
       elseif name == 'rename' then
         data.scenes[j].objects[index].name = activity.objects[activity.scenes.name].block[index].text.text
       elseif name == 'move' or name == 'copy' then
-        local t, newdata, copy, copyI = {}, {program = data.program, scenes = table.copy(data.scenes)}, false, 1
+        local t, newdata, copy, copyI = {}, {build = data.build, program = data.program, scenes = table.copy(data.scenes)}, false, 1
         newdata.scenes[j] = {name = data.scenes[j].name, objects = {}}
         for i = 1, #data.scenes[j].objects do t[data.scenes[j].objects[i].name] = data.scenes[j].objects[i] end
         for i = 1, #group.block do
@@ -141,7 +141,7 @@ activity.blocksFileUpdate = function()
                 comment = group.block[i].data.comment,
                 formulas = {}
               }
-            elseif group.block[i].data.type == 'formula' then
+            elseif group.block[i].data.type == 'formula' and #data.scenes[s].objects[o].events > 0 then
               data.scenes[s].objects[o].events[#data.scenes[s].objects[o].events].formulas[#data.scenes[s].objects[o].events[#data.scenes[s].objects[o].events].formulas+1] = {
                 name = group.block[i].data.name,
                 params = group.block[i].data.params,

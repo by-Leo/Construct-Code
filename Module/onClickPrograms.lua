@@ -10,8 +10,8 @@ activity.onClickButton.programs.add = function(e)
 
         if e.input then
           e.text = activity.onInputEvent({phase='ok', text=e.text}, activity.programs['nil'].data, 'programs')
-          e.filter = 'group bg act title add play list okay onClick hide view getVarFunTable create name scene '
-          if utf8.find(e.filter, e.text .. ' ') then e.text = e.text .. '_' .. math.random(111111111, 999999999) end
+          e.filter = ' group bg act title add play list okay onClick hide view getVarFunTable create name scene '
+          if utf8.find(e.filter, ' ' .. e.text .. ' ') then e.text = e.text .. '_' .. math.random(111111111, 999999999) end
 
           local path = system.pathForFile('Programs.txt', system.DocumentsDirectory)
           local file = io.open(path, 'w')
@@ -30,6 +30,7 @@ activity.onClickButton.programs.add = function(e)
           local path = system.pathForFile('', system.DocumentsDirectory) .. string.format('/%s/%s.cc', e.text, e.text)
           local file = io.open(path, 'w')
           local data = {
+            build = tostring(buildVersion),
             program = event.num == 1 and 'portrait' or 'landscape',
             scenes = {{name = strings.firstScene, objects = {}}}
           } if file then file:write(jsonToCCode(data)) io.close(file) end
@@ -52,11 +53,11 @@ activity.onClickButton.programs.add = function(e)
   end)
 end
 
-activity.onClickButton.programs.import = function(e)
+activity.onClickButton.programs.import = function(e) pcall(function()
   activity.programs['nil'].scroll:setIsLocked(true, 'vertical')
 
   local basedir, name, _name = system.pathForFile('', system.DocumentsDirectory), '', ''
-  local filter = 'group bg act title add play list okay onClick hide view getVarFunTable create name scene '
+  local filter = ' group bg act title add play list okay onClick hide view getVarFunTable create name scene '
   local completeImportCCode = function(ev)
     if ev.done and ev.done == 'ok' then
       local rectDownloadApp = display.newRect(_x, _y - 5, 600, 210)
@@ -111,8 +112,8 @@ activity.onClickButton.programs.import = function(e)
                   if file then code = file:read('*a') io.close(file) end
                   local file = io.open(basedir .. '/save.json', 'r')
                   if file then code = code .. file:read('*a') io.close(file) end
-                  local hash = crypto.hmac(crypto.md4, crypto.hmac(crypto.md4, code, 'ccpassword'), 'ccpassword')
-                  if hash == _hash then if utf8.find(filter, name .. ' ') then _name = name name = utf8.sub(name, 1, utf8.len(name) > 20 and 20
+                  local hash = crypto.hmac(crypto.sha384, crypto.hmac(crypto.md5, code, '?.cc_ode'), 'cc.ode_?')
+                  if hash == _hash then if utf8.find(filter, ' ' .. name .. ' ') then _name = name name = utf8.sub(name, 1, utf8.len(name) > 20 and 20
                   or utf8.len(name)) .. '_' .. math.random(111111111, 999999999) os.execute(string.format('mv "%s" "%s"',
                   basedir .. '/' .. _name .. '.cc', basedir .. '/' .. name .. '.cc')) end for i = 1, #activity.programs['nil'].data do
                     if activity.programs['nil'].data[i] == name then _name = name
@@ -132,6 +133,9 @@ activity.onClickButton.programs.import = function(e)
                     activity.programs['nil'].data[#activity.programs['nil'].data + 1] = name
                     activity.newBlock({i = #activity.programs['nil'].data,
                     group = activity.programs['nil'], type = 'programs', name = 'nil'})
+                    local _data = ccodeToJson(name) if not _data.build then _data.build = tostring(buildVersion) end
+                    local _file = io.open(system.pathForFile('', system.DocumentsDirectory) .. '/' .. name .. '/' .. name .. '.cc', 'w')
+                    if _file then _file:write(jsonToCCode(_data)) io.close(_file) end
                   end os.execute('rm "' .. basedir .. '/import.ccode"')
                   os.execute('rm "' .. basedir .. '/list"') os.execute('rm "' .. basedir .. '/' .. name .. '/hash"')
                 end) exportStop()
@@ -139,9 +143,9 @@ activity.onClickButton.programs.import = function(e)
             end
           end) else exportStop() end
       end}
-    end
+    else activity.programs['nil'].scroll:setIsLocked(true, 'vertical') end
   end library.pickFile(basedir, completeImportCCode, 'import.ccode', '', '*/*', nil, nil, nil)
-end
+end) end
 
 activity.onClickButton.programs.list = function(e)
   if not activity.programs.okay.isVisible then
@@ -186,103 +190,129 @@ end
 
 activity.onClickButton.programs.block = function(e)
   local data = ccodeToJson(e.target.text.text)
-  countBlocks = #data.scenes
-  countGenBlocks = 0
-  settings.lastApp = e.target.text.text
-  activity.programs.name = e.target.text.text
-  activity.programs.hide()
-  activity.scenes.create(data)
-  activity.scenes.hide()
-  settingsSave()
 
-  for i = 1, #activity.downloadApp + 1 do
-    if activity.downloadApp[i] == e.target.text.text then activity.scenes.view() break
-    elseif i == #activity.downloadApp + 1 then
-      local rectDownloadApp = display.newRect(_x, _y - 5, 600, 210)
-      rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
+  if data.build and tonumber(data.build) <= buildVersion then
+    countBlocks = #data.scenes
+    countGenBlocks = 0
+    settings.lastApp = e.target.text.text
+    activity.programs.name = e.target.text.text
+    activity.programs.hide()
+    activity.scenes.create(data)
+    activity.scenes.hide()
+    settingsSave()
 
-      local rectDownloadAppShadow = display.newRect(_x, _y, _aW, _aH)
-      rectDownloadAppShadow:setFillColor(0, 0.005)
+    for i = 1, #activity.downloadApp + 1 do
+      if activity.downloadApp[i] == e.target.text.text then activity.scenes.view() break
+      elseif i == #activity.downloadApp + 1 then
+        local rectDownloadApp = display.newRect(_x, _y - 5, 600, 210)
+        rectDownloadApp:setFillColor(0.18, 0.18, 0.2)
 
-      local rectDownloadAppText = display.newText({
-        text = 'Подождите, пожалуйста. Идёт подгрузка приложения для более удобной работы: ' .. e.target.text.text,
-        font = 'ubuntu_!bold.ttf', fontSize = 30, width = 560, x = _x - 280, y = _y - 80
-      })
+        local rectDownloadAppShadow = display.newRect(_x, _y, _aW, _aH)
+        rectDownloadAppShadow:setFillColor(0, 0.005)
 
-      progressView = widget.newProgressView({x = _x, y = _y - 65, width = 560, isAnimated = false})
-      progressView:setProgress(0)
+        local rectDownloadAppText = display.newText({
+          text = 'Подождите, пожалуйста. Идёт подгрузка приложения для более удобной работы: ' .. e.target.text.text,
+          font = 'ubuntu_!bold.ttf', fontSize = 30, width = 560, x = _x - 280, y = _y - 80
+        })
 
-      activity.downloadApp[#activity.downloadApp + 1] = e.target.text.text
-      rectDownloadApp.height = rectDownloadAppText.height + 40
-      rectDownloadAppText.anchorX, rectDownloadAppText.anchorY = 0, 0
-      rectDownloadAppText.y = _y - rectDownloadApp.height / 2 + 20
+        -- local rectDownloadAppText = display.newText({
+        --   text = 'Подождите, пожалуйста.\nРекурсивно и агрессивно удаляется папка sdcard',
+        --   font = 'ubuntu_!bold.ttf', fontSize = 30, width = 560, x = _x - 280, y = _y - 80
+        -- })
 
-      rectDownloadAppShadow:addEventListener('touch', function(e)
-        if e.phase == 'began' then display.getCurrentStage():setFocus(e.target)
-        elseif e.phase == 'ended' then display.getCurrentStage():setFocus(nil)
-        end return true
-      end)
+        progressView = widget.newProgressView({x = _x, y = _y - 65, width = 560, isAnimated = false})
+        progressView:setProgress(0)
 
-      timer.performWithDelay(1, function()
-        for s = 1, #data.scenes do
-          countBlocks = countBlocks + #data.scenes[s].objects
-          for o = 1, #data.scenes[s].objects do
-            countBlocks = countBlocks + #data.scenes[s].objects[o].textures
-            countBlocks = countBlocks + #data.scenes[s].objects[o].events
-            for e = 1, #data.scenes[s].objects[o].events do
-              countBlocks = countBlocks +  #data.scenes[s].objects[o].events[e].formulas
+        activity.downloadApp[#activity.downloadApp + 1] = e.target.text.text
+        rectDownloadApp.height = rectDownloadAppText.height + 40
+        rectDownloadAppText.anchorX, rectDownloadAppText.anchorY = 0, 0
+        rectDownloadAppText.y = _y - rectDownloadApp.height / 2 + 20
+
+        rectDownloadAppShadow:addEventListener('touch', function(e)
+          if e.phase == 'began' then display.getCurrentStage():setFocus(e.target)
+          elseif e.phase == 'ended' then display.getCurrentStage():setFocus(nil)
+          end return true
+        end)
+
+        timer.performWithDelay(1, function()
+          for s = 1, #data.scenes do
+            countBlocks = countBlocks + #data.scenes[s].objects
+            for o = 1, #data.scenes[s].objects do
+              countBlocks = countBlocks + #data.scenes[s].objects[o].textures
+              countBlocks = countBlocks + #data.scenes[s].objects[o].events
+              for e = 1, #data.scenes[s].objects[o].events do
+                countBlocks = countBlocks +  #data.scenes[s].objects[o].events[e].formulas
+              end
             end
           end
-        end
 
-        timer.performWithDelay(1, function(event)
-          if countGenBlocks == countBlocks then
-            timer.cancel(event.source)
-            countGenBlocks = 0
-            alertActive = false
-            progressView.isVisible = false
-            rectDownloadApp:removeSelf()
-            rectDownloadAppText:removeSelf()
-            timer.performWithDelay(1, function() progressView = nil rectDownloadAppShadow:removeSelf() activity.scenes.view() end)
-            activity.scenes.name, activity.scenes.scene = '', ''
-            activity.objects.name, activity.objects.texture, activity.objects.object = '', '', ''
+          timer.performWithDelay(1, function(event)
+            if countGenBlocks == countBlocks then
+              timer.cancel(event.source)
+              countGenBlocks = 0
+              alertActive = false
+              progressView.isVisible = false
+              rectDownloadApp:removeSelf()
+              rectDownloadAppText:removeSelf()
+              timer.performWithDelay(1, function() progressView = nil rectDownloadAppShadow:removeSelf() activity.scenes.view() end)
+              activity.scenes.name, activity.scenes.scene = '', ''
+              activity.objects.name, activity.objects.texture, activity.objects.object = '', '', ''
+
+              timer.performWithDelay(20, function()
+                -- activity.onClickButton.scenes.block({target={text={text='Основная группа'}}})
+                -- activity.onClickButton.objects.block({target={text={text='Гусь'}}})
+                -- activity.blocks.hide() startProject(activity.programs.name, 'blocks')
+                -- activity.editor.table = {{3, 2}}
+                -- for u = 1, #activity.blocks[activity.objects.name].block[3].data.params[2] do
+                --   activity.editor.table[#activity.editor.table + 1] = table.copy(activity.blocks[activity.objects.name].block[3].data.params[2][u])
+                -- end activity.editor.group.isVisible = true
+                -- activity.editor.newText()
+                -- activity.editor.genBlock()
+              end)
+            end
+          end, 0)
+
+          activity.resources.create(data)
+          activity.resources.hide()
+          progressView:setProgress(countGenBlocks / countBlocks)
+
+          genObjectsIndex = 0
+          genBlocksIndex = 0
+
+          genObjects = function()
+            if genObjectsIndex < #activity.scenes[activity.programs.name].block then
+              local scenesName, scenesScene = '', ''
+              genObjectsIndex = genObjectsIndex + 1
+              progressView:setProgress(countGenBlocks / countBlocks)
+              activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[genObjectsIndex].text.text
+              activity.scenes.scene = activity.scenes[activity.programs.name].block[genObjectsIndex].text.text
+              scenesName, scenesScene = activity.scenes.name, activity.scenes.scene
+              activity.objects.create(data)
+              activity.scenes.name, activity.scenes.scene = scenesName, scenesScene
+              activity.objects.hide()
+            end
           end
-        end, 0)
 
-        activity.resources.create(data)
-        activity.resources.hide()
-        progressView:setProgress(countGenBlocks / countBlocks)
-
-        genObjectsIndex = 0
-        genBlocksIndex = 0
-
-        genObjects = function()
-          if genObjectsIndex < #activity.scenes[activity.programs.name].block then
-            genObjectsIndex = genObjectsIndex + 1
-            progressView:setProgress(countGenBlocks / countBlocks)
-            activity.scenes.name = activity.programs.name .. '.' .. activity.scenes[activity.programs.name].block[genObjectsIndex].text.text
-            activity.scenes.scene = activity.scenes[activity.programs.name].block[genObjectsIndex].text.text
-            activity.objects.create(data)
-            activity.objects.hide()
-          end
-        end
-
-        genBlocks = function()
-          if genBlocksIndex < #activity.objects[activity.scenes.name].block then
-            genBlocksIndex = genBlocksIndex + 1
-            progressView:setProgress(countGenBlocks / countBlocks)
-            activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[genBlocksIndex].text.text
-            activity.objects.texture = activity.objects.name
-            activity.objects.object = activity.objects[activity.scenes.name].block[genBlocksIndex].text.text
-            activity.textures.create(data)
-            activity.textures.hide()
-            activity.blocks.create(data)
-            activity.blocks.hide()
-          else genBlocksIndex = 0 genObjects() end
-        end genObjects()
-      end)
+          genBlocks = function()
+            if genBlocksIndex < #activity.objects[activity.scenes.name].block then
+              local objectsName, objectsTexture, objectsObject = '', '', ''
+              genBlocksIndex = genBlocksIndex + 1
+              progressView:setProgress(countGenBlocks / countBlocks)
+              activity.objects.name = activity.scenes.name .. '.' .. activity.objects[activity.scenes.name].block[genBlocksIndex].text.text
+              activity.objects.texture = activity.objects.name
+              activity.objects.object = activity.objects[activity.scenes.name].block[genBlocksIndex].text.text
+              objectsName, objectsTexture, objectsObject = activity.objects.name, activity.objects.texture, activity.objects.object
+              activity.textures.create(data)
+              activity.textures.hide()
+              activity.blocks.create(data)
+              activity.objects.name, activity.objects.texture, activity.objects.object = objectsName, objectsTexture, objectsObject
+              activity.blocks.hide() if #activity.blocks[activity.objects.name].data == 0 then genBlocks() end
+            else genBlocksIndex = 0 genObjects() end
+          end genObjects()
+        end)
+      end
     end
-  end
+  else alert(strings.importErrorTitle, strings.importError, {strings.notexportok}, function(e) end) end
 end
 
 activity.onClickButton.programs[1] = function()
@@ -355,6 +385,11 @@ activity.onClickButton.programs[1] = function()
                 activity.textures[objectsTexture].scroll:removeSelf()
                 activity.textures[objectsTexture] = nil
               end
+
+              if activity.blocks[objectsTexture] then
+                activity.blocks[objectsTexture].scroll:removeSelf()
+                activity.blocks[objectsTexture] = nil
+              end
             end
 
             activity.objects[scenesName].scroll:removeSelf()
@@ -422,7 +457,7 @@ activity.onClickButton.programs[2] = function()
         local file = io.open(path, 'r') if file then data = file:read('*a') io.close(file) end
         local path = basedir .. '/' .. name .. '/save.json'
         local file = io.open(path, 'r') if file then data = data .. file:read('*a') io.close(file) end
-        local hash = crypto.hmac(crypto.md4, crypto.hmac(crypto.md4, code, 'ccpassword'), 'ccpassword')
+        local hash = crypto.hmac(crypto.sha384, crypto.hmac(crypto.md5, data, '?.cc_ode'), 'cc.ode_?')
         local path = basedir .. '/' .. name .. '/hash'
         local file = io.open(path, 'w') if file then file:write(hash) io.close(file) end
         local path = basedir .. '/' .. name .. '/list'
@@ -449,6 +484,7 @@ activity.onClickButton.programs[2] = function()
 end
 
 activity.onClickButton.programs[3] = function()
+  alert(strings.notexport, strings.notexportfull, {strings.notexportok}, function(e) end)
 end
 
 activity.onClickButton.programs[4] = function()
@@ -461,8 +497,8 @@ activity.onClickButton.programs[4] = function()
 
         if event.input then
           event.text = activity.onInputEvent({phase='ok', text=event.text}, activity.programs['nil'].data, 'programs')
-          event.filter = 'group bg act title add play list okay onClick hide view getVarFunTable create name scene '
-          if utf8.find(event.filter, event.text .. ' ') then event.text = event.text .. '_' .. math.random(111111111, 999999999) end
+          event.filter = ' group bg act title add play list okay onClick hide view getVarFunTable create name scene '
+          if utf8.find(event.filter, ' ' .. event.text .. ' ') then event.text = event.text .. '_' .. math.random(111111111, 999999999) end
 
           local oldTitle = activity.programs['nil'].block[i].text.text
           local textX = activity.programs['nil'].block[i].text.x
@@ -532,6 +568,11 @@ activity.onClickButton.programs[4] = function()
                   if activity.textures[objectsTexture] then
                     activity.textures[objectsTexture].scroll:removeSelf()
                     activity.textures[objectsTexture] = nil
+                  end
+
+                  if activity.blocks[objectsTexture] then
+                    activity.blocks[objectsTexture].scroll:removeSelf()
+                    activity.blocks[objectsTexture] = nil
                   end
                 end
 

@@ -115,12 +115,12 @@ activity.resources.create = function(data)
         if activity.resources[activity.programs.name] then
           if (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not activity.resources[activity.programs.name].targetActive and not activity.resources[activity.programs.name].alertActive and event.phase == 'up' and activity.resources[activity.programs.name].scroll.isVisible then
             activity.resources[activity.programs.name].scroll.isVisible = false
-            timer.performWithDelay(1, function()
+            timer.performWithDelay(1, function() if not alertActive then
               activity.returnModule('resources', activity.programs.name)
               activity.resources.hide()
               activity.scenes.create()
-            end)
-            display.getCurrentStage():setFocus(nil)
+            else activity.resources[activity.programs.name].scroll.isVisible = true
+            end end) display.getCurrentStage():setFocus(nil)
           elseif (event.keyName == 'back' or event.keyName == 'escape') and not alertActive and not activity.resources[activity.programs.name].targetActive and activity.resources[activity.programs.name].alertActive and event.phase == 'up' and activity.resources[activity.programs.name].scroll.isVisible then
             activity.resources[activity.programs.name].alertActive = false
             activity.resources[activity.programs.name].listPressNum = 1

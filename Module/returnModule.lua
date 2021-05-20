@@ -41,7 +41,7 @@ activity.returnModule = function(types, names)
       if activity[types][names].block[i].alpha < 0.85 then
         activity[types][names].block[i]:setFillColor(25/255, 26/255, 32/255)
         activity[types][names].block[i].alpha = 0.9
-        if types == 'objects' or types == 'textures' then activity[types][names].block[i].container.alpha = 1 end
+        if types == 'objects' or types == 'textures' or types == 'resources' then activity[types][names].block[i].container.alpha = 1 end
       end
       if types == 'blocks' then
         for j = 1, #activity[types][names].block[i].params do

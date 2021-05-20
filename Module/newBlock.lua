@@ -15,6 +15,11 @@ activity.newTexture = function(index, config)
       image = display.newImage(string.format('%s/%s.%s.%s', activity.programs.name, activity.scenes.scene, activity.objects[activity.scenes.name].data[index], activity.objects[activity.scenes.name].block[index].json[1]), system.DocumentsDirectory)
     elseif config.type == 'textures' then
       image = display.newImage(string.format('%s/%s.%s.%s', activity.programs.name, activity.scenes.scene, activity.objects.object, activity.textures[activity.objects.texture].data[index]), system.DocumentsDirectory)
+    elseif config.type == 'resources' then
+      display.setDefault( 'magTextureFilter', 'nearest')
+      local nameResource, typeResource = utf8.match(activity.resources[activity.programs.name].data[index], '(.*)%.(.*)') if typeResource == 'image'
+      then image = display.newImage(string.format('%s/res .%s', activity.programs.name, nameResource .. '.image'), system.DocumentsDirectory)
+      else image = display.newImage('file.png') end
     end
 
     if image then
@@ -34,8 +39,8 @@ end
 activity.newBlock = function(config)
   local i = config.i
   local textData = config.group.data[i]
-  local textX = (config.type == 'programs' or config.type == 'scenes' or config.type == 'resources') and 150 or 290
-  local textWidth = (config.type == 'programs' or config.type == 'scenes' or config.type == 'resources') and 440 + (_aW - _w) or 340 + (_aW - _w)
+  local textX = (config.type == 'programs' or config.type == 'scenes') and 150 or 290
+  local textWidth = (config.type == 'programs' or config.type == 'scenes') and 440 + (_aW - _w) or 340 + (_aW - _w)
   local textHeight = 48
 
   -- Добавление нового блока в таблицу
@@ -54,7 +59,7 @@ activity.newBlock = function(config)
   })
 
   if text.height > 50 then textHeight = 96 end
-  config.group.block[i].newTextX = (config.type == 'programs' or config.type == 'scenes' or config.type == 'resources') and _aX + 15 or _aX + 90
+  config.group.block[i].newTextX = (config.type == 'programs' or config.type == 'scenes') and _aX + 15 or _aX + 90
   config.group.block[i].oldTextX = textX
   text:removeSelf()
 
@@ -75,7 +80,7 @@ activity.newBlock = function(config)
   -- Добавление новой текстуры в таблицу
   config.group.block[i].import = config.import
   config.group.block[i].json = config.json
-  if config.type == 'objects' or config.type == 'textures' then activity.newTexture(i, config) end
+  if config.type == 'objects' or config.type == 'textures' or config.type == 'resources' then activity.newTexture(i, config) end
 
   -- Переустановка локальной переменной `num` каждого блока
   for j = 1, #config.group.block do config.group.block[j].num = j end
@@ -84,7 +89,7 @@ activity.newBlock = function(config)
   config.group.scroll:insert(config.group.block[i])
   config.group.scroll:insert(config.group.block[i].text)
   config.group.scroll:insert(config.group.block[i].checkbox)
-  if config.type == 'objects' or config.type == 'textures' then config.group.scroll:insert(config.group.block[i].container) end
+  if config.type == 'objects' or config.type == 'textures' or config.type == 'resources' then config.group.scroll:insert(config.group.block[i].container) end
 
   config.group.scrollHeight = config.group.scrollHeight + 153
 

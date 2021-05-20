@@ -21,7 +21,7 @@ list = function(buttons, config, listener)
   end
 
   local function onKeyEventList(event)
-    if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' then
+    if (event.keyName == 'back' or event.keyName == 'escape') and event.phase == 'up' and alertActive then
       alertActive = false
       listGroup:removeSelf()
       Runtime:removeEventListener('key', onKeyEventList)
